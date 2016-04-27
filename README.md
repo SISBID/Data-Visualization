@@ -29,10 +29,11 @@ Recommended Reading: Cookbook for R, by Winston Chang, available at <http://www.
 1. Tidy data and tidying your messy data with tidyr.
 1. Data manipulation with dplyr, purrr and broom.
 1. Logo plots for genome sequences and proteins.
-1. Genomic plots using ggbio, and ggenealogy.
+1. Genomic plots using ggbio.
 
 ### Day 3
 
+1. Drawing lineage using ggenealogy
 1. Interactive graphics using plotly, animint and ggvis.
 1. Building interactive web apps with shiny.
 1. Make your own shiny app.
