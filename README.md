@@ -21,29 +21,30 @@ Recommended Reading: Cookbook for R, by Winston Chang, available at <http://www.
 
 ### Day 1
 
-1. The grammar of graphics and ggplot2.
-1. Multivariate plots for bioinformatics, using ggplot2 and GGally.
+1. The grammar of graphics and ggplot2 (Di).
+1. Multivariate plots for bioinformatics, using ggplot2 and GGally (Di).
 
 ### Day 2
 
-1. Tidy data and tidying your messy data with tidyr.
-1. Data manipulation with dplyr, purrr and broom.
-1. Logo plots for genome sequences and proteins.
-1. Genomic plots using ggbio.
+1. Tidy data and tidying your messy data with tidyr (Di).
+1. Data manipulation with dplyr, purrr and broom (Heike).
+1. Logo plots for genome sequences and proteins (Heike).
+1. Genomic plots using ggbio (Di).
 
 ### Day 3
 
-1. Drawing lineage using ggenealogy
-1. Interactive graphics using plotly, animint and ggvis.
-1. Building interactive web apps with shiny.
-1. Make your own shiny app.
+1. Drawing lineage using ggenealogy (Di), networks (Heike)
+1. Interactive graphics using plotly, animint and ggvis (Di).
+1. Building interactive web apps with shiny (Heike).
+1. Make your own shiny app (Heike).
 
 ## Software list
 
-Install these and their dependencies
+RStudio, R and install these and their dependencies
+- devtools
 - ggplot2
-- dplyr
 - tidyr
+- dplyr
 - purrr
 - broom
 - GGally
@@ -53,4 +54,8 @@ Install these and their dependencies
 - EDAseq
 - nullabor
 - shiny
+- ggvis
+- plotly
 - ggenealogy
+- geomnet
+
