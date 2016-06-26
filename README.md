@@ -40,7 +40,7 @@ Recommended Reading: Cookbook for R, by Winston Chang, available at <http://www.
 
 ## Software list
 
-RStudio 0.99.896, R >= 3.2.4 (2016-03-10) -- "Very Secure Dishes" and install these and their dependencies
+RStudio >= 0.99.902, R >= 3.3.0 (2016-05-03) -- "Supposedly Educational" and install these and their dependencies
 - devtools
 - ggplot2
 - tidyr
