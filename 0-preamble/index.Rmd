@@ -11,12 +11,13 @@ css:
   styles.css
 ---
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
 knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
+  error = FALSE, 
   collapse = TRUE,
-  comment = "#>",
+  comment = "#",
   fig.height = 4,
   fig.width = 8,
   fig.align = "center",
@@ -106,6 +107,8 @@ Create a project for this workshop, in the directory where you downloaded the fi
 
 - [RStudio IDE cheat sheet](http://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf)
 - [rmarkdown cheat sheet](http://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf)
+- [Q/A site: http://stackoverflow.com](http://stackoverflow.com)
+- [Dynamic Documents with R and knitr, Yihui Xie, ](http://yihui.name/knitr/)
 
 ## Share and share alike
 
