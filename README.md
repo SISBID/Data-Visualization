@@ -40,22 +40,22 @@ Recommended Reading: Cookbook for R, by Winston Chang, available at <http://www.
 
 ## Software list
 
-RStudio >= 0.99.902, R >= 3.3.0 (2016-05-03) -- "Supposedly Educational" and install these and their dependencies
-- devtools
-- ggplot2
-- tidyr
-- dplyr
-- purrr
-- broom
-- GGally
-- ggbio
-- epivizr
-- edgeR
-- EDAseq
-- nullabor
-- shiny
-- ggvis
-- plotly
-- ggenealogy
-- geomnet
+Download [RStudio >= 0.99.902](https://www.rstudio.com/products/rstudio/download/), [R >= 3.3.0](https://cran.r-project.org/) (2016-05-03) -- "Supposedly Educational" and install these and their dependencies
+Open RStudio, and run the code below to install these packages and their dependencies:
+```
+# CRAN packages
+packages <- c("devtools", "ggplot2", "tidyr", "dplyr", "purrr", "broom", "GGally", "epivizr", "edgeR", "EDAseq", "nullabor", "shiny", "ggvis", "plotly", "ggenealogy", "geomnet")
 
+install.packages(packages, dep=TRUE, repos = "https://cloud.r-project.org/")
+
+
+# Bioconductor packages
+bioC <- c("ggbio", "epivzr", "edgeR", "EDAseq")
+source("https://bioconductor.org/biocLite.R")
+biocLite(bioC)
+
+
+# packages under development
+devtools::install_github("heike/gglogo")
+devtools::install_github("haleyjeppson/ggmosaic")
+```
