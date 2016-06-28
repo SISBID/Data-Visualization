@@ -25,6 +25,7 @@ knitr::opts_chunk$set(
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(plyr)
 library(lubridate)
 library(scales)
 library(readr)
@@ -47,23 +48,41 @@ Schneider TD, Stephens RM. Sequence logos: a new way to display consensus sequen
 
 ## Sequence Logos
 
-read FASTA file
+- sequences are often distributed in the [FASTA file format](https://en.wikipedia.org/wiki/FASTA_format)
+- in R `read.fasta` or `read.alignment(format="fasta")` of the `seqinr` package
 
-
-`read.fasta` or `read.alignment(format="fasta")`
 ```{r}
 library(seqinr)
 pfam <- read.fasta(file = "data/pfam.fasta", as.string=TRUE, seqtype="AA", seqonly=TRUE)
 head(pfam, 3)
 ```
 
-##
+## Construction of Logo plots
+
+In a traditional logo sequence plot:
+
+- x-axis: position of an element,
+- y-axis: amount of preserved information (usually Shannon information, in bits)
+
+Shannon information  is an entropy measure.
+Formally, information $I$  in position $p$ is defined as
+\[
+I(p) = \log_2(k) + \sum_{aa} f_{aa} \log_2(f_{aa}),
+\]
+where $f_{aa}$ is the relative frequency of amino acid $aa$ in  position $p$ and $k$ is the number of different elements in the sequence ($k = 4$ for RNA/DNA, and $k =21$ for peptide sequences).
+
+For $k = 21$: $I(p)$ is between 0 and $-\log_2 (1/21) = 4.39$ bits, for perfect diversity (0 bits) and single element only (4.39 bits)
+
+## Converting sequences to ggplot2 format
+
+- `ggfortify` processes sequences to a data frame usable in sequence logos in ggplot2 (i.e. introduces `position`, `element`, `info`, ...)
+- for peptide sequences includes information such as polarity and water properties
 
 ```{r}
 library(gglogo)
 ggpfam <- ggfortify(data=data.frame(sequences = unlist(pfam))
-, seq="sequences")
-head(ggpfam[order(ggpfam$position),])
+, seq="sequences") %>% filter(between(position, 7, 26))
+head(ggpfam[order(ggpfam$position),], 3)
 ```
 
 ## 
@@ -71,14 +90,16 @@ head(ggpfam[order(ggpfam$position),])
 
 ```{r}
 ggplot(data=ggpfam) +
-  geom_logo(aes(x = position, label=element, y = bits, fill=interaction(Polarity, Water))) +
+  geom_logo(aes(x = position, label=element, y = bits, fill=interaction(Water, Polarity))) +
   scale_fill_brewer(palette="Paired") +
   theme_bw() +
   theme(legend.position= "bottom")
 ```
 
 
-## Cognitiviely, this approach is better because ...
+## GeomLogo vs Weblogo
+
+Cognitively, the approach in GeomLogo is better because ...
 
 - each letter is enveloped within a rectangle (signal independent of the shape of the letter - compare e.g. `W` and `I`)
 - rectangles are colored rather than the letters
@@ -86,22 +107,55 @@ ggplot(data=ggpfam) +
 - the secondary sequence is aligned at the top, making it easy to compare as well (Cleveland & McGill, 1984)
 - colour scheme and legend
 
-`position = "logo"`
+## Positioning of rectangles
+
+- default positioning is `position = "logo"`
+- `position = "classic"` stacks the rectangles on top of each other, ordered from largest to smallest. This comes closest to the traditional sequence logo plot
+- other positions, such as 'stack', 'fill', or 'dodge' work, but might produce strange output.
+
+```{r, echo =FALSE}
+ggplot(data=ggpfam) +
+  geom_logo(aes(x = position, label=element, y = bits, fill=interaction(Water, Polarity)), position = 'classic') +
+  scale_fill_brewer(palette="Paired") +
+  theme_bw() +
+  ggtitle("position = 'classic'") +
+  theme(legend.position= "bottom")
+```
+
+
 
 ## Another example
 
+- `sequences` data set in gglogo package has additional information on treatment/type: gram positive vs gram negative
+- `ggfortify` has parameters  `treatment` and `weight`
 
 ```{r}
 data(sequences, package = "gglogo")
-
+head(sequences, 3)
+ggseq <- ggfortify(data= sequences, seq = "peptide", treatment = .(class))
+head(ggseq, 3)
 ```
+
+## Facetted Logo plots
+
+```{r}
+ggplot(data = ggseq) +
+  geom_logo(aes(x = class, y = info, label = element, fill=interaction(Polarity, Water)), alpha = 0.8) +
+  scale_fill_brewer(palette = "Paired") + facet_wrap(~position, ncol=18) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+
 
 ## Your turn
 
 ![](rainbow-lorikeet.png)
 
-- What is a (data) plot?
-- What are the three most important data plots?
+- Create a logo plot for the `sequences` data 
+- Use facetting to construct logo plots that come closest to the 2nd (gram +) and 3rd (gram -) logo sequence  shown below
+
+<img width="300" src="http://biovis.net/sites/default/files/adk.png">
 
 
 ## Share and share alike
