@@ -157,6 +157,22 @@ ggplot(data = ggseq) +
 
 <img width="300" src="http://biovis.net/sites/default/files/adk.png">
 
+## Other parameters
+
+- `ggfortify` has parameter `method` - by default, Shannon information is computed, but `method="freq"` computes frequencies
+
+- parameter `alphabet` in `geom_logo` allows to specify polygons from a different font (output from `createPolygons`)
+
+```{r, cache = TRUE, echo = FALSE}
+alphabet_xkcd = createPolygons(c(LETTERS), font="xkcd", scale=TRUE)
+ggplot(data = ggseq) +
+  geom_logo(aes(x = class, y = info, label = element, fill=interaction(Polarity, Water)), alpha = 0.8, alphabet=alphabet_xkcd) +
+  scale_fill_brewer(palette = "Paired") + 
+  facet_wrap(~position, ncol=18) +
+  ggtitle("logo plot in xkcd font") + 
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
 
 ## Share and share alike
 
