@@ -164,12 +164,14 @@ ggplot(data = ggseq) +
 - parameter `alphabet` in `geom_logo` allows to specify polygons from a different font (output from `createPolygons`)
 
 ```{r, cache = TRUE, echo = FALSE}
-alphabet_xkcd = createPolygons(c(LETTERS), font="xkcd", scale=TRUE)
-ggplot(data = ggseq) +
-  geom_logo(aes(x = class, y = info, label = element, fill=interaction(Polarity, Water)), alpha = 0.8, alphabet=alphabet_xkcd) +
+if (!exists("alphabet_xkcd"))
+  alphabet_xkcd = createPolygons(c(LETTERS), font="xkcd", scale=TRUE)
+ggseq2 <- ggfortify(data=sequences, seq="peptide", treatment="class", method="freq")
+ggplot(data = ggseq2) +
+  geom_logo(aes(x = class, y = freq, label = element, fill=interaction(Polarity, Water)), alpha = 0.8, alphabet=alphabet_xkcd) +
   scale_fill_brewer(palette = "Paired") + 
   facet_wrap(~position, ncol=18) +
-  ggtitle("logo plot in xkcd font") + 
+  ggtitle("logo plot in xkcd font of frequencies") + 
   theme_bw() +
   theme(legend.position = "bottom")
 ```
