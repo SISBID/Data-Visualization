@@ -475,6 +475,8 @@ ggplot(fly_sub, aes(x=Gender,
   theme_xkcd() + theme(legend.position="bottom")
 ```
 
+See the [vignette](https://cran.r-project.org/web/packages/xkcd/vignettes/xkcd-intro.pdf) for instructions on installing the xkcd font. 
+
 ##
 
 ```{r echo=FALSE}
