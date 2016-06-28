@@ -309,7 +309,7 @@ What are position adjustments? When would they be used?
 
 Use your cheat sheet to work out how to make plot to explore the relationship between 
 
-`Do you ever recline your seat when you fly?` and `Is itrude to recline your seat on a plane?`
+`Do you ever recline your seat when you fly?` and `Is it rude to recline your seat on a plane?`
 
 ![](rainbow-lorikeet.png)
 
@@ -452,7 +452,8 @@ What is different about the comparison now?
 ```{r fig.show='hide'}
 ggplot(fly_sub, aes(x=Age,
                     fill=`In general, is itrude to bring a baby on a plane?`)) + 
-  geom_bar(position="fill") + coord_flip() + facet_wrap(~Gender, ncol=5) + theme(legend.position="bottom")
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Gender, ncol=5) + 
+  theme(legend.position="bottom")
 ```
 
 ##
