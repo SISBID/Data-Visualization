@@ -11,7 +11,7 @@ css:
   styles.css
 ---
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
+```{r echo = FALSE, message = FALSE, warning = FALSE, warning = FALSE}
 knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
