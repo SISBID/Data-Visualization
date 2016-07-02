@@ -44,7 +44,8 @@ Download [RStudio >= 0.99.902](https://www.rstudio.com/products/rstudio/download
 Open RStudio, and run the code below to install these packages and their dependencies:
 ```
 # CRAN packages
-packages <- c("devtools", "ggplot2", "tidyr", "dplyr", "purrr", "broom", "GGally", "epivizr", "edgeR", "EDAseq", "nullabor", "shiny", "ggvis", "plotly", "ggenealogy", "geomnet")
+packages <- c("devtools", "ggplot2", "tidyr", "dplyr", "purrr", "broom", "GGally", 
+"nullabor", "shiny", "ggvis", "plotly", "ggenealogy", "geomnet", "xkcd", "seqinr")
 
 install.packages(packages, dep=TRUE, repos = "https://cloud.r-project.org/")
 
