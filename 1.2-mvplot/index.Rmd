@@ -26,10 +26,13 @@ knitr::opts_chunk$set(
 ```
 
 ```{r echo=FALSE}
+library(readr)
 library(ggplot2)
 library(tidyr)
 library(dplyr)
 library(GGally)
+library(tourr)
+library(edgeR)
 ```
 
 ## Your turn
@@ -39,16 +42,98 @@ library(GGally)
 
 ![](rainbow-lorikeet.png)
 
-## 
+## Main types of plots
 
-- pairwise plots to explore reps, and treatment vs reps
-- porcupine plots
-- parallel coordinate plots
+- pairwise plots: explore replicates, and associations
+- porcupine plots: to explore treatments vs replicates
+- parallel coordinate plots: explore high-dimensional relationships with parallel axes
+- tours: explore high-dimensional relationships with movies of projections
+
+## GGally
+
+Classical scatterplot matrix (draftman's) plot. All variables are numeric, show all possible pairs.
+
+
+```{r}
+data(flea)
+ggscatmat(flea, columns = 2:4, color = "species") 
+```
+
+##
+
+Generalized pairs plot, any combination of tpes of plots
+
+```{r fig.width=6}
+data(tips, package = "reshape")
+ggpairs(tips[, 1:4])
+```
+
+## For biological data
+
+Brown, A. and Hudson, K. (2015) Developmental profiling of gene expression in soybean trifoliate leaves and cotyledons, [GSE61857](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61857). 
+
+```{r eval=FALSE}
+coty <- read_delim("data/GSE61857_Cotyledon_normalized.txt.gz",
+  delim="\t", col_types="cddddddddd", 
+  col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
+  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R2"),
+  skip=1)
+coty <- as.data.frame(coty)
+ggscatmat(coty, columns=2:7, alpha=0.1)
+```
+
+Normalized data for the first 6 samples are shown.
+
+##
+
+```{r echo=FALSE, fig.width=6, fig.height=6}
+coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
+  delim="\t", col_types="cddddddddd", 
+  col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
+  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R3"),
+  skip=1)
+coty <- as.data.frame(coty)
+ggscatmat(coty[sample(1:nrow(coty), 5000),], columns=2:7, alpha=0.1)
+```
+
+## What we learn
+
+- The replicates look more like each other than the developmental stage 1 vs 2. This is great data!
+- There is a lot of variability in counts across stages, would indicate a lot of gene activity. 
+- There are a few genes that have some difference from one rep to another. These could be problematic when it comes to testing. To identify these it is easier to use interactive graphics - stay tuned for this tomorrow.
+
+## Your turn
+
+- Read the leaf data in from Brown and Hudson, and make a scatterplot matrix. (If it is too slow on your computer, sample the number of rows, to get a glimpse of the data to start.)
+- Summarise what you learn about the data in a couple of sentences
+
+## Porcupine plots
+
+Compare treatment vs reps. Focus on reps 1, 2 from stages 1 and 2. 
+
+```{r eval=FALSE}
+sub <- coty %>% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
+ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
+  geom_segment() + 
+  theme(aspect.ratio = 1)
+```
+
+##
+
+```{r echo=FALSE}
+sub <- coty %>% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
+ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
+  geom_segment() + 
+  theme(aspect.ratio = 1)
+```
+
+The best prospects should be shortest lines further from the `X=Y`. 
 
 
 ## Resources
 
 - GGobi web site, ggobi book
+- Emerson et al 
 - [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
 
 ## Share and share alike
