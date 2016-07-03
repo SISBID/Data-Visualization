@@ -405,8 +405,8 @@ Fit a mixed effects model to the french fries data, augment the data with the mo
 ## Resources
 
 - [tidyr and dplyr cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
-- reshape paper
-- broom vignettes
+- [Wickham (2007) Reshaping data](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
+- [broom vignettes, David Robinson](https://cran.r-project.org/web/packages/broom/vignettes/broom.html)
 
 ## Share and share alike
 
