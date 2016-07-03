@@ -123,11 +123,87 @@ ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
 ```{r echo=FALSE}
 sub <- coty %>% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
 ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
-  geom_segment() + 
+  geom_segment() + xlim(c(0, 17.5)) + ylim(c(0, 17.5)) +
   theme(aspect.ratio = 1)
 ```
 
 The best prospects should be shortest lines further from the `X=Y`. 
+
+## Your turn
+
+Make a porcupine plot for the first two reps of the first two developmental stages of the leaf data.
+
+## Parallel coordinate plots 
+
+- Parallel coordinate plots, use parallel axes, and each observation is represented by a line tracing through the axes.
+- They are useful for getting a sense of the multivariate shape of the data. You can typically read association, clustering and outliers from the plot. 
+- Can handle more variables than scatterplot matrices.
+
+## Side-by-side boxplots to par coords
+
+```{r}
+ggparcoord(coty, columns=2:10, scale="globalminmax", boxplot=TRUE,
+           alphaLines=0)
+```
+
+If the data is normalised well these should be identical boxplots, or very close to that. This is not quite what we see. 
+
+## Parallel coordinates, connect the dots
+
+
+```{r eval=F}
+ggparcoord(coty, columns=2:10, scale="globalminmax", 
+           alphaLines=0.1)
+```
+
+```{r echo=FALSE}
+ggparcoord(coty[sample(1:nrow(coty), 1000),], 
+           columns=2:10, scale="globalminmax", 
+           alphaLines=0.1)
+```
+
+## Scaling choices
+
+- *std*: univariately, subtract mean and divide by standard deviation
+- *robust*: univariately, subtract median and divide by median absolute deviation
+- *uniminmax*: univariately, scale so the minimum of the variable is zero, and the maximum is one
+- *globalminmax*: no scaling is done; the range of the graphs is defined by the global minimum and the global maximum
+
+## Your turn
+
+- Make parallel coordinate plots for the 9 samples of the leaf data
+- Start with side-by-side boxplots, and then generate the lines
+- Run the different scaling options to discover how they change the appearance of the plto
+
+## Parcoords to interaction plots
+
+Experiments are often displayed using interaction plots. These are similar to parallel coordinates, which display all the measurements, but interaction plots show one gene at a time.
+
+##
+
+Process the data, and then plot
+
+```{r}
+sub <- coty[sample(1:nrow(coty), 6),] %>% 
+  gather(sample, expr, -ID) %>%
+  separate(sample, c("tissue", "stage", "rep")) %>%
+  mutate(stage = as.numeric(substr(stage, 2, 2)))
+sub.m <- sub %>% group_by(ID, stage) %>% 
+  summarise(expr = mean(expr))
+```
+
+##
+
+
+```{r}
+ggplot(sub, aes(x=stage, y=expr)) + geom_point(alpha=0.4) +
+  facet_wrap(~ID, ncol=3) + 
+  geom_line(data=sub.m, aes(x=stage, y=expr), colour="red")
+```
+
+## Your turn
+
+Re-make the previous plot, by overlaying them in one plot, instead of faceting, and colour by the ID. 
 
 
 ## Resources
