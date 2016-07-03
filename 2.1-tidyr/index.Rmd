@@ -261,7 +261,7 @@ ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
   scale_x_sqrt() + scale_y_sqrt()
 ```
 
-## Your Turn
+## Your turn
 
 ![](lorikeets.png)
 
@@ -276,7 +276,7 @@ ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
   xlab("Rep 1") + ylab("Rep 2") + facet_grid(treatment~type)
 ```
 
-## Your Turn
+## Your turn
 
 ![](lorikeets.png)
 
@@ -288,7 +288,7 @@ billboard <- read.csv("../data/billboard.csv")
 
 What's in this data? What's X1-X76?
 
-## Your Turn
+## Your turn
 
 ![](lorikeets.png)
 
@@ -347,7 +347,7 @@ gtidy <- genes %>%
 kable(head(gtidy))
 ```
 
-## Your Turn
+## Your turn
 
 ![](lorikeets.png)
 
