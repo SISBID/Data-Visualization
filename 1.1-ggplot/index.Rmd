@@ -45,7 +45,7 @@ library(xkcd)
 - What is a (data) plot?
 - What are the three most important data plots?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Your turn
 
@@ -60,7 +60,7 @@ ggplot(filter(autism,
   xlab("Age (in years)") + ylab("Vineland Socialization Age Equivalent")
 ```
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## What about this one?
 
@@ -71,7 +71,7 @@ ggplot(autism, aes(x=factor(age2+2), y=vsae, colour=bestest2)) +
   scale_colour_hue("Diagnosis at age 2")
 ```
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Using the package ggplot2
 
@@ -114,7 +114,7 @@ How is the data mapped to graphical elements?
 - geom: ________
 - transformations: _________
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Jittering points
 
@@ -132,7 +132,7 @@ How is the data mapped to graphical elements?
 - geom: ________
 - transformations: _________
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Adding lines
 
@@ -182,7 +182,7 @@ ggplot(autism, aes(x=age2, y=vsae, colour=bestest2)) +
 
 What do we learn about autism, age, and the diagnosis at age 2?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Your turn
 
@@ -193,7 +193,7 @@ How is the data mapped to graphical elements?
 - geom: ________
 - transformations: _________
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## A different look
 
@@ -282,31 +282,31 @@ Take a look at the ggplot2 [Cheat sheet](http://www.rstudio.com/wp-content/uploa
 
 How many geoms are available in ggplot2? What is `geom_rug`?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Your turn
 
 What is the difference between `colour` and `fill`?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Your turn
 
 What does `coord_fixed()` do? What is the difference between this and using `theme(aspect.ratio=...)`?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Your turn
 
 What are scales? How many numeric transformation scales are there?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Your turn
 
 What are position adjustments? When would they be used?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Your turn 
 
@@ -314,7 +314,7 @@ Use your cheat sheet to work out how to make plot to explore the relationship be
 
 `Do you ever recline your seat when you fly?` and `Is it rude to recline your seat on a plane?`
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Facets
 
@@ -493,7 +493,7 @@ ggplot(fly_sub, aes(x=Gender,
 
 ## Your turn
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 Compile the rmarkdown document that you have put together thus far in the workshop!
 

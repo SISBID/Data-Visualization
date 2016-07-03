@@ -39,7 +39,7 @@ library(edgeR)
 - What is multivariate data?
 - What makes multivariate analysis different from univariate analysis?
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 ## Main types of plots
 
@@ -105,6 +105,8 @@ ggscatmat(coty[sample(1:nrow(coty), 5000),], columns=2:7, alpha=0.1)
 - Read the leaf data in from Brown and Hudson, and make a scatterplot matrix. (If it is too slow on your computer, sample the number of rows, to get a glimpse of the data to start.)
 - Summarise what you learn about the data in a couple of sentences
 
+![](lorikeets.png)
+
 ## Porcupine plots
 
 Compare treatment vs reps. Focus on reps 1, 2 from stages 1 and 2. 
@@ -130,6 +132,8 @@ The best prospects should be shortest lines further from the `X=Y`.
 ## Your turn
 
 Make a porcupine plot for the first two reps of the first two developmental stages of the leaf data.
+
+![](lorikeets.png)
 
 ## Parallel coordinate plots 
 
@@ -173,6 +177,8 @@ ggparcoord(coty[sample(1:nrow(coty), 1000),],
 - Start with side-by-side boxplots, and then generate the lines
 - Run the different scaling options to discover how they change the appearance of the plto
 
+![](lorikeets.png)
+
 ## Parcoords to interaction plots
 
 Experiments are often displayed using interaction plots. These are similar to parallel coordinates, which display all the measurements, but interaction plots show one gene at a time.
@@ -202,6 +208,8 @@ ggplot(sub, aes(x=stage, y=expr)) + geom_point(alpha=0.4) +
 ## Your turn
 
 Re-make the previous plot, by overlaying them in one plot, instead of faceting, and colour by the ID. 
+
+![](lorikeets.png)
 
 ## With significance testing
 
@@ -264,6 +272,8 @@ ggplot(top10, aes(x=stage, y=expr, colour=genes)) +
   geom_line(data=top10.m, aes(x=stage, y=expr, colour=genes))
 ```
 
+![](lorikeets.png)
+
 ## Extracting the significant genes
 
 Just look pairwise for simplicity here.
@@ -301,10 +311,13 @@ ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
 - Test the first two stages of the leaf data. 
 - Plot the genes that have FDR less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
 
+![](lorikeets.png)
+
 ## Your turn
 
 Make the porcupine plot for the two stages, just for rep 1 and rep 2, only the genes that have FDR less than 0.01
 
+![](lorikeets.png)
 
 ## Resources
 

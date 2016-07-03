@@ -24,3 +24,8 @@ h1, h2, h3, h4, h5, h6 {
   color: #b55 !important;
   line-height: 95%;
 }
+#myImagePage1 img {
+  width: 800px;
+  height: 500px;
+}
+
