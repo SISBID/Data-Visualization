@@ -43,9 +43,137 @@ library(gridExtra)
 - dplyr package: motivation, functions, chaining
 - purrr and broom: working with lists, vectors of data frames
 
-#Working with lots of models
+## dplyr verbs
 
-## Why would we even do that???
+There are five primary dplyr **verbs**, representing distinct data analysis tasks:
+
+- Filter: Remove the rows of a data frame, producing subsets
+- Arrange: Reorder the rows of a data frame
+- Select: Select particular columns of a data frame
+- Mutate: Add new columns that are functions of existing columns
+- Summarise: Create collapsed summaries of a data frame
+ 
+ 
+## Filter
+
+```{r}
+data(french_fries, package = "reshape2")
+french_fries %>%
+    filter(subject == 3, time == 1)
+```
+
+## Arrange
+
+```{r}
+french_fries %>%
+    arrange(desc(rancid)) %>%
+    head
+```
+
+## Select
+
+```{r}
+french_fries %>%
+    select(time, treatment, subject, rep, potato) %>%
+    head
+```
+
+## Summarise
+
+```{r}
+french_fries %>%
+    group_by(time, treatment) %>%
+    summarise(mean_rancid = mean(rancid), sd_rancid = sd(rancid))
+```
+
+## Let's use these tools
+
+to answer these french fry experiment questions:
+
+- Is the design complete?
+- Are replicates like each other?
+- How do the ratings on the different scales differ?
+- Are raters giving different scores on average?
+- Do ratings change over the weeks?
+
+## Completeness 
+If the data is complete it should be 12 x 10 x 3 x 2, that is, 6 records for each person. (Assuming that each person rated on all scales.) 
+
+To check this we want to tabulate the number of records for each subject, time and treatment. This means select appropriate columns, tabulate, count and spread it out to give a nice table.
+
+## 
+
+```{r}
+french_fries %>% 
+  select(subject, time, treatment) %>% 
+  tbl_df() %>% 
+  count(subject, time) %>%
+  spread(time, n)
+```
+
+## Check completeness with different scales, too
+
+```{r}
+french_fries %>% 
+  gather(type, rating, -subject, -time, -treatment, -rep) %>%
+  select(subject, time, treatment, type) %>% 
+  tbl_df() %>% 
+  count(subject, time) %>%
+  spread(time, n)
+```
+
+## Change in ratings over weeks, relative to experimental design
+
+```{r fig.show='hide'}
+ff.m <- french_fries %>% 
+  gather(type, rating, -subject, -time, -treatment, -rep)
+ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) +
+  geom_point() +
+  facet_grid(subject~type) 
+```
+
+##
+
+```{r echo=FALSE, fig.width=10, fig.height=6}
+ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) +
+  geom_point() +
+  facet_grid(subject~type) 
+```
+
+## Add means over reps, and connect the dots
+
+```{r fig.show='hide'}
+ff.m.av <- ff.m %>% 
+  group_by(subject, time, type, treatment) %>%
+  summarise(rating=mean(rating))
+ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) + 
+  facet_grid(subject~type) +
+  geom_line(data=ff.m.av, aes(group=treatment))
+```
+
+##
+
+```{r echo=FALSE, fig.width=10, fig.height=6}
+ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) + 
+  facet_grid(subject~type) +
+  geom_line(data=ff.m.av, aes(group=treatment))
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+Write an answer to each of the questions:
+
+- Is the design complete?
+- Are replicates like each other?
+- How do the ratings on the different scales differ?
+- Are raters giving different scores on average?
+- Do ratings change over the weeks?
+
+## Working with lots of models
+
+ Why would we even do that???
 
 - Hans Rosling can explain that really well in his [TED talk](https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen?language=en)
 
@@ -223,7 +351,7 @@ qplot(year+1950, lifeExp,  data=subset(country_all, between(r.squared, 0.45, 0.7
 
 ## Your turn
 
-![](rainbow-lorikeet.png)
+![](lorikeets.png)
 
 - extract residuals for each of the models and store it in a dataset together with country and continent information
 
