@@ -102,6 +102,32 @@ Create a project for this workshop, in the directory where you downloaded the fi
 - It combines the core syntax of __markdown__ (an easy-to-write plain text format) __with embedded R code chunks__ that are run so their output can be included in the final document. 
 - R Markdown documents are fully reproducible (they can be automatically regenerated whenever underlying R code or data changes).
 
+## Installing packages
+
+From CRAN
+
+```{r eval=FALSE}
+install.packages("ggenealogy")
+```
+
+##
+
+From bioconductor
+
+```{r eval=FALSE}
+source("https://bioconductor.org/biocLite.R")
+biocLite("ggbio")
+```
+
+##
+
+From github repos
+
+```{r eval=FALSE}
+devtools::install_github("heike/gglogo")
+devtools::install_github("haleyjeppson/ggmosaic")
+```
+
 ## Resources
 
 
