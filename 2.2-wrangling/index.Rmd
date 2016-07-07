@@ -8,7 +8,7 @@ output:
     transition: default
     widescreen: true
 css:
-  styles.css
+  ../styles.css
 ---
 
 ```{r, echo = FALSE}
