@@ -85,6 +85,14 @@ library(readr)
 [Explore copy number variation (CNV)](http://shiny.soybase.org/CNV/)
 
 
+## Other apps
+
+https://erichare.shinyapps.io/gglogo/
+
+https://erichare.shinyapps.io/pelica/
+
+
+
 
 ## Your turn
 
