@@ -8,10 +8,10 @@ output:
     transition: default
     widescreen: true
 css:
-  styles.css
+  ../styles.css
 ---
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
 knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
@@ -83,6 +83,8 @@ library(readr)
 ![](lorikeets.png)
 
 [Explore copy number variation (CNV)](http://shiny.soybase.org/CNV/)
+
+
 
 ## Your turn
 

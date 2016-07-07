@@ -40,8 +40,9 @@ library(gridExtra)
 
 ## Outline
 
+- more on broom
 - dplyr package: motivation, functions, chaining
-- purrr and broom: working with lists, vectors of data frames
+- purrr: working with lists, vectors of data frames
 
 ## dplyr verbs
 
