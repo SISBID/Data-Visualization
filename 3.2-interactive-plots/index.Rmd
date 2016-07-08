@@ -36,10 +36,117 @@ library(HLMdiag)
 library(RColorBrewer)
 library(gridExtra)
 library(plotly)
+library(ggvis)
 ```
 
 
-##
+## Choices of packages
+
+- ggvis
+- plotly
+- animint
+
+## ggvis
+
+```{r}
+library(ggvis)
+data("mpg", package = "ggplot2")
+data("economics", package = "ggplot2")
+
+?ggplot2::mpg
+str(mpg)
+
+ggvis(mpg, x = ~displ, y = ~hwy)
+ggvis(mpg, ~displ, ~hwy)
+
+ggvis(mpg, ~displ)
+ggvis(mpg, ~displ, ~hwy)
+
+ggvis(economics, ~date, ~psavert)
+
+ggvis(mpg, ~drv)
+ggvis(mpg, ~drv, ~hwy)
+
+# Obviously still some work to do
+ggvis(mpg, ~hwy, ~drv)
+ggvis(mpg, ~drv, ~class)
+
+ggvis(mpg, ~displ, ~hwy, fill = ~class)
+ggvis(mpg, ~displ, ~hwy, shape = ~drv)
+ggvis(mpg, ~displ, ~hwy, size = ~cty)
+
+# ggvis uses a functional interface: you
+# call functions to modify a plot
+
+layer_points(ggvis(mpg, ~displ, ~hwy))
+
+layer_smooths(
+  layer_points(ggvis(mpg, ~displ, ~hwy))
+)
+
+# This gets tedious pretty fast, so ggvis
+# uses %>% from magrittr
+
+# (Interesting historical note: this is how
+#  ggplot (not 2) worked!)
+
+mpg %>%
+  ggvis(~displ, ~hwy) %>%
+  layer_points() %>%
+  layer_smooths()
+
+mpg %>%
+  filter(year == 1999) %>% 
+  ggvis(~displ, ~hwy) %>%
+  layer_points() %>%
+  layer_smooths()
+
+mpg %>%
+  group_by(cyl) %>% 
+  ggvis(~hwy) %>%
+  layer_histograms(fill = ~cyl)
+
+# A little bit of smarts for doing this 
+# automatically
+mpg %>%
+  group_by(drv) %>% 
+  ggvis(~hwy, stroke = ~drv)
+
+```
+
+
+# The coolest thing about ggvis is that plot
+# parameters don't need to be static: they
+# can be interactive
+
+input_text() # text box
+input_slider() # numeric slider
+input_select() # dropdown box
+input_checkbox() # checkbox
+
+```{r}
+mpg %>% 
+  ggvis(~displ, ~hwy) %>%
+  layer_points() %>%
+  layer_smooths(
+    span = input_slider(0.2, 1)
+  )
+
+# Why doesn't this work?
+
+mpg %>% 
+  ggvis(~displ, ~hwy) %>%
+  layer_points(fill = input_select(names(mpg)))
+
+mpg %>% 
+  ggvis(~displ, ~hwy) %>%
+  layer_points(fill = input_select(names(mpg), 
+    map = as.name))
+
+```
+
+## plotly
+
 
 Link significance statistics with profile plot? Can we do this with plotly?? I think so.
 
