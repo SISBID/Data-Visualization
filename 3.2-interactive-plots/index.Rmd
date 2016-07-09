@@ -42,120 +42,239 @@ library(ggvis)
 
 ## Choices of packages
 
-- ggvis
-- plotly
-- animint
+- `ggvis`: both static and interactive graphics, interactive is very much a work in progress (Wickham)
+- `plotly`: has come a long way in the last 12 months, part of Carson Sievert's PhD thesis research. The beuty is that is builds directly onto ggplot2
+- `animint`: Hasn't progressed much in the last year, needs special copy of ggplot2 (Hocking, et al)
+- `htmlwidgets`: has progressed a lot in 12 months, providing the base for other packages, e.g. `plotly` (Chang)
+- `rCharts`, `rbokeh`, `gridSVG`, `epivizr`
 
 ## ggvis
 
+Built on the javascript library `vega`
+
 ```{r}
 library(ggvis)
-data("mpg", package = "ggplot2")
 data("economics", package = "ggplot2")
 
-?ggplot2::mpg
-str(mpg)
-
-ggvis(mpg, x = ~displ, y = ~hwy)
-ggvis(mpg, ~displ, ~hwy)
-
-ggvis(mpg, ~displ)
-ggvis(mpg, ~displ, ~hwy)
-
-ggvis(economics, ~date, ~psavert)
-
-ggvis(mpg, ~drv)
-ggvis(mpg, ~drv, ~hwy)
-
-# Obviously still some work to do
-ggvis(mpg, ~hwy, ~drv)
-ggvis(mpg, ~drv, ~class)
-
-ggvis(mpg, ~displ, ~hwy, fill = ~class)
-ggvis(mpg, ~displ, ~hwy, shape = ~drv)
-ggvis(mpg, ~displ, ~hwy, size = ~cty)
-
-# ggvis uses a functional interface: you
-# call functions to modify a plot
-
-layer_points(ggvis(mpg, ~displ, ~hwy))
-
-layer_smooths(
-  layer_points(ggvis(mpg, ~displ, ~hwy))
-)
-
-# This gets tedious pretty fast, so ggvis
-# uses %>% from magrittr
-
-# (Interesting historical note: this is how
-#  ggplot (not 2) worked!)
-
-mpg %>%
-  ggvis(~displ, ~hwy) %>%
-  layer_points() %>%
-  layer_smooths()
-
-mpg %>%
-  filter(year == 1999) %>% 
-  ggvis(~displ, ~hwy) %>%
-  layer_points() %>%
-  layer_smooths()
-
-mpg %>%
-  group_by(cyl) %>% 
-  ggvis(~hwy) %>%
-  layer_histograms(fill = ~cyl)
-
-# A little bit of smarts for doing this 
-# automatically
-mpg %>%
-  group_by(drv) %>% 
-  ggvis(~hwy, stroke = ~drv)
-
+ggvis(economics, x=~date, y=~psavert)
 ```
 
-
-# The coolest thing about ggvis is that plot
-# parameters don't need to be static: they
-# can be interactive
-
-input_text() # text box
-input_slider() # numeric slider
-input_select() # dropdown box
-input_checkbox() # checkbox
+##
 
 ```{r}
-mpg %>% 
-  ggvis(~displ, ~hwy) %>%
+economics %>%
+  ggvis(~date, ~psavert) %>%
+  layer_points() %>%
+  layer_smooths()
+```
+
+## Interactivity
+
+The coolest thing about ggvis is that plot
+parameters don't need to be static: they
+can be interactive
+
+- `input_text()`: text box
+- `input_slider()`: numeric slider
+- `input_select()`: dropdown box
+- `input_checkbox()`: checkbox
+
+##
+
+```{r}
+economics %>%
+  ggvis(~date, ~psavert) %>%
   layer_points() %>%
   layer_smooths(
     span = input_slider(0.2, 1)
   )
-
-# Why doesn't this work?
-
-mpg %>% 
-  ggvis(~displ, ~hwy) %>%
-  layer_points(fill = input_select(names(mpg)))
-
-mpg %>% 
-  ggvis(~displ, ~hwy) %>%
-  layer_points(fill = input_select(names(mpg), 
-    map = as.name))
-
 ```
 
-## plotly
+## Attention grabber
 
+- ggvis grabs the R console
+- you cannot do any other R commands while an interactive ggvis plot is showing
+- exit by clicking on the `stop` icon on the plot panel
 
-Link significance statistics with profile plot? Can we do this with plotly?? I think so.
+## 
+
+![](ggvis.png)
 
 ## Your turn
 
+![](lorikeets.png)
+
+The values provided for the slider (0.2, 1) look like they are not ideal. Change slider bounds so that they are more appropriate for this data.
+
+## Labels
+
+```{r eval=FALSE}
+all_values <- function(x) {
+  if (is.null(x)) return(NULL)
+  paste0(names(x), ": ", format(x), collapse = "<br />")
+}
+
+economics %>%
+  ggvis(~unemploy, ~psavert) %>%
+  layer_points() %>%
+  add_tooltip(all_values, "hover") 
+```
+
+##
+
+```{r echo=FALSE}
+all_values <- function(x) {
+  if (is.null(x)) return(NULL)
+  paste0(names(x), ": ", format(x), collapse = "<br />")
+}
+
+economics %>%
+  ggvis(~unemploy, ~psavert) %>%
+  layer_points() %>%
+  add_tooltip(all_values, "hover") 
+```
+
+
+## Checkbox
+
+```{r eval=FALSE}
+model_type <- input_checkbox(label = "Use loess curve",
+  map = function(val) if(val) "loess" else "lm")
+economics %>%
+  ggvis(~date, ~psavert) %>%
+  layer_points() %>%
+    layer_model_predictions(model = model_type)
+```
+
+##
+
+```{r echo=FALSE}
+model_type <- input_checkbox(label = "Use loess curve",
+  map = function(val) if(val) "loess" else "lm")
+economics %>%
+  ggvis(~date, ~psavert) %>%
+  layer_points() %>%
+    layer_model_predictions(model = model_type)
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+- Convert the model input to two radio buttons
+- Add a robust linear model choice, which means adding a third radio button
+
+## plotly
+
+The `plotly` package in R builds on the `ggplot2` package, adding interactive elements to these plots. It translates plots to javascript.
+
+```{r eval=FALSE}
+library(plotly)
+plot_ly(economics, x = date, y = unemploy / pop)
+```
+
+##
+
+```{r echo=FALSE}
+library(plotly)
+plot_ly(economics, x = date, y = unemploy / pop)
+```
+
+## Or using ggplot2
+
+```{r}
+ggplot(data=economics, aes(x = date, y = unemploy / pop)) +  
+        geom_point() + geom_line()
+```
+
+##
+
+```{r}
+ggplotly()
+```
+
+## Still a work in progress
+
+```{r}
+library(GGally)
+p <- ggpairs(economics[,3:6])
+ggplotly(p)
+```
+
+##
+
+```{r}
+data(canada.cities, package = "maps")
+viz <- ggplot(canada.cities, aes(long, lat)) +
+  borders(regions = "canada") +
+  coord_equal() +
+  geom_point(aes(text = name, size = pop), colour = "red", alpha = 1/2)
+ ggplotly(viz)
+```
+
+## Return to the RNA-Seq data
+
+```{r echo=FALSE}
+library(edgeR)
+coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
+  delim="\t", col_types="cddddddddd", 
+  col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
+  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R3"),
+  skip=1)
+coty <- as.data.frame(coty)
+d <- DGEList(counts = coty[,2:7], 
+  group = c(rep("S1", 3), rep("S2", 3)), 
+  genes = coty[,1])
+d <- calcNormFactors(d)
+d <- estimateCommonDisp(d)
+d <- estimateTagwiseDisp(d)
+d <- estimateTrendedDisp(d)
+de <- exactTest(d, pair=c("S1", "S2"), dispersion = "trended")
+sig.tab <- de$table
+sig.tab$genes <- coty$ID
+sig.tab <- dplyr::filter(sig.tab, PValue < 0.01)
+sig.tab <- merge(sig.tab, coty[,1:7], by.x="genes", by.y="ID")
+ggscatmat(sig.tab, columns=5:10, alpha=0.1)
+```
+
+##
+
+```{r}
+p <- ggplot(sig.tab, aes(x=C_S1_R2, y=C_S2_R1, label=genes)) +
+  geom_point(alpha=0.1) + theme(aspect.ratio=1)
+ggplotly(p)
+```
+
+Its slow!
+
+## Your turn
+
+![](lorikeets.png)
+
+Find which `ggplot2` geoms are supported in plotly, and maybe one that is not?
+
+
+## Example, using Australian elections
+
+```{r eval=FALSE}
+library(eechidna)
+launchApp(
+  age = c("Age20_24", "Age85plus"),
+  religion = c("Christianity", "Catholic", "NoReligion"),
+  other = c("Unemployed", "Population", "MedianIncome")
+)
+```
+ 
+## Your turn
+ 
+![](lorikeets.png)
+
+Go to the `plotly` [github page examples](https://github.com/ropensci/plotly/tree/master/inst/examples) and play with some of the examples.
 
 ## Resources
 
-- 
+- [ggvis](http://ggvis.rstudio.com)
+- [plotly](https://plot.ly/r/getting-started/)
 
 ## Share and share alike
 

@@ -59,7 +59,7 @@ ggscatmat(flea, columns = 2:4, color = "species")
 
 ##
 
-Generalized pairs plot, any combination of tpes of plots
+Generalized pairs plot, any combination of types of plots
 
 ```{r fig.width=6}
 data(tips, package = "reshape")
