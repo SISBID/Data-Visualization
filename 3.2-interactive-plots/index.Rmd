@@ -239,13 +239,13 @@ ggscatmat(sig.tab, columns=5:10, alpha=0.1)
 
 ##
 
-```{r}
+```{r fig.width=4, fig.height=4}
 p <- ggplot(sig.tab, aes(x=C_S1_R2, y=C_S2_R1, label=genes)) +
-  geom_point(alpha=0.1) + theme(aspect.ratio=1)
+  geom_point(alpha=0.1) 
 ggplotly(p)
 ```
 
-Its slow!
+With a large data set its slow!
 
 ## Your turn
 
