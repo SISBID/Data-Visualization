@@ -245,7 +245,7 @@ p <- ggplot(sig.tab, aes(x=C_S1_R2, y=C_S2_R1, label=genes)) +
 ggplotly(p)
 ```
 
-With a large data set its slow!
+With a large data set it can be slow!
 
 ## Your turn
 
@@ -269,7 +269,8 @@ launchApp(
  
 ![](lorikeets.png)
 
-Go to the `plotly` [github page examples](https://github.com/ropensci/plotly/tree/master/inst/examples) and play with some of the examples.
+- Go to the `plotly` [github page examples](https://github.com/ropensci/plotly/tree/master/inst/examples) and play with some of the examples.
+- Take one of the ggplot2 plots we have made so far in the workshop, and add interactive labelling to it.
 
 ## Resources
 

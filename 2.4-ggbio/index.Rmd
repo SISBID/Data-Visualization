@@ -41,23 +41,70 @@ library(GenomicRanges)
 
 This is a package originally developed by Tengfei Yin and Michael Lawrence building on ggplot2, making it easier to produce some standard genomic plots. 
 
+- manhattan plot
 - ideogram
 - tracks
-- karyogram
-- manhattan plot
 - circular layout
 
-##
+## Manhattan plot
 
-```{r fig.show='hold'}
-p.ideo <- Ideogram(genome = "hg19")
-p.ideo
-```
+- A Manhattan plot is special scatter plot used to visualize data with a large number of data points, often with some high-magnitude values, along a genomic reference like chromosome number
+- `plotGrandLinear` function
 
 ##
 
 ```{r}
-p.ideo + xlim(GRanges("chr2", IRanges(1e8, 1e8+10000)))
+snp <- read.table(system.file("extdata", "plink.assoc.sub.txt", 
+    package = "biovizBase"), header = TRUE)
+gr.snp <- transformDfToGr(snp, seqnames = "CHR", start = "BP", 
+    width = 1) 
+head(gr.snp)
+```
+
+##
+
+```{r eval=FALSE}
+gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
+data(ideoCyto, package = "biovizBase")
+seqlengths(gr.snp) <- as.numeric(seqlengths(ideoCyto$hg18)[1:22])
+gr.snp <- gr.snp[!is.na(gr.snp$P)]
+values(gr.snp)$pvalue <- -log10(values(gr.snp)$P)
+gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
+names(gro) <- c("group1", "group2")
+plotGrandLinear(gr.snp, aes(y = pvalue), highlight.gr = gro)
+```
+
+##
+
+```{r echo=FALSE}
+gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
+data(ideoCyto, package = "biovizBase")
+seqlengths(gr.snp) <- as.numeric(seqlengths(ideoCyto$hg18)[1:22])
+gr.snp <- gr.snp[!is.na(gr.snp$P)]
+values(gr.snp)$neglogpvalue <- -log10(values(gr.snp)$P)
+gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
+names(gro) <- c("group1", "group2")
+plotGrandLinear(gr.snp, aes(y = neglogpvalue), highlight.gr = gro)
+```
+
+## Your turn
+
+Here is the basic Manhattan plot: 
+
+```{r eval=FALSE}
+plotGrandLinear(gr.snp, aes(y = pvalue))
+```
+
+- Colour each chromosome differently
+- Add a line indicating a (negative log) p-value cutoff of 3 (what does the value 3 represent on the original scale?)
+
+## Ideogram
+
+This is a plot of a single chromosome with cytoband.
+
+```{r fig.show='hold'}
+p.ideo <- Ideogram(genome = "hg19")
+p.ideo
 ```
 
 ##
@@ -70,24 +117,19 @@ Ideogram(genome = "hg19", xlabel = TRUE)
 
 Lining up multiple plots along the chromosome is an important part of plotting genomic data
 
-## 
-
 ```{r}
 library(Homo.sapiens)
 class(Homo.sapiens)
-##
 data(genesymbol, package = "biovizBase")
 wh <- genesymbol[c("BRCA1", "NBR1")]
 wh <- range(wh, ignore.strand = TRUE)
-p.txdb <- autoplot(Homo.sapiens, which = wh)
-p.txdb
 ```
 
-##
+## Gene model
 
 ```{r}
-autoplot(Homo.sapiens, which = wh, label.color = "black", color = "brown",
-fill = "brown")
+p.txdb <- autoplot(Homo.sapiens, which = wh)
+p.txdb
 ```
 
 ##
@@ -96,87 +138,36 @@ fill = "brown")
 autoplot(Homo.sapiens, which = wh, gap.geom = "chevron")
 ```
 
-##
+## Base locations
 
-```{r}
-autoplot(Homo.sapiens, which = wh, stat = "reduce")
-```
-
-##
-
-```{r}
-columns(Homo.sapiens)
-autoplot(Homo.sapiens, which = wh, columns = c("TXNAME", "GO"), names.expr = "TXNAME::GO")
-```
-
-##
-
-```{r}
-library(TxDb.Hsapiens.UCSC.hg19.knownGene)
-txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
-autoplot(txdb, which = wh)
-```
-
-##
-
-```{r}
-library(EnsDb.Hsapiens.v75)
-ensdb <- EnsDb.Hsapiens.v75
-autoplot(ensdb, GenenameFilter("PHKG2"))
-```
-
-##
-
-Alternatively,
-
-```{r eval=FALSE}
-gr <- GRanges(seqnames=16, IRanges(30768000, 30770000), strand="*")
-autoplot(ensdb, GRangesFilter(gr, "overlapping"), names.expr="gene_name")
-```
-
-or
-
-```{r eval=FALSE}
-autoplot(ensdb, GeneidFilter(c("ENSG00000196118", "ENSG00000156873")))
-```
-
-##
-
-```{r}
-gr.txdb <- crunch(txdb, which = wh)
-## change column to model
-
-colnames(values(gr.txdb))[4] <- "model"
-grl <- split(gr.txdb, gr.txdb$tx_id)
-## fake some random names
-names(grl) <- sample(LETTERS, size = length(grl), replace = TRUE)
-grl
-```
-
-##
-
-```{r}
-autoplot(grl, aes(type = model))
-ggplot() + geom_alignment(grl, type = "model")
-```
-
-##
-
-```{r}
+```{r eval = FALSE}
 library(BSgenome.Hsapiens.UCSC.hg19)
 bg <- BSgenome.Hsapiens.UCSC.hg19
 p.bg <- autoplot(bg, which = wh)
 ## no geom
-p.bg
+#p.bg
 ## segment
-p.bg + zoom(1/100)
+#p.bg + zoom(1/100)
 ## rectangle
-p.bg + zoom(1/1000)
+#p.bg + zoom(1/1000)
 ## text
 p.bg + zoom(1/2500)
 ```
 
 ##
+
+```{r echo=FALSE}
+library(BSgenome.Hsapiens.UCSC.hg19)
+bg <- BSgenome.Hsapiens.UCSC.hg19
+p.bg <- autoplot(bg, which = wh)
+p.bg + zoom(1/2500)
+```
+
+## Your turn
+
+What is plotted at `zoom(1/100)` resolution?
+
+## Base locations
 
 ```{r}
 bg <- BSgenome.Hsapiens.UCSC.hg19
@@ -184,7 +175,7 @@ bg <- BSgenome.Hsapiens.UCSC.hg19
 autoplot(bg, which = resize(wh, width = width(wh)/2000), geom = "segment")
 ```
 
-##
+## Plot coverage
 
 ```{r}
 fl.bam <- system.file("extdata", "wg-brca1.sorted.bam", package = "biovizBase")
@@ -192,15 +183,7 @@ wh <- keepSeqlevels(wh, "chr17")
 autoplot(fl.bam, which = wh)
 ```
 
-##
-
-```{r}
-fl.bam <- system.file("extdata", "wg-brca1.sorted.bam", package = "biovizBase")
-wh <- keepSeqlevels(wh, "chr17")
-autoplot(fl.bam, which = resize(wh, width = width(wh)/10), geom = "gapped.pair")
-```
-
-##
+## Plot mismatches
 
 ```{r}
 bg <- BSgenome.Hsapiens.UCSC.hg19
@@ -208,9 +191,9 @@ p.mis <- autoplot(fl.bam, bsgenome = bg, which = wh, stat = "mismatch")
 p.mis
 ```
 
-##
+## Putting it together with tracks
 
-```{r}
+```{r eval=FALSE}
 p.ideo <- Ideogram(genome = "hg19")
 gr17 <- GRanges("chr17", IRanges(41234415, 41234569))
 tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
@@ -220,25 +203,53 @@ tks
 
 ##
 
-```{r fig.show='hold'}
+```{r echo=FALSE}
+p.ideo <- Ideogram(genome = "hg19")
+gr17 <- GRanges("chr17", IRanges(41234415, 41234569))
+tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
+  heights = c(2, 3, 1, 4)) + xlim(gr17) + theme_tracks_sunset()
+tks
+```
+
+## Circular layout
+
+```{r eval=FALSE}
 data("CRC", package = "biovizBase")
-head(hg19sub)
-autoplot(hg19sub, layout = "circle", fill = "gray70")
-p <- ggbio() + circle(hg19sub, geom = "ideo", fill = "gray70") +
-circle(hg19sub, geom = "scale", size = 2) +
-circle(hg19sub, geom = "text", aes(label = seqnames), vjust = 0, size = 3)
-p
-p <- ggbio(trackWidth = 10, buffer = 0, radius = 10) + circle(hg19sub, geom = "ideo", fill = "gray70") +
-circle(hg19sub, geom = "scale", size = 2) +
-circle(hg19sub, geom = "text", aes(label = seqnames), vjust = 0, size = 3)
-p
-head(mut.gr)
-p <- ggbio() + circle(mut.gr, geom = "rect", color = "steelblue") +
-circle(hg19sub, geom = "ideo", fill = "gray70") +
-circle(hg19sub, geom = "scale", size = 2) +
-circle(hg19sub, geom = "text", aes(label = seqnames), vjust = 0, size = 3)
+gr.crc1 <- crc.gr[values(crc.gr)$individual == "CRC-1"]
+p <- ggbio() +
+    circle(gr.crc1, geom = "link", linked.to = "to.gr", 
+      aes(color = rearrangements)) +
+    circle(gr.crc1, geom = "point", aes(y = score, size = tumreads),
+      color = "red", grid = TRUE) + scale_size(range = c(1, 2.5)) +
+    circle(mut.gr, geom = "rect", color = "steelblue") +
+    circle(hg19sub, geom = "ideo", fill = "gray70") + 
+    circle(hg19sub, geom = "scale", size = 2) +
+    circle(hg19sub, geom = "text", aes(label = seqnames), 
+      vjust = 0, size = 3)
 p
 ```
+
+##
+
+```{r echo=FALSE}
+data("CRC", package = "biovizBase")
+gr.crc1 <- crc.gr[values(crc.gr)$individual == "CRC-1"]
+p <- ggbio() +
+    circle(gr.crc1, geom = "link", linked.to = "to.gr", 
+      aes(color = rearrangements)) +
+    circle(gr.crc1, geom = "point", aes(y = score, size = tumreads),
+      color = "red", grid = TRUE) + scale_size(range = c(1, 2.5)) +
+    circle(mut.gr, geom = "rect", color = "steelblue") +
+    circle(hg19sub, geom = "ideo", fill = "gray70") + 
+    circle(hg19sub, geom = "scale", size = 2) +
+    circle(hg19sub, geom = "text", aes(label = seqnames), 
+      vjust = 0, size = 3)
+p
+```
+
+## Your turn
+
+Which `circle` line of code plots the circle segments (grey filled) representing the chromosomes?
 
 ## Resources
 
