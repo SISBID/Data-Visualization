@@ -25,6 +25,14 @@ knitr::opts_chunk$set(
 )
 ```
 
+## 
+
+![](Hello-Di.png)
+
+##
+
+![](Hello-Heike.png)
+
 ## Getting up and running
 
 - R and RStudio
@@ -134,7 +142,7 @@ devtools::install_github("haleyjeppson/ggmosaic")
 - [RStudio IDE cheat sheet](http://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf)
 - [rmarkdown cheat sheet](http://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf)
 - [Q/A site: http://stackoverflow.com](http://stackoverflow.com)
-- [Dynamic Documents with R and knitr, Yihui Xie, ](http://yihui.name/knitr/)
+- [Dynamic Documents with R and knitr, Yihui Xie](http://yihui.name/knitr/)
 
 ## Share and share alike
 
