@@ -410,13 +410,18 @@ qplot(logCPM, estimate, colour=significant, data=tet, alpha=I(.1)) + facet_wrap(
 
 ```{r}
 bb <- data.frame(read_tsv("../data/biotin-rma2.txt"))
-head(data.frame(bb))
+head(data.frame(bb[,-2]))
 row.names(bb) <- bb$Gene
-design <- expand.grid(type=c("wild", "mutant"), trt=c("control", "treatment"), rep=1:2)
+```
 
+## Fit a limma model
+```{r}
+design <- expand.grid(type=c("wild", "mutant"), trt=c("control", "treatment"), rep=1:2)
 
 fit <- lmFit(bb[,-(1:2)], model.matrix(~ type*trt, design))
 fit <- eBayes(fit)
+
+head(topTable(fit))
 ```
 
 ## Your Turn
@@ -430,6 +435,22 @@ head(tidy(fit))
 ggplot(tidy(fit), aes(x=estimate, y=log(p.value), colour = p.value < 0.05)) +
   facet_wrap(~term) +
   geom_point() + ggtitle("Volcano Plots with limma") 
+```
+
+## 
+
+```{r}
+bbfit <- tidy(fit)
+qplot(term, estimate, color=log(p.value), data=bbfit, geom="line", group=gene)
+```
+Is type*treatment interaction necessary? Very strong negative correlation is suspicious.
+
+## 
+```{r}
+fit2 <- lmFit(bb[,-(1:2)], model.matrix(~ type+trt, design))
+fit2 <- eBayes(fit2)
+bbfit <- tidy(fit2)
+qplot(term, estimate, color=log(p.value), data=bbfit, geom="line", group=gene)
 ```
 
 ## Share and share alike
