@@ -358,7 +358,59 @@ qplot(year+1950, lifeExp,  data=subset(country_all, between(r.squared, 0.45, 0.7
 
 - plot residuals across the years and fit a smooth. What does the pattern mean?
 
+## broom for bio data
 
+`biobroom` package (Bioconductor; Bass, Nelson, Robinson, Storey, 2016) has the same functions as `broom`, i.e. `glance`, `tidy`, and `augment`.
+
+These functions provide information depending on the input type
+
+```{r}
+library(biobroom)
+data(hammer)
+
+counts <- Biobase::exprs(hammer)
+head(counts)
+```
+
+## The Hammer study
+
+published as part of the `biobroom` package, part of the [ReCount project](http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-449)
+```{r}
+# more information about the study:
+Biobase::phenoData(hammer)@data
+```
+
+## biobroom and edgeR
+
+identify differentially expressed genes following the protocol by Robinson, McCarthy and Smyth 2009
+
+```{r}
+library(edgeR)
+y <- DGEList(counts = counts, group=Biobase::phenoData(hammer)@data$protocol)
+y <- calcNormFactors(y)
+y <- estimateCommonDisp(y)
+y <- estimateTagwiseDisp(y)
+et <- exactTest(y)
+
+glance(et, alpha = 0.05) # glance on DGEExact
+```
+
+## biobroom and edgeR
+
+```{r}
+tet <- tidy(et)
+tet$significant <- tet$p.value < 0.05
+qplot(logCPM, estimate, colour=significant, data=tet, alpha=I(.1)) + facet_wrap(~significant)
+```
+
+`augment(y)` stops in an error (this is a bug and reported)
+
+
+## biobroom and limma
+
+```{r}
+
+```
 
 ## Share and share alike
 

@@ -98,7 +98,7 @@ plotPath(pathTN)
 
 ##
 
-We can plot the path on entire network, but it is messy
+We can plot the path on the entire network, but it is messy
 
 ```{r}
 plotPathOnAll(pathTN, sbGeneal, sbIG, binVector = 1:6, pathEdgeCol =
@@ -152,7 +152,7 @@ plotAncDes("Irène Gijbels", statGeneal, mAnc = 3, mDes = 3, vCol = "blue")
 
 ## Plotting distance matrix
 
-a.k.a ` the Kevin Bacon distance
+a.k.a the `Kevin Bacon distance`
 
 ```{r fig.show='hide'}
 varieties <- c("Brim", "Bedford", "Calland", "Dillon", "Hood", "Narow",
