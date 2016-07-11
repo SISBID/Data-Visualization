@@ -409,7 +409,27 @@ qplot(logCPM, estimate, colour=significant, data=tet, alpha=I(.1)) + facet_wrap(
 ## biobroom and limma
 
 ```{r}
+bb <- data.frame(read_tsv("../data/biotin-rma2.txt"))
+head(data.frame(bb))
+row.names(bb) <- bb$Gene
+design <- expand.grid(type=c("wild", "mutant"), trt=c("control", "treatment"), rep=1:2)
 
+
+fit <- lmFit(bb[,-(1:2)], model.matrix(~ type*trt, design))
+fit <- eBayes(fit)
+```
+
+## Your Turn
+
+![](lorikeets.png)
+
+For the previous example, produce a Volcano plot for each of the model terms, i.e. plot estimates on x by log(p.values) on y. Are there differences visible between the terms?
+
+```{r, echo=FALSE, eval=FALSE}
+head(tidy(fit))
+ggplot(tidy(fit), aes(x=estimate, y=log(p.value), colour = p.value < 0.05)) +
+  facet_wrap(~term) +
+  geom_point() + ggtitle("Volcano Plots with limma") 
 ```
 
 ## Share and share alike
