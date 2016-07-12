@@ -1,0 +1,28 @@
+advisorMGID,advisorName,Name,mgID,School,Thesistitle,Degree,Year
+145799,Hadley Alexander Wickham,NA,NA,NA,NA,NA,NA
+18734,Dianne Helen Cook,Hadley Alexander Wickham,145799,Iowa State University,Practical tools for exploring data and models,Ph.D.,2008
+46503,Heike  Hofmann,Hadley Alexander Wickham,145799,Iowa State University,Practical tools for exploring data and models,Ph.D.,2008
+18641,Andreas  Buja,Dianne Helen Cook,18734,"Rutgers University, New Brunswick",Grand Tour and Projection Pursuit,Ph.D.,1993
+23178,Javier Fernandez Cabrera,Dianne Helen Cook,18734,"Rutgers University, New Brunswick",Grand Tour and Projection Pursuit,Ph.D.,1993
+18363,Peter Jost Huber,Andreas  Buja,18641,ETH Zürich,"Sufficiency, Least Favorable Experiments and Robust Tests",Ph.D.,1980
+34564,Frank Rudolf Hampel,Andreas  Buja,18641,ETH Zürich,"Sufficiency, Least Favorable Experiments and Robust Tests",Ph.D.,1980
+18355,Beno  Eckmann,Peter Jost Huber,18363,ETH Zürich,Homotopy Theory in General Categories,Ph.D.,1962
+17409,Heinz  Hopf,Peter Jost Huber,18363,ETH Zürich,Homotopy Theory in General Categories,Ph.D.,1962
+17409,Heinz  Hopf,Beno  Eckmann,18355,ETH Zürich,Zur Homotopietheorie gefaserter Räume,Ph.D.,1942
+57566,Ferdinand  Gonseth,Beno  Eckmann,18355,ETH Zürich,Zur Homotopietheorie gefaserter Räume,Ph.D.,1942
+7361,Erhard  Schmidt,Heinz  Hopf,17409,Universität Berlin,Über Zusammmenhänge zwischen Topologie und Metrik von Mannigfaltigkeiten,Ph.D.,1925
+19524,Ludwig  Bieberbach,Heinz  Hopf,17409,Universität Berlin,Über Zusammmenhänge zwischen Topologie und Metrik von Mannigfaltigkeiten,Ph.D.,1925
+12693,Erich Leo Lehmann,Frank Rudolf Hampel,34564,"University of California, Berkeley",Contributions to the Theory of Robust Estimation,Ph.D.,1968
+12694,Jerzy  Neyman,Erich Leo Lehmann,12693,"University of California, Berkeley",Optimum Tests of a Certain Class of Hypotheses Specifying the Value of a Correlation Coefficient,Ph.D.,1946
+11242,Geoffrey Stuart Watson,Javier Fernandez Cabrera,23178,Princeton University,Statistics on the Hyperboloid,Ph.D.,1983
+13426,Richard Loree Anderson,Geoffrey Stuart Watson,11242,North Carolina State University,Serial Correlation in Regression Analysis.,Ph.D.,1952
+9428,Gerhard  Tintner,Richard Loree Anderson,13426,Iowa State University,Serial Correlation in the Analysis of Time Series,Ph.D.,1941
+45024,Antony  Unwin,Heike  Hofmann,46503,Universität Augsburg,Graphical Tools for the Exploration of Multivariate Categorical Data,Ph.D.,2000
+29486,John Anthony Hartigan,Heike  Hofmann,46503,Universität Augsburg,Graphical Tools for the Exploration of Multivariate Categorical Data,Ph.D.,2000
+42528,Frederic Gordon Foster,Antony  Unwin,45024,"Trinity College, Dublin",Dual resource queueing models,Ph.D.,1982
+15004,David George Kendall,Frederic Gordon Foster,42528,University of Oxford,Some Problems in the Mathematical Theory of Probability,D.Phil.,1953
+58066,Maurice Stevenson Bartlett,David George Kendall,15004,University of Oxford,,M.A.,1943
+15860,John Wilder Tukey,John Anthony Hartigan,29486,Princeton University,Invariant Bayesian and Non-Bayesian Inversions,Ph.D.,1962
+62936,Francis John Anscombe,John Anthony Hartigan,29486,Princeton University,Invariant Bayesian and Non-Bayesian Inversions,Ph.D.,1962
+7461,Solomon  Lefschetz,John Wilder Tukey,15860,Princeton University,On Denumerability in Topology,Ph.D.,1939
+7451,William Edward Story,Solomon  Lefschetz,7461,Clark University,On the Existence of Loci with Given Singularities,Ph.D.,1911
