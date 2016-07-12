@@ -175,7 +175,7 @@ ggparcoord(coty[sample(1:nrow(coty), 1000),],
 
 - Make parallel coordinate plots for the 9 samples of the leaf data
 - Start with side-by-side boxplots, and then generate the lines
-- Run the different scaling options to discover how they change the appearance of the plto
+- Run the different scaling options to discover how they change the appearance of the plot
 
 ![](lorikeets.png)
 

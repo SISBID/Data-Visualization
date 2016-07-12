@@ -441,8 +441,17 @@ ggplot(tidy(fit), aes(x=estimate, y=log(p.value), colour = p.value < 0.05)) +
 
 ```{r}
 bbfit <- tidy(fit)
-qplot(term, estimate, color=log(p.value), data=bbfit, geom="line", group=gene)
+ggplot(data=bbfit, aes(x=term, y=estimate, color=log(p.value), group=gene)) +
+  geom_line()
 ```
+
+```{r eval=FALSE, echo=FALSE}
+bbfit_m <- bbfit %>% spread(term, estimate) %>%
+  rename(interaction=`typemutant:trttreatment`) %>%
+  filter(!is.na(interaction)) %>% filter(!is.na(trttreatment))
+ggpairs(bbfit_m, columns=5:7, ggplot2::aes(colour="p.value"))
+```
+
 Is type*treatment interaction necessary? Very strong negative correlation is suspicious.
 
 ## 
@@ -450,7 +459,8 @@ Is type*treatment interaction necessary? Very strong negative correlation is sus
 fit2 <- lmFit(bb[,-(1:2)], model.matrix(~ type+trt, design))
 fit2 <- eBayes(fit2)
 bbfit <- tidy(fit2)
-qplot(term, estimate, color=log(p.value), data=bbfit, geom="line", group=gene)
+ggplot(data=bbfit, aes(x=term, y=estimate, color=log(p.value), group=gene)) +
+  geom_line()
 ```
 
 ## Share and share alike
