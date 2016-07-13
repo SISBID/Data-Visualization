@@ -49,41 +49,127 @@ library(readr)
 
 ## CNV app
 
- -Seven tabs containing different functionality
-- Four of the tabs, CNV Location, Copy Number, "Search CNVs by Location", and CNV List allow primarily concerned with exploring the identified copy number variants
+- Seven tabs containing different functionality
+- Four of the tabs, CNV Location, Copy Number, "Search CNVs by Location", and CNV List, primarily concerned with exploring the identified copy number variants
 - The other three tabs, Phenotype Data, Genealogy, and Methodology provide additional information about the soybean cultivars and the experimental methodology
 - App written by Dr Susan Vanderplas
 
 ## Software
 
-- shiny
-- ggplot2
-- animint
+- shiny: provides the infrastructure, web interface
+- ggplot2: static plots
+- animint: interactive plots
 
-##
+## Main page
 
-![CNV front page](CNV1.png)
+![](CNV1.png)
 
-##
+## 
 
-![CNV front page](CNV2.png)
-
-##
-
-![CNV front page](CNV3.png)
-
-##
-
-![CNV front page](CNV4.png)
-
-
+![](CNV2.png)
 
 ## Your turn
 
 ![](lorikeets.png)
 
-[Explore copy number variation (CNV)](http://shiny.soybase.org/CNV/)
+What does copy number variation mean?
 
+## Barcode plots
+
+![](CNV3.png)
+
+## Field trial data
+
+![](CNV4.png)
+
+## Lineage
+
+![](CNV5.png)
+
+## Your turn
+
+![](lorikeets.png)
+
+Open up the copy number variation (CNV) app on your computer [http://shiny.soybase.org/CNV/](http://shiny.soybase.org/CNV/)
+
+or 
+
+[http://srvanderplas.com/Shiny/SoybeanApp/CNV/](http://srvanderplas.com/Shiny/SoybeanApp/CNV/)
+
+(It might be best to share one computer between three or four people, so that the servers don't get overloaded.)
+
+## Your turn
+
+![](lorikeets.png)
+
+- Has yield increased over the years?
+- What is the relationship between yield and protein?
+- What is the name of the line that is a recent development, and was sequenced in the study? 
+- Find a line who's yield is lower than both parents. 
+
+(Hint: Use the `Field Trials` tab.)
+
+```{r echo=FALSE, eval=FALSE}
+Yield has increased fairly linearly over the years.
+
+There is a negative relationship between yield and protein, as yield has increased protein content has declined.
+
+IA 3023
+
+Lawrence
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+- Is `Conrad` a descendant of `Essex`?
+- Who are the grandparents of `Essex`?
+- How is `Illini` related to `Lawrence`?
+
+(Hint: Use the `Genealogy` tab.)
+
+```{r eval=FALSE, echo=FALSE}
+Yes
+
+Perry, N48-1248, S-100, CNS
+
+Illini is a great-great-grandparent of Lawrence
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+Find some locations on the genome that Lawrence might have inherited from Illini. 
+
+(Hint: Use the `Barcode plots`.)
+
+```{r eval=FALSE, echo=FALSE}
+middle of Chr 1, chunks of Chr 3, one spot on Chr 8, end of Chr 16, ...
+```
+
+## SNP app
+
+- Five tabs containing different functionality
+- Overview, SNP locations, search by id, SNP browser, SNP distance and the Kevin Bacon distance
+- App written by Susan Vanderplas
+
+## Browse SNPs
+
+![](SNP1.png)
+
+##
+
+![](SNP2.png)
+
+##
+
+![](SNP3.png)
+
+##
+
+![](SNP4.png)
 
 ## Other apps
 
