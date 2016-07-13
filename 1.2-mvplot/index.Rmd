@@ -254,7 +254,7 @@ Re-make the previous plot, by overlaying them in one plot, instead of faceting, 
 
 ```{r eval = FALSE, echo = FALSE}
 ggplot(sub, aes(x=stage, y=expr, colour=factor(ID))) + geom_point(alpha=0.4) +
-  geom_line(data=sub.m, aes(x=stage, y=expr), colour="red")
+  geom_line(data=sub.m, aes(x=stage, y=expr))
 ```
 
 ## With significance testing
@@ -355,17 +355,31 @@ ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
 ## Your turn
 
 - Test the first two stages of the leaf data. 
-- Plot the genes that have FDR less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
+- Plot the genes that have a p-value of less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
 
 ![](lorikeets.png)
 
+```{r, echo = FALSE, eval = FALSE}
+sig.tab <- de$table
+sig.tab$genes <- coty$ID
+sig.tab <- sig.tab %>% filter(PValue < 0.01)
+sig.tab <- merge(sig.tab, coty[,1:7], by.x="genes", by.y="ID")
+ggscatmat(sig.tab, columns=5:10, alpha=0.1)
+ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
+           alphaLines=0.1)
 
+```        
 
 ## Your turn
 
-Make the porcupine plot for the two stages, just for rep 1 and rep 2, only the genes that have FDR less than 0.01
+Make the porcupine plot for the two stages, just for rep 1 and rep 2, only the genes that have P-value less than 0.01
 
 ![](lorikeets.png)
+
+```{r echo =FALSE, eval=FALSE}
+ggplot(data=sig.tab) +
+  geom_segment(aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2))
+```
 
 ## Resources
 

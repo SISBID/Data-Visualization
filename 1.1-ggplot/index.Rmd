@@ -312,7 +312,7 @@ geom_rug adds tick marks to the axis, particularly for a scatterplot, or density
 What is the difference between `colour` and `fill`?
 
 ```{r echo=FALSE, eval=FALSE}
-colour is for 0 or 1-dimensional elements, and fill is for area (2-d) geoms
+# colour is for 0 or 1-dimensional elements, and fill is for area (2-d) geoms
 ```
 
 ## Your turn
@@ -359,6 +359,14 @@ ggplot(fly_sub, aes(x=`Do you ever recline your seat when you fly?`)) +
   facet_wrap(~`Is itrude to recline your seat on a plane?`, ncol=3) +
   coord_flip()
 ```
+
+```{r echo=FALSE, eval=FALSE}
+ggplot(fly_sub, aes(x=`Do you ever recline your seat when you fly?`)) +
+  geom_bar(aes(fill=`Is itrude to recline your seat on a plane?`), position="dodge") + 
+   scale_fill_discrete(drop=FALSE) + scale_x_discrete(drop=FALSE) +
+  theme(legend.position="bottom")
+```
+
 
 ## Facets
 
