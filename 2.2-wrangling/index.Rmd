@@ -41,7 +41,6 @@ library(GGally)
 
 ## Outline
 
-- more on broom
 - dplyr package: motivation, functions, chaining
 - purrr: working with lists, vectors of data frames
 
