@@ -120,6 +120,7 @@ pathG <- getPath("Irène Gijbels", "Gerda Claeskens",
 plotPath(pathG)
 ```
 
+
 ## Plotting ancestors and descendants
 
 This allows focusing on individuals, and examine where they came from and what was produced. 
@@ -148,6 +149,31 @@ How many repeated lines can you see in the descendants?
 
 ```{r echo=FALSE, eval=FALSE}
 plotAncDes("Irène Gijbels", statGeneal, mAnc = 3, mDes = 3, vCol = "blue")
+```
+
+## Another fun example
+
+Have a look at Hadley's academic family tree:
+```{r}
+hw <- read_csv("../data/hw-gen.csv")
+names(hw)[2:3] <- c("parent", "child")
+
+  
+plotAncDes("Hadley Alexander Wickham", hw, mAnc=6, mDes=1)  
+```
+
+## You are not in `statGeneal`?
+
+You can use the `mathGen` package (github repo: `heike/mathGen`) to scrape the MathGenealogy project (remember to scrape responsibly!).
+
+```{r, eval = FALSE}
+library(mathGen) # devtools::install_github("heike/mathGen")
+hw <- ancestry(id = 145799, steps = 4) # look up ID from MathGenealogy
+hw <- plyr::rbind.fill(data.frame(advisorMGID=145799, advisorName="Hadley Alexander Wickham"), hw)
+names(hw)[2:3] <- c("parent", "child")
+hw$parent <- as.character(hw$parent)
+  
+head(hw)
 ```
 
 ## Plotting distance matrix
