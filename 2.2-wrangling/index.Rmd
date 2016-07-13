@@ -36,6 +36,7 @@ library(ggmap)
 library(HLMdiag)
 library(RColorBrewer)
 library(gridExtra)
+library(GGally)
 ```
 
 ## Outline
@@ -187,8 +188,8 @@ Write an answer to each of the questions:
 
 ```{r}
 library(gapminder)
-qplot(data=gapminder, year, lifeExp, geom="line", group=country)
-
+ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country)) + 
+  geom_line()
 ```
 
 How would you describe this plot?
@@ -215,7 +216,9 @@ by_country <- by_country %>% mutate(
 by_country <- by_country %>% unnest(model %>% purrr::map(broom::tidy))
 country_coefs <- by_country %>% select(continent, country, term, estimate) %>% spread(term, estimate)
 
-qplot(`(Intercept)`, year, data=country_coefs, colour=continent) + scale_colour_brewer(palette="Dark2") + 
+ggplot(data=country_coefs, aes(x=`(Intercept)`, y=year, colour=continent)) +
+  geom_point() + 
+  scale_colour_brewer(palette="Dark2") + 
   xlab("Average Life Expectancy in 1950") +
   ylab("Average Gain in Life Expectancy per Year")
 ```
@@ -243,7 +246,9 @@ head(usa)
 ##Life Expectancy in the U.S. since 1950
 
 ```{r}
-qplot(data=usa, year, lifeExp) + geom_smooth(method="lm")
+ggplot(data=usa, aes(x=year, y=lifeExp)) + 
+  geom_point() +
+  geom_smooth(method="lm")
 ```
 
 ##Life Expectancy in the U.S. since 1950
@@ -321,7 +326,8 @@ coefs <- by_country_coefs %>% select(country, continent, term, estimate) %>% spr
 and finally, a visualization:
 
 ```{r}
-qplot(`(Intercept)`, year, colour=continent, data=coefs)
+ggplot(data=coefs, aes(x=`(Intercept)`, y=year, colour=continent)) +
+  geom_point()
 ```
 
 ##Extract other model diagnostics
@@ -329,7 +335,8 @@ qplot(`(Intercept)`, year, colour=continent, data=coefs)
 ```{r}
 by_country <- by_country %>% unnest(model %>% purrr::map(broom::glance))
 by_country$country <- reorder(by_country$country, by_country$r.squared)
-qplot(country, r.squared, colour=continent, data=by_country) +
+ggplot(data=by_country, aes(x=country, y=r.squared, colour=continent)) +
+  geom_point() +
   theme(axis.text.x=element_text(angle=-90, hjust=0)) +
   scale_colour_brewer(palette="Dark2")
 ```
@@ -338,15 +345,20 @@ qplot(country, r.squared, colour=continent, data=by_country) +
 
 ```{r}
 country_all <- by_country %>% unnest(data)
-qplot(year+1950, lifeExp,  data=subset(country_all, r.squared <= 0.45), geom="line") +
+ggplot(data=subset(country_all, r.squared <= 0.45), 
+       aes(x=year+1950, y=lifeExp)) +
+  geom_line() +
   facet_wrap(~country)
 ```
+
 What do the patterns mean?
 
 ***
 
 ```{r}
-qplot(year+1950, lifeExp,  data=subset(country_all, between(r.squared, 0.45, 0.75)), geom="line") +
+ggplot(data=subset(country_all, between(r.squared, 0.45, 0.75)), 
+       aes(x=year+1950, y=lifeExp)) +
+  geom_line() +
   facet_wrap(~country)
 ```
 
@@ -400,7 +412,8 @@ glance(et, alpha = 0.05) # glance on DGEExact
 ```{r}
 tet <- tidy(et)
 tet$significant <- tet$p.value < 0.05
-qplot(logCPM, estimate, colour=significant, data=tet, alpha=I(.1)) + facet_wrap(~significant)
+ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
+  geom_point(alpha=.1) + facet_wrap(~significant)
 ```
 
 `augment(y)` stops in an error (this is a bug and reported)
@@ -441,26 +454,44 @@ ggplot(tidy(fit), aes(x=estimate, y=log(p.value), colour = p.value < 0.05)) +
 
 ```{r}
 bbfit <- tidy(fit)
-ggplot(data=bbfit, aes(x=term, y=estimate, color=log(p.value), group=gene)) +
-  geom_line()
+ggplot(data=bbfit, aes(x=term, y=estimate, group=gene)) +
+  geom_line(alpha=0.1) +
+  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
 
-```{r eval=FALSE, echo=FALSE}
-bbfit_m <- bbfit %>% spread(term, estimate) %>%
-  rename(interaction=`typemutant:trttreatment`) %>%
-  filter(!is.na(interaction)) %>% filter(!is.na(trttreatment))
-ggpairs(bbfit_m, columns=5:7, ggplot2::aes(colour="p.value"))
-```
+##
 
 Is type*treatment interaction necessary? Very strong negative correlation is suspicious.
+
+
+```{r fig.show='hide'}
+bbfit_m <- bbfit %>% select(gene, term, estimate, p.value) %>% 
+  gather(fit.stat, value, -gene, -term) %>%
+  unite(term_stat, term, fit.stat) %>%
+  spread(term_stat, value) %>% 
+  rename(trt=trttreatment_estimate, mut=typemutant_estimate,
+         int=`typemutant:trttreatment_estimate`, 
+         trtp=trttreatment_p.value, mutp=typemutant_p.value, 
+         intp=`typemutant:trttreatment_p.value`) 
+ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
+          ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
+```
+
+##
+
+```{r echo=FALSE, fig.width=6, fig.height=6}
+ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
+          ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
+```
 
 ## 
 ```{r}
 fit2 <- lmFit(bb[,-(1:2)], model.matrix(~ type+trt, design))
 fit2 <- eBayes(fit2)
 bbfit <- tidy(fit2)
-ggplot(data=bbfit, aes(x=term, y=estimate, color=log(p.value), group=gene)) +
-  geom_line()
+ggplot(data=bbfit, aes(x=term, y=estimate, group=gene)) +
+  geom_line(alpha=0.1) +
+  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
 
 ## Share and share alike
