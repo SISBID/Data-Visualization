@@ -154,6 +154,13 @@ Make a porcupine plot for the first two reps of the first two developmental stag
 
 ![](lorikeets.png)
 
+```{r echo=FALSE, eval = FALSE}
+sub <- coty %>% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
+ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
+  geom_segment() + xlim(c(0, 17.5)) + ylim(c(0, 17.5)) +
+  theme(aspect.ratio = 1)
+```
+
 ## Parallel coordinate plots 
 
 - Parallel coordinate plots, use parallel axes, and each observation is represented by a line tracing through the axes.
@@ -198,6 +205,21 @@ ggparcoord(coty[sample(1:nrow(coty), 1000),],
 
 ![](lorikeets.png)
 
+```{r echo=FALSE}
+require(GGally)
+# boxplots only - lines are blended out because alpha = 0
+ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=TRUE, alphaLines=0)
+#lines only, default scale (std)
+ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=FALSE, alphaLines=0.5)
+
+#lines only, scale is globalminmax
+ggparcoord(data= coty[1:1000,], scale="globalminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
+
+#lines only, scale is uniminmax
+ggparcoord(data= coty[1:1000,], scale="uniminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
+
+```
+
 ## Parcoords to interaction plots
 
 Experiments are often displayed using interaction plots. These are similar to parallel coordinates, which display all the measurements, but interaction plots show one gene at a time.
@@ -229,6 +251,11 @@ ggplot(sub, aes(x=stage, y=expr)) + geom_point(alpha=0.4) +
 Re-make the previous plot, by overlaying them in one plot, instead of faceting, and colour by the ID. 
 
 ![](lorikeets.png)
+
+```{r eval = FALSE, echo = FALSE}
+ggplot(sub, aes(x=stage, y=expr, colour=factor(ID))) + geom_point(alpha=0.4) +
+  geom_line(data=sub.m, aes(x=stage, y=expr), colour="red")
+```
 
 ## With significance testing
 
@@ -331,6 +358,8 @@ ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
 - Plot the genes that have FDR less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
 
 ![](lorikeets.png)
+
+
 
 ## Your turn
 
