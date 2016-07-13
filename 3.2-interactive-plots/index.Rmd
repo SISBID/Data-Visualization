@@ -43,7 +43,7 @@ library(ggvis)
 ## Choices of packages
 
 - `ggvis`: both static and interactive graphics, interactive is very much a work in progress (Wickham)
-- `plotly`: has come a long way in the last 12 months, part of Carson Sievert's PhD thesis research. The beuty is that is builds directly onto ggplot2
+- `plotly`: has come a long way in the last 12 months, part of Carson Sievert's PhD thesis research. The beauty is that is builds directly onto ggplot2
 - `animint`: Hasn't progressed much in the last year, needs special copy of ggplot2 (Hocking, et al)
 - `htmlwidgets`: has progressed a lot in 12 months, providing the base for other packages, e.g. `plotly` (Chang)
 - `rCharts`, `rbokeh`, `gridSVG`, `epivizr`
