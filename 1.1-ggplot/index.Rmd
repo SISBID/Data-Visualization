@@ -113,6 +113,10 @@ How is the data mapped to graphical elements?
 - geom: ________
 - transformations: _________
 
+```{r echo=FALSE, eval=FALSE}
+autism, x and y position along a line, point, none
+```
+
 ## Jittering points
 
 ```{r}
@@ -130,6 +134,10 @@ How is the data mapped to graphical elements?
 - aesthetics: _________
 - geom: ________
 - transformations: _________
+
+```{r echo=FALSE, eval=FALSE}
+autism, x and y position along a line, point, jitter (random noise component added to each x, y value)
+```
 
 ## Adding lines
 
@@ -181,6 +189,9 @@ ggplot(autism, aes(x=age2, y=vsae, colour=bestest2)) +
 
 What do we learn about autism, age, and the diagnosis at age 2?
 
+```{r echo=FALSE, eval=FALSE}
+In terms of categorisation into either pdd or autism the vsae score is not distinct, but on average the autism diagnosis 2 year olds have lower scores. There a lot of overlap between ths group.
+```
 
 ## Your turn
 
@@ -192,6 +203,10 @@ How is the data mapped to graphical elements?
 - aesthetics: _________
 - geom: ________
 - transformations: _________
+
+```{r echo=FALSE, eval=FALSE}
+autism, age to x and vsae score to y position, besttest2 is mapped to color, and smoothed vsae values mapped to y position, point, line, log10 transformation of y-axis
+```
 
 ## A different look
 
@@ -282,6 +297,13 @@ Take a look at the ggplot2 [Cheat sheet](http://www.rstudio.com/wp-content/uploa
 
 How many geoms are available in ggplot2? What is `geom_rug`?
 
+```{r echo=FALSE, eval=FALSE}
+A lot of geoms!
+  
+geom_rug adds tick marks to the axis, particularly for a scatterplot, or density, indicating values of data on that variable. 
+```
+
+
 ## Your turn
 
 ![](lorikeets.png)
@@ -289,11 +311,19 @@ How many geoms are available in ggplot2? What is `geom_rug`?
 
 What is the difference between `colour` and `fill`?
 
+```{r echo=FALSE, eval=FALSE}
+colour is for 0 or 1-dimensional elements, and fill is for area (2-d) geoms
+```
+
 ## Your turn
 
 ![](lorikeets.png)
 
 What does `coord_fixed()` do? What is the difference between this and using `theme(aspect.ratio=...)`?
+
+```{r echo=FALSE, eval=FALSE}
+coord_fixed operates on the raw data values, but theme(aspect_ratio=...) works on the plot dimensions
+```
 
 ## Your turn
 
@@ -301,11 +331,19 @@ What does `coord_fixed()` do? What is the difference between this and using `the
 
 What are scales? How many numeric transformation scales are there?
 
+```{r echo=FALSE, eval=FALSE}
+scales do the transformation between data values and graphical element value. most often it is applied to position along x, y which is common, to log or sqrt, .. there are 3 numeric transformations. 
+```
+
 ## Your turn
 
 ![](lorikeets.png)
 
 What are position adjustments? When would they be used?
+
+```{r echo=FALSE, eval=FALSE}
+positions shift the location some from original coordinates. most often used with bar charts to stack, or put side-by-side
+```
 
 ## Your turn 
 
@@ -315,10 +353,18 @@ Use your cheat sheet to work out how to make plot to explore the relationship be
 
 `Do you ever recline your seat when you fly?` and `Is it rude to recline your seat on a plane?`
 
+```{r echo=FALSE, eval=FALSE}
+ggplot(fly_sub, aes(x=`Do you ever recline your seat when you fly?`)) +
+  geom_bar() + 
+  facet_wrap(~`Is itrude to recline your seat on a plane?`, ncol=3) +
+  coord_flip()
+```
+
 ## Facets
 
 ```{r}
-ggplot(fly_sub, aes(x=`In general, is itrude to bring a baby on a plane?`)) + 
+ggplot(fly_sub, 
+       aes(x=`In general, is itrude to bring a baby on a plane?`)) + 
   geom_bar() + coord_flip() + facet_wrap(~Gender)
 ```
 
