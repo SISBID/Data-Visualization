@@ -171,20 +171,48 @@ middle of Chr 1, chunks of Chr 3, one spot on Chr 8, end of Chr 16, ...
 
 ![](SNP4.png)
 
-## Other apps
+## Quick overview of three other shiny apps
 
-https://erichare.shinyapps.io/gglogo/
+- Exploring the answer space for a theoretical question: https://erichare.shinyapps.io/pelica/
+- Getting an image and the code for a logo plot:  https://erichare.shinyapps.io/gglogo/
+- Finding a statistical answer to a matching problem: http://erichare.shinyapps.io/x3prplus 
+
+- Author: Eric Hare
+
+## PeLiCa - peptide library calculator
 
 https://erichare.shinyapps.io/pelica/
 
+- interactive tool to help plan an experiment 
+- What is the baseline probability that a peptide of length p is included in a synthetic library of size N (really large)?
+- What role does peptide encoding play?
 
+## Expected Coverage 
+
+<img width="950px" src="pelica-1.png">
+
+## Creating a logo plot
+
+https://erichare.shinyapps.io/gglogo/
+
+<img width="950px" src="gglogo-1.png">
+
+## Matching Bullets
+
+https://erichare.shinyapps.io/x3prplus/
+
+<img width="650px" src="matching-1.png">
 
 
 ## Your turn
 
 ![](lorikeets.png)
 
-[Explore copy number variation (CNV)](http://shiny.soybase.org/SNP/)
+Pick one of the three shiny apps and explore it for yourself:
+
+- peptide libraries: http://erichare.shinyapps.io/pelica
+- logo plot: http://erichare.shinyapps.io/gglogo
+- bullet matching: http://erichare.shinyapps.io/x3prplus 
 
 
 ## Resources
