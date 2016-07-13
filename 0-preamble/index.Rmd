@@ -33,6 +33,14 @@ knitr::opts_chunk$set(
 
 ![](Hello-Heike.png)
 
+##
+
+![](Hello-Brian.png)
+
+##
+
+![](Hello-Bryan.png)
+
 ## Getting up and running
 
 - R and RStudio
