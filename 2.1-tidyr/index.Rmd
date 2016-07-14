@@ -314,7 +314,7 @@ long_billboard$week <- as.numeric(gsub("X", "", long_billboard$week))
 ggplot(data = long_billboard, aes(x=week, y=rank, colour = artist, group = track)) + geom_line() + theme(legend.position="bottom")
 
 # alternative:
-ggplot(data=bb_long) + geom_line(aes(x=week+lubridate::week(date.entered), y=spot, group=track, colour=artist)) + theme(legend.position="bottom")
+ggplot(data=long_billboard) + geom_line(aes(x=week+lubridate::week(date.entered), y=rank, group=track, colour=artist)) + theme(legend.position="bottom")
 # the backstreet boys' 2nd song of the year 'flopped'
 ```
 
