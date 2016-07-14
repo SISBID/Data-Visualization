@@ -95,6 +95,10 @@ coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
   col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
   "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R3"),
   skip=1)
+
+# producing the column names automatically:
+# sprintf("C_S%d_R%d", rep(1:3, each=3), rep(1:3, 3))
+
 coty <- as.data.frame(coty)
 ggscatmat(coty[sample(1:nrow(coty), 5000),], columns=2:7, alpha=0.1)
 ```
