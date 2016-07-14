@@ -205,7 +205,7 @@ ggparcoord(coty[sample(1:nrow(coty), 1000),],
 
 ![](lorikeets.png)
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 require(GGally)
 # boxplots only - lines are blended out because alpha = 0
 ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=TRUE, alphaLines=0)
@@ -385,7 +385,7 @@ ggplot(data=sig.tab) +
 
 - [GGobi web site](http://www.ggobi.org), [ggobi book](http://www.ggobi.org/book)
 - Emerson et al (2013) The Generalized Pairs Plot, Journal of Computational and Graphical Statistics, 22:1, 79-91
-- Cook et al (2007) Exploring Gene Expression Data, Using Plots, {\em Journal of Data Science, 5(2):151-182
+- Cook et al (2007) Exploring Gene Expression Data, Using Plots, Journal of Data Science, 5(2):151-182
 - [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
 
 ## Share and share alike
