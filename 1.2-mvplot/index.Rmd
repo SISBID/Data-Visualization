@@ -336,7 +336,7 @@ d <- calcNormFactors(d)
 d <- estimateCommonDisp(d)
 d <- estimateTagwiseDisp(d)
 d <- estimateTrendedDisp(d)
-de <- exactTest(d, pair=c("S1", "S2"), dispersion = "trended")
+de <- exactTest(d, pair=c("S1", "S2"), dispersion = "tagwise")
 sig.tab <- de$table
 sig.tab$genes <- coty$ID
 sig.tab <- sig.tab %>% filter(PValue < 0.01)
