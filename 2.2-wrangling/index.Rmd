@@ -178,7 +178,7 @@ Write an answer to each of the questions:
 
 - Hans Rosling can explain that really well in his [TED talk](https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen?language=en)
 
-- gapminder software 
+- [gapminder project](https://www.gapminder.org/)
 
 - gapminder also makes data available (in R through the package ```gapminder```)
 
@@ -192,6 +192,17 @@ ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country)) +
 ```
 
 How would you describe this plot?
+
+##First Look
+
+```{r}
+library(gapminder)
+ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country, colour=continent)) + 
+  geom_line()
+```
+
+How about now?
+
 
 ##Using models as exploratory tools
 
@@ -238,7 +249,7 @@ library(purrr)
 ## Life Expectancy in the U.S.
 
 ```{r}
-usa <- subset(gapminder, country=="United States")
+usa <- gapminder %>% filter(country=="United States")
 head(usa)
 ```
 
@@ -318,7 +329,8 @@ broom::augment(by_country$model[[1]])
 Extract all countries automatically (hello ```map``` again!)
 
 ```{r}
-by_country_coefs <- by_country %>% unnest(model %>% purrr::map(broom::tidy))
+by_country$stats <- by_country$model %>% purrr::map(broom::tidy)
+by_country_coefs <- by_country %>% unnest(stats)
 coefs <- by_country_coefs %>% select(country, continent, term, estimate) %>% spread(term, estimate)
 ```
 
@@ -369,6 +381,14 @@ ggplot(data=subset(country_all, between(r.squared, 0.45, 0.75)),
 
 - plot residuals across the years and fit a smooth. What does the pattern mean?
 
+```{r eval=FALSE, echo=FALSE}
+by_country$resids <- by_country$model %>% purrr::map(.f=residuals)
+by_country_fits <- unnest(by_country, data, resids)
+ggplot(data=by_country_fits, aes(x = lifeExp, y=resids)) + geom_point() +  geom_smooth()
+# overall, a linear fit is not great: at low and high life expectancy, linear fit is too fast
+```      
+
+
 ## broom for bio data
 
 `biobroom` package (Bioconductor; Bass, Nelson, Robinson, Storey, 2016) has the same functions as `broom`, i.e. `glance`, `tidy`, and `augment`.
@@ -412,7 +432,7 @@ glance(et, alpha = 0.05) # glance on DGEExact
 tet <- tidy(et)
 tet$significant <- tet$p.value < 0.05
 ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
-  geom_point(alpha=.1) + facet_wrap(~significant)
+  geom_point(alpha=.1) + facet_wrap(~significant, labeller="label_both")
 ```
 
 `augment(y)` stops in an error (this is a bug and reported)
