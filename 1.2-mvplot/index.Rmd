@@ -41,6 +41,11 @@ library(edgeR)
 
 ![](lorikeets.png)
 
+```{r, eval=FALSE, echo = FALSE}
+data is multivariate, if we have more information than a single aspect for each entity/person/experimental unit.
+mutivariate analysis takes relationships between these different aspects into account.
+```
+
 ## Main types of plots
 
 - pairwise plots: explore replicates, and associations
@@ -71,7 +76,7 @@ ggpairs(tips[, 1:4])
 Brown, A. and Hudson, K. (2015) Developmental profiling of gene expression in soybean trifoliate leaves and cotyledons, [GSE61857](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61857). 
 
 ```{r eval=FALSE}
-coty <- read_delim("data/GSE61857_Cotyledon_normalized.txt.gz",
+coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
   delim="\t", col_types="cddddddddd", 
   col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
   "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R2"),
@@ -107,6 +112,20 @@ ggscatmat(coty[sample(1:nrow(coty), 5000),], columns=2:7, alpha=0.1)
 
 ![](lorikeets.png)
 
+```{r eval=FALSE, echo =FALSE}
+coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
+  delim="\t", col_types="cddddddddd", 
+  col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
+  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R2"),
+  skip=1)
+coty <- as.data.frame(coty)
+GGally::ggscatmat(head(coty,1000), columns=2:7, alpha=0.1) # use just the first 1000 observations
+# what do we learn? 
+# - there is quite a lot of variability between pairs of samples
+# - from the densities we see that lots of values are small (skew marginal distributions)
+# - replicates (samples under the same experimental condition) are more similar (closer to the line of identity) than non-replicates
+```
+
 ## Porcupine plots
 
 Compare treatment vs reps. Focus on reps 1, 2 from stages 1 and 2. 
@@ -134,6 +153,13 @@ The best prospects should be shortest lines further from the `X=Y`.
 Make a porcupine plot for the first two reps of the first two developmental stages of the leaf data.
 
 ![](lorikeets.png)
+
+```{r echo=FALSE, eval = FALSE}
+sub <- coty %>% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
+ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
+  geom_segment() + xlim(c(0, 17.5)) + ylim(c(0, 17.5)) +
+  theme(aspect.ratio = 1)
+```
 
 ## Parallel coordinate plots 
 
@@ -175,9 +201,24 @@ ggparcoord(coty[sample(1:nrow(coty), 1000),],
 
 - Make parallel coordinate plots for the 9 samples of the leaf data
 - Start with side-by-side boxplots, and then generate the lines
-- Run the different scaling options to discover how they change the appearance of the plto
+- Run the different scaling options to discover how they change the appearance of the plot
 
 ![](lorikeets.png)
+
+```{r echo=FALSE}
+require(GGally)
+# boxplots only - lines are blended out because alpha = 0
+ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=TRUE, alphaLines=0)
+#lines only, default scale (std)
+ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=FALSE, alphaLines=0.5)
+
+#lines only, scale is globalminmax
+ggparcoord(data= coty[1:1000,], scale="globalminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
+
+#lines only, scale is uniminmax
+ggparcoord(data= coty[1:1000,], scale="uniminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
+
+```
 
 ## Parcoords to interaction plots
 
@@ -210,6 +251,11 @@ ggplot(sub, aes(x=stage, y=expr)) + geom_point(alpha=0.4) +
 Re-make the previous plot, by overlaying them in one plot, instead of faceting, and colour by the ID. 
 
 ![](lorikeets.png)
+
+```{r eval = FALSE, echo = FALSE}
+ggplot(sub, aes(x=stage, y=expr, colour=factor(ID))) + geom_point(alpha=0.4) +
+  geom_line(data=sub.m, aes(x=stage, y=expr))
+```
 
 ## With significance testing
 
@@ -309,15 +355,31 @@ ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
 ## Your turn
 
 - Test the first two stages of the leaf data. 
-- Plot the genes that have FDR less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
+- Plot the genes that have a p-value of less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
 
 ![](lorikeets.png)
+
+```{r, echo = FALSE, eval = FALSE}
+sig.tab <- de$table
+sig.tab$genes <- coty$ID
+sig.tab <- sig.tab %>% filter(PValue < 0.01)
+sig.tab <- merge(sig.tab, coty[,1:7], by.x="genes", by.y="ID")
+ggscatmat(sig.tab, columns=5:10, alpha=0.1)
+ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
+           alphaLines=0.1)
+
+```        
 
 ## Your turn
 
-Make the porcupine plot for the two stages, just for rep 1 and rep 2, only the genes that have FDR less than 0.01
+Make the porcupine plot for the two stages, just for rep 1 and rep 2, only the genes that have P-value less than 0.01
 
 ![](lorikeets.png)
+
+```{r echo =FALSE, eval=FALSE}
+ggplot(data=sig.tab) +
+  geom_segment(aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2))
+```
 
 ## Resources
 

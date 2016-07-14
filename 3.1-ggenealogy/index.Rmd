@@ -120,6 +120,7 @@ pathG <- getPath("Irène Gijbels", "Gerda Claeskens",
 plotPath(pathG)
 ```
 
+
 ## Plotting ancestors and descendants
 
 This allows focusing on individuals, and examine where they came from and what was produced. 
@@ -148,6 +149,30 @@ How many repeated lines can you see in the descendants?
 
 ```{r echo=FALSE, eval=FALSE}
 plotAncDes("Irène Gijbels", statGeneal, mAnc = 3, mDes = 3, vCol = "blue")
+```
+
+## Another fun example
+
+Have a look at Hadley's academic family tree:
+```{r}
+hw <- read_csv("../data/hw-gen.csv")
+names(hw)[2:3] <- c("parent", "child")
+plotAncDes("Hadley Alexander Wickham", hw, mAnc=6, mDes=1)  
+```
+
+## You are not in `statGeneal`?
+
+You can use the `mathGen` package (github repo: `heike/mathGen`) to scrape the MathGenealogy project (remember to scrape responsibly!).
+
+```{r, eval = FALSE}
+library(mathGen) # devtools::install_github("heike/mathGen")
+hw <- ancestry(id = 145799, steps = 4) # look up ID from MathGenealogy
+hw <- plyr::rbind.fill(data.frame(advisorMGID=145799, advisorName="Hadley Alexander Wickham"), hw)
+names(hw)[2:3] <- c("parent", "child")
+hw$parent <- as.character(hw$parent)
+```
+```{r}
+head(hw)
 ```
 
 ## Plotting distance matrix
@@ -204,9 +229,112 @@ plotPathOnAll(pathTN, sbGeneal, sbIG, binVector = 1:6,
    animate = TRUE)
 ```
 
+## General networks
+
+- Parent-child relationships are special forms of networks
+- General networks consist of __nodes__ (set of actors or entities) and __edges__ (connections between actors)
+- There are lots of packages to draw networks (`igraph`, `sna`, ... )
+- Several implementations in `ggplot2` framework (`ggnetwork`, `geomnet` <- the one I'll be using)
+
+
+## Networks
+
+- networks consist of a edges data set and a nodes (vertices) set
+- we merge node information into the edges
+
+```{r}
+library(geomnet)
+data(blood)
+
+head(blood$edges, 3)
+head(blood$vertices, 3)
+
+bloodnet <- left_join(blood$edges, blood$vertices, by=c("from" = "label"))
+```
+
+## Directed network of blood donation
+
+```{r}
+p <- ggplot(data = bloodnet, aes(from_id = from, to_id = to))
+p + geom_net(label = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075) + theme_net()
+```
+
+## Using the ggplot2 framework
+
+- It is possible to adjust node size for another variable, but we are really bad at these kind of comparisons!
+
+```{r}
+p + geom_net(label = TRUE, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075, aes(size = Predominance)) + theme_net() +
+  facet_wrap(~Ethnicity) + scale_size(range=c(5,15)) + 
+  expand_limits(x = c(-.1,1.1), y = c(-.1,1.1))
+```
+
+## Bipartite networks
+
+- two types of nodes, vertices are only between nodes of different types
+```{r}
+# access the data and rename it for convenience
+library(tnet)
+data(tnet)
+elist <- data.frame(Davis.Southern.women.2mode)
+names(elist) <- c("Lady", "Event")
+
+elist$Lady <- paste("L", elist$Lady, sep="")
+elist$Event <- paste("E", elist$Event, sep="")
+
+davis <- elist
+names(davis) <- c("from", "to")
+davis <- rbind(davis, data.frame(from=davis$to, to=davis$from))
+davis$type <- factor(c(rep("Lady", nrow(elist)), rep("Event", nrow(elist))))
+```
+```{r, echo = FALSE}
+detach(package:tnet)
+detach(package:igraph)
+```
+
+## 
+
+```{r, eval = FALSE}
+# Southern women network in geomnet
+davis$lcolour <- 
+  c("white", "black")[as.numeric(davis$type)]
+
+ggplot(data = davis) + 
+  geom_net(
+    aes(from_id = from, to_id = to, 
+        colour = type, shape = type), 
+    size = 15, label = TRUE, ealpha = 0.25,
+    vjust = 0.5, hjust = 0.5,
+    labelcolour = davis$lcolour) +
+  theme_net() + 
+  scale_colour_brewer("Type of node", palette = "Set2") +
+  scale_shape("Type of node") +
+  theme(legend.position = "bottom")
+```
+
+## Southern women network in geomnet
+
+```{r, echo = FALSE, fig.width=8, fig.height = 6}
+davis$lcolour <- 
+  c("white", "black")[as.numeric(davis$type)]
+
+ggplot(data = davis) + 
+  geom_net(
+    aes(from_id = from, to_id = to, 
+        colour = type, shape = type), 
+    size = 15, label = TRUE, ealpha = 0.25,
+    vjust = 0.5, hjust = 0.5,
+    labelcolour = davis$lcolour) +
+  theme_net() + 
+  scale_colour_brewer("Type of node", palette = "Set2") +
+  scale_shape("Type of node") +
+  theme(legend.position = "bottom") 
+```
+
 ## Resources
 
 - [ggenealogy github repo](https://github.com/cran/ggenealogy)
+- [geomnet github repo](https://github.com/sctyner/geomnet)
 
 ## Share and share alike
 

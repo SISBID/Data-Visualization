@@ -44,8 +44,9 @@ Download [RStudio >= 0.99.902](https://www.rstudio.com/products/rstudio/download
 Open RStudio, and run the code below to install these packages and their dependencies:
 ```
 # CRAN packages
-packages <- c("devtools", "ggplot2", "tidyr", "dplyr", "purrr", "broom", "GGally", 
-"nullabor", "shiny", "ggvis", "plotly", "ggenealogy", "geomnet", "xkcd", "seqinr")
+packages <- c("devtools", "ggplot2", "tidyr", "dplyr", "purrr", "broom", "biobroom", 
+"GGally", "nullabor", "shiny", "ggvis", "plotly", "xkcd", "gglogo",
+"seqinr")
 
 install.packages(packages, dep=TRUE, repos = "https://cloud.r-project.org/")
 
@@ -57,6 +58,7 @@ biocLite(bioC)
 
 
 # packages under development
-devtools::install_github("heike/gglogo")
+devtools::install_github("sctyner/geomnet")
+devtools::install_github("lrutter/ggenealogy")
 devtools::install_github("haleyjeppson/ggmosaic")
 ```

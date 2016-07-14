@@ -53,7 +53,7 @@ Schneider TD, Stephens RM. Sequence logos: a new way to display consensus sequen
 
 ```{r}
 library(seqinr)
-pfam <- read.fasta(file = "data/pfam.fasta", as.string=TRUE, seqtype="AA", seqonly=TRUE)
+pfam <- read.fasta(file = "../data/pfam.fasta", as.string=TRUE, seqtype="AA", seqonly=TRUE)
 head(pfam, 3)
 ```
 
