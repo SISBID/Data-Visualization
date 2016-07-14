@@ -53,7 +53,7 @@ There are five primary dplyr **verbs**, representing distinct data analysis task
 - Select: Select particular columns of a data frame
 - Mutate: Add new columns that are functions of existing columns
 - Summarise: Create collapsed summaries of a data frame
-- Group By: Introduce structure to a data frame
+- (Group By: Introduce structure to a data frame)
  
  
 ## Filter
