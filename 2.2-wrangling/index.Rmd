@@ -84,7 +84,8 @@ french_fries %>%
 
 ```{r}
 french_fries %>%
-    summarise(mean_rancid = mean(rancid), sd_rancid = sd(rancid))
+    summarise(mean_rancid = mean(rancid, na.rm=TRUE), 
+              sd_rancid = sd(rancid, na.rm = TRUE))
 ```
 
 ## Summarise and Group_by
