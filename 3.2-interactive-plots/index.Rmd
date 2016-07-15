@@ -120,6 +120,7 @@ The values provided for the slider (0.2, 1) look like they are not ideal. Change
 ```{r eval=FALSE}
 all_values <- function(x) {
   if (is.null(x)) return(NULL)
+  
   paste0(names(x), ": ", format(x), collapse = "<br />")
 }
 
@@ -128,6 +129,24 @@ economics %>%
   layer_points() %>%
   add_tooltip(all_values, "hover") 
 ```
+
+```{r, eval = FALSE}
+all_values_2 <- function(x) {
+  if (is.null(x)) return(NULL)
+  x <- economics[x$id, ]
+  
+  paste0(names(x), ": ", format(x), collapse = "<br />")
+}
+
+economics$id <- 1:nrow(economics)
+economics %>%
+  ggvis(~unemploy, ~psavert, key := ~id) %>%
+  layer_points() %>%
+  add_tooltip(all_values_2, "hover") 
+
+```
+
+
 
 ##
 
@@ -172,6 +191,16 @@ economics %>%
 
 - Convert the model input to two radio buttons
 - Add a robust linear model choice, which means adding a third radio button
+
+```{r}
+model_type <- input_radiobuttons(choices =c("lm", "loess", "MASS::rlm"), selected = "lm")
+economics %>%
+  ggvis(~date, ~psavert) %>%
+  layer_points() %>%
+    layer_model_predictions(model = model_type)
+
+```
+
 
 ## plotly
 
