@@ -234,7 +234,7 @@ plotPathOnAll(pathTN, sbGeneal, sbIG, binVector = 1:6,
 - Parent-child relationships are special forms of networks
 - General networks consist of __nodes__ (set of actors or entities) and __edges__ (connections between actors)
 - There are lots of packages to draw networks (`igraph`, `sna`, ... )
-- Several implementations in `ggplot2` framework (`ggnetwork`, `geomnet` <- the one I'll be using)
+- Several implementations in `ggplot2` framework (`ggnet`, `ggnetwork`, `geomnet` <- the one I'll be using)
 
 
 ## Networks
@@ -256,17 +256,24 @@ bloodnet <- left_join(blood$edges, blood$vertices, by=c("from" = "label"))
 
 ```{r}
 p <- ggplot(data = bloodnet, aes(from_id = from, to_id = to))
-p + geom_net(label = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075) + theme_net()
+p + geom_net(label = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.5,
+             directed=TRUE, arrowgap=0.075) + theme_net()
 ```
 
 ## Using the ggplot2 framework
 
-- It is possible to adjust node size for another variable, but we are really bad at these kind of comparisons!
-
 ```{r}
-p + geom_net(label = TRUE, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075, aes(size = Predominance)) + theme_net() +
+p + geom_net(label = TRUE, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE,
+             arrowgap=0.075, aes(size = Predominance)) + theme_net() +
   facet_wrap(~Ethnicity) + scale_size(range=c(5,15)) + 
   expand_limits(x = c(-.1,1.1), y = c(-.1,1.1))
+```
+
+- It is possible to adjust node size for another variable, but we are really bad at these kind of comparisons!
+
+```{r eval = FALSE}
+ggplot(blood$vertices, aes(x=Ethnicity, y=Predominance)) + 
+  geom_point() + facet_wrap(~label)
 ```
 
 ## Bipartite networks

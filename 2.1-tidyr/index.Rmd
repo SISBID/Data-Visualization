@@ -65,6 +65,10 @@ grad <- read_csv("../data/graduate-programs.csv")
 kable(head(grad[c(2,3,4,6)]))
 ```
 
+```{r echo=FALSE, eval=FALSE}
+in the columns, subject, Inst, AvNumPubs, ...
+```
+
 ## Your turn 2
 
 What's in the column names of this data? What are the experimental units? What are the measured variables?
@@ -72,6 +76,10 @@ What's in the column names of this data? What are the experimental units? What a
 ```{r, echo=FALSE}
 genes <- read_csv("../data/genes.csv")
 kable(genes)
+```
+
+```{r echo=FALSE, eval=FALSE}
+the experimental design is coded into the variable names, genotype:WI/WM, time:6/12, rep:1/2/4
 ```
 
 ## Your turn 3
@@ -82,6 +90,10 @@ What are the variables? What are the records?
 melbtemp <- read.fwf("../data/ASN00086282.dly", 
    c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)), fill=T)
 kable(head(melbtemp[,c(1,2,3,4,seq(5,128,4))]))
+```
+
+```{r echo=FALSE, eval=FALSE}
+variables are TMAX, TMIN, PRCP, year, month, day, stationid. Each row contains the values for one month!
 ```
 
 ## Your turn 4
@@ -300,7 +312,12 @@ long_billboard <- gather(billboard, key = week, value = rank, X1:X76)
 long_billboard$week <- as.numeric(gsub("X", "", long_billboard$week))
 
 ggplot(data = long_billboard, aes(x=week, y=rank, colour = artist, group = track)) + geom_line() + theme(legend.position="bottom")
+
+# alternative:
+ggplot(data=long_billboard) + geom_line(aes(x=week+lubridate::week(date.entered), y=rank, group=track, colour=artist)) + theme(legend.position="bottom")
+# the backstreet boys' 2nd song of the year 'flopped'
 ```
+
 
 ## String Manipulation
 
@@ -396,11 +413,48 @@ glimpse(ff_lm_all)
 ggplot(ff_lm_all, aes(x=.fitted, y=.resid)) + geom_point()
 ```
 
+## Back to autism
+
+Fit a random slopes model to the data:
+
+$$vsae = \beta_0 + \beta_1 age2 +  b_1 childid + \varepsilon$$
+
+```{r results='hide'}
+library(lme4)
+data(autism)
+autism_keep <- autism %>% group_by(childid) %>% 
+  tally(sort=TRUE) %>% filter(n>2)
+autism_sub <- autism %>% 
+  filter(childid %in% autism_keep$childid)
+autism_lmer <- lmer(vsae ~ age2 + ( age2 - 1 | childid ), 
+                    data = autism_sub)
+```
+
 ## Your turn
 
-Fit a mixed effects model to the french fries data, augment the data with the model diagnostics, and plot the residuals from the random effects. 
+- Augment the autism data with the model diagnostics
+- Plot the residuals from the (a) fixed, (b) random effects
+- Color the residuals by (a) gender, (b) besttest2
+- Plot fitted values against observed values
 
 ![](lorikeets.png)
+
+```{r echo=FALSE, eval=FALSE}
+autism_lmer_all <- augment(autism_lmer, autism_sub)
+glimpse(autism_lmer_all)
+ggplot(autism_lmer_all, aes(x=.fitted, y=.fixed)) + geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=.resid)) + geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=.resid, colour=gender)) +
+  geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=.resid, colour=bestest2)) +
+  geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=vsae, label=childid)) +
+  geom_point()
+library(plotly)
+ggplotly()
+ggplot(autism_lmer_all, aes(x=.fitted, y=vsae, label=childid)) +
+  geom_point() + geom_line(aes(group=childid))
+```
 
 ## Resources
 

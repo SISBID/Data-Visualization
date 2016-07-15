@@ -95,6 +95,10 @@ coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
   col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
   "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R3"),
   skip=1)
+
+# producing the column names automatically:
+# sprintf("C_S%d_R%d", rep(1:3, each=3), rep(1:3, 3))
+
 coty <- as.data.frame(coty)
 ggscatmat(coty[sample(1:nrow(coty), 5000),], columns=2:7, alpha=0.1)
 ```
@@ -205,7 +209,7 @@ ggparcoord(coty[sample(1:nrow(coty), 1000),],
 
 ![](lorikeets.png)
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 require(GGally)
 # boxplots only - lines are blended out because alpha = 0
 ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=TRUE, alphaLines=0)
@@ -332,7 +336,7 @@ d <- calcNormFactors(d)
 d <- estimateCommonDisp(d)
 d <- estimateTagwiseDisp(d)
 d <- estimateTrendedDisp(d)
-de <- exactTest(d, pair=c("S1", "S2"), dispersion = "trended")
+de <- exactTest(d, pair=c("S1", "S2"), dispersion = "tagwise")
 sig.tab <- de$table
 sig.tab$genes <- coty$ID
 sig.tab <- sig.tab %>% filter(PValue < 0.01)
@@ -385,7 +389,7 @@ ggplot(data=sig.tab) +
 
 - [GGobi web site](http://www.ggobi.org), [ggobi book](http://www.ggobi.org/book)
 - Emerson et al (2013) The Generalized Pairs Plot, Journal of Computational and Graphical Statistics, 22:1, 79-91
-- Cook et al (2007) Exploring Gene Expression Data, Using Plots, {\em Journal of Data Science, 5(2):151-182
+- Cook et al (2007) Exploring Gene Expression Data, Using Plots, Journal of Data Science, 5(2):151-182
 - [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
 
 ## Share and share alike

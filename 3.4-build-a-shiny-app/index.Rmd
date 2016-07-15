@@ -45,7 +45,7 @@ library(gridExtra)
 ## Shiny Documentation and Help
 
 - [RStudio Tutorial](http://shiny.rstudio.com/tutorial/)  
-Much of tonight's material is motivated by this tutorial
+Much of today's material is motivated by this tutorial
 - [Shiny Setup, Showcase, and Server setup](http://shiny.rstudio.com)  
 Useful if you want to use shiny on your own webserver
 - [Shiny Github Page](https://github.com/rstudio/shiny)  

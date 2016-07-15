@@ -2,7 +2,7 @@
 title: "Preamble"
 subtitle: "SISBID 2016"
 author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
-date: "`r Sys.Date()`"
+date: "07/13/2016"
 output:
   ioslides_presentation:
     transition: default

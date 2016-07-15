@@ -53,6 +53,7 @@ There are five primary dplyr **verbs**, representing distinct data analysis task
 - Select: Select particular columns of a data frame
 - Mutate: Add new columns that are functions of existing columns
 - Summarise: Create collapsed summaries of a data frame
+- (Group By: Introduce structure to a data frame)
  
  
 ## Filter
@@ -83,9 +84,19 @@ french_fries %>%
 
 ```{r}
 french_fries %>%
+    summarise(mean_rancid = mean(rancid, na.rm=TRUE), 
+              sd_rancid = sd(rancid, na.rm = TRUE))
+```
+
+## Summarise and Group_by
+
+```{r}
+french_fries %>%
     group_by(time, treatment) %>%
     summarise(mean_rancid = mean(rancid), sd_rancid = sd(rancid))
 ```
+
+
 
 ## Let's use these tools
 
@@ -117,8 +128,8 @@ french_fries %>%
 ```{r}
 french_fries %>% 
   gather(type, rating, -subject, -time, -treatment, -rep) %>%
-  select(subject, time, treatment, type) %>% 
-  tbl_df() %>% 
+#  select(subject, time, treatment, type) %>% 
+#  tbl_df() %>% 
   count(subject, time) %>%
   spread(time, n)
 ```
@@ -172,13 +183,23 @@ Write an answer to each of the questions:
 - Are raters giving different scores on average?
 - Do ratings change over the weeks?
 
+```{r}
+ffp <- french_fries %>% select(time, treatment, subject, rep, potato) %>% spread(rep, potato)
+
+ggplot(ffp, aes(x = `1`, y=`2`)) + geom_point()
+
+ff_all <- ff.m %>% spread(rep, rating)
+ggplot(ff_all, aes(x = `1`, y=`2`)) + geom_point(aes(colour=type))
+
+```
+
 ## Working with lots of models
 
  Why would we even do that???
 
 - Hans Rosling can explain that really well in his [TED talk](https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen?language=en)
 
-- gapminder software 
+- [gapminder project](https://www.gapminder.org/)
 
 - gapminder also makes data available (in R through the package ```gapminder```)
 
@@ -192,6 +213,17 @@ ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country)) +
 ```
 
 How would you describe this plot?
+
+##First Look
+
+```{r}
+library(gapminder)
+ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country, colour=continent)) + 
+  geom_line()
+```
+
+How about now?
+
 
 ##Using models as exploratory tools
 
@@ -238,7 +270,7 @@ library(purrr)
 ## Life Expectancy in the U.S.
 
 ```{r}
-usa <- subset(gapminder, country=="United States")
+usa <- gapminder %>% filter(country=="United States")
 head(usa)
 ```
 
@@ -318,7 +350,8 @@ broom::augment(by_country$model[[1]])
 Extract all countries automatically (hello ```map``` again!)
 
 ```{r}
-by_country_coefs <- by_country %>% unnest(model %>% purrr::map(broom::tidy))
+by_country$stats <- by_country$model %>% purrr::map(broom::tidy)
+by_country_coefs <- by_country %>% unnest(stats)
 coefs <- by_country_coefs %>% select(country, continent, term, estimate) %>% spread(term, estimate)
 ```
 
@@ -369,6 +402,14 @@ ggplot(data=subset(country_all, between(r.squared, 0.45, 0.75)),
 
 - plot residuals across the years and fit a smooth. What does the pattern mean?
 
+```{r eval=FALSE, echo=FALSE}
+by_country$resids <- by_country$model %>% purrr::map(.f=residuals)
+by_country_fits <- unnest(by_country, data, resids)
+ggplot(data=by_country_fits, aes(x = lifeExp, y=resids)) + geom_point() +  geom_smooth()
+# overall, a linear fit is not great: at low and high life expectancy, linear fit is too fast
+```      
+
+
 ## broom for bio data
 
 `biobroom` package (Bioconductor; Bass, Nelson, Robinson, Storey, 2016) has the same functions as `broom`, i.e. `glance`, `tidy`, and `augment`.
@@ -412,7 +453,7 @@ glance(et, alpha = 0.05) # glance on DGEExact
 tet <- tidy(et)
 tet$significant <- tet$p.value < 0.05
 ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
-  geom_point(alpha=.1) + facet_wrap(~significant)
+  geom_point(alpha=.1) + facet_wrap(~significant, labeller="label_both")
 ```
 
 `augment(y)` stops in an error (this is a bug and reported)
@@ -510,6 +551,16 @@ ggplot(data=bbfit2, aes(x=term, y=estimate, group=gene)) +
   geom_line(alpha=0.1) +
   geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
+
+## References
+
+- [Using purrr by Ian Lyttle](http://ijlyttle.github.io/isugg_purrr/presentation.html#(1))
+- [RStudio's blog on using purrr](https://blog.rstudio.org/2015/09/29/purrr-0-1-0/)
+- [R blogger's article on purrr](http://www.r-bloggers.com/purrr-0-1-0/)
+- [Wrangling cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+- [Wickham (2007) Reshaping data](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
+- [broom vignettes, David Robinson](https://cran.r-project.org/web/packages/broom/vignettes/broom.html)
+- [Wickham (2011) Split-Apply-Combine](https://www.jstatsoft.org/article/view/v040i01)
 
 ## Share and share alike
 
