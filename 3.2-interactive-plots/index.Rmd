@@ -84,9 +84,18 @@ can be interactive
 ```{r}
 economics %>%
   ggvis(~date, ~psavert) %>%
-  layer_points() %>%
+  layer_points(
+    opacity := input_slider(label = "Opacity", 0,1)
+  ) %>%
   layer_smooths(
-    span = input_slider(0.2, 1)
+    span = input_slider(label="Bandwidth", 0.05, 1),
+    stroke := input_checkboxgroup(
+      choices = c("Red" = "r", "Green" = "g", "Blue" = "b"),
+      label = "Point color components",
+      map = function(val) {
+        rgb(0.8 * "r" %in% val, 0.8 * "g" %in% val, 0.8 * "b" %in% val)
+      }
+    )
   )
 ```
 

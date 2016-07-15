@@ -234,7 +234,7 @@ plotPathOnAll(pathTN, sbGeneal, sbIG, binVector = 1:6,
 - Parent-child relationships are special forms of networks
 - General networks consist of __nodes__ (set of actors or entities) and __edges__ (connections between actors)
 - There are lots of packages to draw networks (`igraph`, `sna`, ... )
-- Several implementations in `ggplot2` framework (`ggnetwork`, `geomnet` <- the one I'll be using)
+- Several implementations in `ggplot2` framework (`ggnet`, `ggnetwork`, `geomnet` <- the one I'll be using)
 
 
 ## Networks
