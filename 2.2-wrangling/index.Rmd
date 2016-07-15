@@ -128,8 +128,8 @@ french_fries %>%
 ```{r}
 french_fries %>% 
   gather(type, rating, -subject, -time, -treatment, -rep) %>%
-  select(subject, time, treatment, type) %>% 
-  tbl_df() %>% 
+#  select(subject, time, treatment, type) %>% 
+#  tbl_df() %>% 
   count(subject, time) %>%
   spread(time, n)
 ```
@@ -182,6 +182,16 @@ Write an answer to each of the questions:
 - How do the ratings on the different scales differ?
 - Are raters giving different scores on average?
 - Do ratings change over the weeks?
+
+```{r}
+ffp <- french_fries %>% select(time, treatment, subject, rep, potato) %>% spread(rep, potato)
+
+ggplot(ffp, aes(x = `1`, y=`2`)) + geom_point()
+
+ff_all <- ff.m %>% spread(rep, rating)
+ggplot(ff_all, aes(x = `1`, y=`2`)) + geom_point(aes(colour=type))
+
+```
 
 ## Working with lots of models
 
