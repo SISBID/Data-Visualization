@@ -542,6 +542,16 @@ ggplot(data=bbfit2, aes(x=term, y=estimate, group=gene)) +
   geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
 
+## References
+
+- [Using purrr by Ian Lyttle](http://ijlyttle.github.io/isugg_purrr/presentation.html#(1))
+- [RStudio's blog on using purrr](https://blog.rstudio.org/2015/09/29/purrr-0-1-0/)
+- [R blogger's article on purrr](http://www.r-bloggers.com/purrr-0-1-0/)
+- [Wrangling cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+- [Wickham (2007) Reshaping data](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
+- [broom vignettes, David Robinson](https://cran.r-project.org/web/packages/broom/vignettes/broom.html)
+- [Wickham (2011) Split-Apply-Combine](https://www.jstatsoft.org/article/view/v040i01)
+
 ## Share and share alike
 
 This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
