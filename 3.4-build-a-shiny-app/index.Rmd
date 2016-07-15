@@ -145,7 +145,7 @@ runApp("01_Hello", display.mode = "showcase")
 
 ## Shiny Inputs
 
-Shiny has many different input options:
+Shiny has many different [input options](http://shiny.rstudio.com/gallery/widget-gallery.html):
 
 - `actionButton()` - creates a clickable button
 - `checkboxInput()` and `checkboxGroupInput()`
