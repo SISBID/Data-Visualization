@@ -193,12 +193,12 @@ economics %>%
 - Add a robust linear model choice, which means adding a third radio button
 
 ```{r}
-model_type <- input_radiobuttons(choices =c("lm", "loess", "MASS::rlm"), selected = "lm")
+model_type <- input_radiobuttons(choices =c("linear"="lm","LOESS"= "loess","robust"="MASS::rlm"), selected = "lm", label="Model Type")
 economics %>%
   ggvis(~date, ~psavert) %>%
   layer_points() %>%
-    layer_model_predictions(model = model_type)
-
+    layer_model_predictions(model = model_type) %>%
+    add_tooltip(all_values, "hover") 
 ```
 
 
