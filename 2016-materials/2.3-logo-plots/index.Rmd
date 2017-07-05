@@ -1,0 +1,181 @@
+---
+title: "Logoplots"
+subtitle: "SISBID 2016"
+author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation:
+    transition: default
+    widescreen: true
+css:
+  ../styles.css
+---
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(plyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(HLMdiag)
+library(RColorBrewer)
+library(gridExtra)
+library(gglogo)
+```
+
+## Sequence Logo plots
+
+![](http://weblogo.berkeley.edu/img/cap_hth.png)
+
+- Logo plots (Schneider & Stephens, 1990) show consensus sequences of aligned DNA or peptide sequences
+- various (online) apps to create sequence plots, e.g. [Weblogo 3.0](http://weblogo.berkeley.edu/logo.cgi)
+- bit dubious: several design aspects  of the plot does not reflect best practice from cognitive perspective
+
+Schneider TD, Stephens RM. Sequence logos: a new way to display consensus sequences. Nucleic Acids Research. 1990;18(20):6097-6100.
+
+## Sequence Logos
+
+- sequences are often distributed in the [FASTA file format](https://en.wikipedia.org/wiki/FASTA_format)
+- in R `read.fasta` or `read.alignment(format="fasta")` of the `seqinr` package
+
+```{r}
+library(seqinr)
+pfam <- read.fasta(file = "../data/pfam.fasta", as.string=TRUE, seqtype="AA", seqonly=TRUE)
+head(pfam, 3)
+```
+
+## Construction of Logo plots
+
+In a traditional logo sequence plot:
+
+- x-axis: position of an element,
+- y-axis: amount of preserved information (usually Shannon information, in bits)
+
+Shannon information  is an entropy measure.
+Formally, information $I$  in position $p$ is defined as
+\[
+I(p) = \log_2(k) + \sum_{aa} f_{aa} \log_2(f_{aa}),
+\]
+where $f_{aa}$ is the relative frequency of amino acid $aa$ in  position $p$ and $k$ is the number of different elements in the sequence ($k = 4$ for RNA/DNA, and $k =21$ for peptide sequences).
+
+For $k = 21$: $I(p)$ is between 0 and $-\log_2 (1/21) = 4.39$ bits, for perfect diversity (0 bits) and single element only (4.39 bits)
+
+## Converting sequences to ggplot2 format
+
+- `ggfortify` processes sequences to a data frame usable in sequence logos in ggplot2 (i.e. introduces `position`, `element`, `info`, ...)
+- for peptide sequences includes information such as polarity and water properties
+
+```{r}
+library(gglogo)
+ggpfam <- ggfortify(data=data.frame(sequences = unlist(pfam))
+, seq="sequences") %>% filter(between(position, 7, 26))
+head(ggpfam[order(ggpfam$position),], 3)
+```
+
+## 
+
+
+```{r}
+ggplot(data=ggpfam) +
+  geom_logo(aes(x = position, label=element, y = bits, fill=interaction(Water, Polarity))) +
+  scale_fill_brewer(palette="Paired") +
+  theme_bw() +
+  theme(legend.position= "bottom")
+```
+
+
+## GeomLogo vs Weblogo
+
+Cognitively, the approach in GeomLogo is better because ...
+
+- each letter is enveloped within a rectangle (signal independent of the shape of the letter - compare e.g. `W` and `I`)
+- rectangles are colored rather than the letters
+- the main sequences is emphasized by being the only one along the top
+- the secondary sequence is aligned at the top, making it easy to compare as well (Cleveland & McGill, 1984)
+- colour scheme and legend
+
+## Positioning of rectangles
+
+- default positioning is `position = "logo"`
+- `position = "classic"` stacks the rectangles on top of each other, ordered from largest to smallest. This comes closest to the traditional sequence logo plot
+- other positions, such as 'stack', 'fill', or 'dodge' work, but might produce strange output.
+
+```{r, echo =FALSE}
+ggplot(data=ggpfam) +
+  geom_logo(aes(x = position, label=element, y = bits, fill=interaction(Water, Polarity)), position = 'classic') +
+  scale_fill_brewer(palette="Paired") +
+  theme_bw() +
+  ggtitle("position = 'classic'") +
+  theme(legend.position= "bottom")
+```
+
+
+
+## Another example
+
+- `sequences` data set in gglogo package has additional information on treatment/type: gram positive vs gram negative
+- `ggfortify` has parameters  `treatment` and `weight`
+
+```{r}
+data(sequences, package = "gglogo")
+head(sequences, 3)
+ggseq <- ggfortify(data= sequences, seq = "peptide", treatment = .(class))
+head(ggseq, 3)
+```
+
+## Facetted Logo plots
+
+```{r}
+ggplot(data = ggseq) +
+  geom_logo(aes(x = class, y = info, label = element, fill=interaction(Polarity, Water)), alpha = 0.8) +
+  scale_fill_brewer(palette = "Paired") + facet_wrap(~position, ncol=18) +
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+
+
+## Your turn
+
+![](rainbow-lorikeet.png)
+
+- Create a logo plot for the `sequences` data 
+- Use facetting to construct logo plots that come closest to the 2nd (gram +) and 3rd (gram -) logo sequence  shown below
+
+<img width="300" src="http://biovis.net/sites/default/files/adk.png">
+
+## Other parameters
+
+- `ggfortify` has parameter `method` - by default, Shannon information is computed, but `method="freq"` computes frequencies
+
+- parameter `alphabet` in `geom_logo` allows to specify polygons from a different font (output from `createPolygons`)
+
+```{r, cache = TRUE, echo = FALSE}
+if (!exists("alphabet_xkcd"))
+  alphabet_xkcd = createPolygons(c(LETTERS), font="xkcd", scale=TRUE)
+ggseq2 <- ggfortify(data=sequences, seq="peptide", treatment="class", method="freq")
+ggplot(data = ggseq2) +
+  geom_logo(aes(x = class, y = freq, label = element, fill=interaction(Polarity, Water)), alpha = 0.8, alphabet=alphabet_xkcd) +
+  scale_fill_brewer(palette = "Paired") + 
+  facet_wrap(~position, ncol=18) +
+  ggtitle("logo plot in xkcd font of frequencies") + 
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

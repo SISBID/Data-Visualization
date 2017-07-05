@@ -1,0 +1,348 @@
+---
+title: "Genealogy"
+subtitle: "SISBID 2016"
+author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation:
+    transition: default
+    widescreen: true
+css:
+  styles.css
+---
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(RColorBrewer)
+library(gridExtra)
+library(ggenealogy)
+```
+
+## Overview
+
+- Genealogy is the study of parent-child relationships.
+- Comparative geneticists, computational biologists, and bioinformaticians commonly use genealogical tools to better understand the histories of novel traits arising across biological lineages, e.g. modifications in crops could include an increase in protein yield.
+- R packages: `ggenealogy`, `pedigree`, `kinship2`
+
+## Package comparison
+
+- `pedigree`: standardized chart used to study human family lines (Coster, 2013)
+- `kinship2`: basic pedigree charts (Therneau, Daniel, Sinnwell, Atkinson, 2015)
+- `ggenealogy`: focused on agronomic genealogical lineages (Rutter, Vanderplas, Cook, Graham 2016)
+
+## Soybeans
+
+```{r}
+data("sbGeneal")
+str(sbGeneal)
+```
+
+## Input format
+
+- data frame structure with at least two columns
+- One column must be labeled "child", and be `character`
+- other column must be labeled "parent"" and each case in that column must either be of type character, or a missing denoted by NA, or "".
+- additional information can be useful, e.g. `year`, `yield`
+
+## Conversion to graph structure
+
+Needed for most other functions
+
+```{r}
+sbIG <- dfToIG(sbGeneal)
+sbIG
+```
+
+## Basic statistics
+
+```{r}
+getBasicStatistics(sbIG)
+```
+
+## Functions
+
+- shortest path
+- plotting ancestors and descendants
+- plotting distance matrix
+- using interaction
+
+## Shortest path
+
+```{r fig.show='hide'}
+pathTN <- getPath("Tokyo", "Narow", sbIG, sbGeneal)
+pathTN
+plotPath(pathTN)
+```
+
+##
+
+```{r echo=FALSE}
+plotPath(pathTN)
+```
+
+##
+
+We can plot the path on the entire network, but it is messy
+
+```{r}
+plotPathOnAll(pathTN, sbGeneal, sbIG, binVector = 1:6, pathEdgeCol =
+  "seagreen2", nodeSize = 1, pathNodeSize = 3)
+```
+
+## Your turn
+
+- Read the Statistics genealogy data (`statGeneal`)
+- Plot the shortest path between `Irène Gijbels` and `Gerda Claeskens`
+- BONUS: Who are these statisticians? What do they work on?
+
+```{r echo=FALSE, eval=FALSE}
+data(statGeneal)
+str(statGeneal)
+statIG <- dfToIG(statGeneal)
+pathG <- getPath("Irène Gijbels", "Gerda Claeskens", 
+                 statIG, statGeneal)
+plotPath(pathG)
+```
+
+
+## Plotting ancestors and descendants
+
+This allows focusing on individuals, and examine where they came from and what was produced. 
+
+```{r}
+plotAncDes("Lee", sbGeneal, mAnc = 6, mDes = 6, vCol = "blue")
+```
+
+## Your turn
+
+How many repeated lines can you see in the descendants?
+
+## Repeats
+
+- Some varieties are repeated in the plot, to alleviate ambiguities in the soybean breeding knowledge
+- e.g., the variety 5601T is represented four times - once as a third generation descendant of Lee, once as a fourth generation descendant of Lee, and twice as a fifth generation descendant of Lee.
+- Because, there are multiple paths between Lee and 5601T
+
+##
+
+![](repeats.png)
+
+## Your turn
+
+- For the statistics genealogy find the ancestors and descendants of `Irène Gijbels`
+
+```{r echo=FALSE, eval=FALSE}
+plotAncDes("Irène Gijbels", statGeneal, mAnc = 3, mDes = 3, vCol = "blue")
+```
+
+## Another fun example
+
+Have a look at Hadley's academic family tree:
+```{r}
+hw <- read_csv("../data/hw-gen.csv")
+names(hw)[2:3] <- c("parent", "child")
+plotAncDes("Hadley Alexander Wickham", hw, mAnc=6, mDes=1)  
+```
+
+## You are not in `statGeneal`?
+
+You can use the `mathGen` package (github repo: `heike/mathGen`) to scrape the MathGenealogy project (remember to scrape responsibly!).
+
+```{r, eval = FALSE}
+library(mathGen) # devtools::install_github("heike/mathGen")
+hw <- ancestry(id = 145799, steps = 4) # look up ID from MathGenealogy
+hw <- plyr::rbind.fill(data.frame(advisorMGID=145799, advisorName="Hadley Alexander Wickham"), hw)
+names(hw)[2:3] <- c("parent", "child")
+hw$parent <- as.character(hw$parent)
+```
+```{r}
+head(hw)
+```
+
+## Plotting distance matrix
+
+a.k.a the `Kevin Bacon distance`
+
+```{r fig.show='hide'}
+varieties <- c("Brim", "Bedford", "Calland", "Dillon", "Hood", "Narow",
+  "Pella", "Tokyo", "Young", "Zane")
+plotDegMatrix(varieties, sbIG, sbGeneal, 
+              "Variety", "Variety", "Degree") +
+  ggplot2::scale_fill_continuous(low = "white", high = "darkgreen") +
+  ggplot2::theme(legend.title = ggplot2::element_text(size = 15),
+                 legend.text
+  = ggplot2::element_text(size = 15))
+```
+
+##
+
+```{r echo=FALSE}
+plotDegMatrix(varieties, sbIG, sbGeneal, 
+              "Variety", "Variety", "Degree") +
+  ggplot2::scale_fill_continuous(low = "white", high = "darkgreen") +
+  ggplot2::theme(legend.title = ggplot2::element_text(size = 15),
+                 legend.text
+  = ggplot2::element_text(size = 15))
+```
+
+## Your turn
+
+Plot the distance matrix for these statisticians: `Thomas Lumley`, `Rob Hyndman`, `Grace Wahba`, `Gordon Smyth`, `Elizaveta Levina`, `David Cox`, `Irène Gijbels`, `Gerda Claeskens`
+
+```{r echo=FALSE, eval=FALSE}
+statisticians <- c("Thomas Lumley", "Rob Hyndman", "Grace Wahba", "Gordon Smyth", "Elizaveta Levina", "David Cox", "Irène Gijbels", "Gerda Claeskens")
+plotDegMatrix(statisticians, statIG, statGeneal, 
+              "Variety", "Variety", "Degree") +
+  ggplot2::scale_fill_continuous(low = "white", high = "darkgreen") +
+  ggplot2::theme(legend.title = ggplot2::element_text(size = 15),
+                 legend.text
+  = ggplot2::element_text(size = 15))
+```
+
+## Interaction
+
+- When paths are plotted on the entire network most of the information gets lost. 
+- This can be alleviated by making the plot interactive, so that node labels appear on mouse over.
+- This is facilitated with the package `plotly`.
+- Demo
+
+```{r eval=FALSE}
+plotPathOnAll(pathTN, sbGeneal, sbIG, binVector = 1:6, 
+              pathEdgeCol = "seagreen2", nodeSize = 1, 
+              pathNodeSize = 3,
+   animate = TRUE)
+```
+
+## General networks
+
+- Parent-child relationships are special forms of networks
+- General networks consist of __nodes__ (set of actors or entities) and __edges__ (connections between actors)
+- There are lots of packages to draw networks (`igraph`, `sna`, ... )
+- Several implementations in `ggplot2` framework (`ggnet`, `ggnetwork`, `geomnet` <- the one I'll be using)
+
+
+## Networks
+
+- networks consist of a edges data set and a nodes (vertices) set
+- we merge node information into the edges
+
+```{r}
+library(geomnet)
+data(blood)
+
+head(blood$edges, 3)
+head(blood$vertices, 3)
+
+bloodnet <- left_join(blood$edges, blood$vertices, by=c("from" = "label"))
+```
+
+## Directed network of blood donation
+
+```{r}
+p <- ggplot(data = bloodnet, aes(from_id = from, to_id = to))
+p + geom_net(label = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.5,
+             directed=TRUE, arrowgap=0.075) + theme_net()
+```
+
+## Using the ggplot2 framework
+
+```{r}
+p + geom_net(label = TRUE, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE,
+             arrowgap=0.075, aes(size = Predominance)) + theme_net() +
+  facet_wrap(~Ethnicity) + scale_size(range=c(5,15)) + 
+  expand_limits(x = c(-.1,1.1), y = c(-.1,1.1))
+```
+
+- It is possible to adjust node size for another variable, but we are really bad at these kind of comparisons!
+
+```{r eval = FALSE}
+ggplot(blood$vertices, aes(x=Ethnicity, y=Predominance)) + 
+  geom_point() + facet_wrap(~label)
+```
+
+## Bipartite networks
+
+- two types of nodes, vertices are only between nodes of different types
+```{r}
+# access the data and rename it for convenience
+library(tnet)
+data(tnet)
+elist <- data.frame(Davis.Southern.women.2mode)
+names(elist) <- c("Lady", "Event")
+
+elist$Lady <- paste("L", elist$Lady, sep="")
+elist$Event <- paste("E", elist$Event, sep="")
+
+davis <- elist
+names(davis) <- c("from", "to")
+davis <- rbind(davis, data.frame(from=davis$to, to=davis$from))
+davis$type <- factor(c(rep("Lady", nrow(elist)), rep("Event", nrow(elist))))
+```
+```{r, echo = FALSE}
+detach(package:tnet)
+detach(package:igraph)
+```
+
+## 
+
+```{r, eval = FALSE}
+# Southern women network in geomnet
+davis$lcolour <- 
+  c("white", "black")[as.numeric(davis$type)]
+
+ggplot(data = davis) + 
+  geom_net(
+    aes(from_id = from, to_id = to, 
+        colour = type, shape = type), 
+    size = 15, label = TRUE, ealpha = 0.25,
+    vjust = 0.5, hjust = 0.5,
+    labelcolour = davis$lcolour) +
+  theme_net() + 
+  scale_colour_brewer("Type of node", palette = "Set2") +
+  scale_shape("Type of node") +
+  theme(legend.position = "bottom")
+```
+
+## Southern women network in geomnet
+
+```{r, echo = FALSE, fig.width=8, fig.height = 6}
+davis$lcolour <- 
+  c("white", "black")[as.numeric(davis$type)]
+
+ggplot(data = davis) + 
+  geom_net(
+    aes(from_id = from, to_id = to, 
+        colour = type, shape = type), 
+    size = 15, label = TRUE, ealpha = 0.25,
+    vjust = 0.5, hjust = 0.5,
+    labelcolour = davis$lcolour) +
+  theme_net() + 
+  scale_colour_brewer("Type of node", palette = "Set2") +
+  scale_shape("Type of node") +
+  theme(legend.position = "bottom") 
+```
+
+## Resources
+
+- [ggenealogy github repo](https://github.com/cran/ggenealogy)
+- [geomnet github repo](https://github.com/sctyner/geomnet)
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

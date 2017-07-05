@@ -1,0 +1,261 @@
+---
+title: "ggbio: Biological data plots"
+subtitle: "SISBID 2016"
+author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation:
+    transition: default
+    widescreen: true
+css:
+  styles.css
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+
+```{r, echo = FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggbio)
+library(biovizBase)
+library(GenomicRanges)
+```
+
+## What is ggbio?
+
+This is a package originally developed by Tengfei Yin and Michael Lawrence building on ggplot2, making it easier to produce some standard genomic plots. 
+
+- manhattan plot
+- ideogram
+- tracks
+- circular layout
+
+## Manhattan plot
+
+- A Manhattan plot is special scatter plot used to visualize data with a large number of data points, often with some high-magnitude values, along a genomic reference like chromosome number
+- `plotGrandLinear` function
+
+##
+
+```{r}
+snp <- read.table(system.file("extdata", "plink.assoc.sub.txt", 
+    package = "biovizBase"), header = TRUE)
+gr.snp <- transformDfToGr(snp, seqnames = "CHR", start = "BP", 
+    width = 1) 
+head(gr.snp)
+```
+
+##
+
+```{r eval=FALSE}
+gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
+data(ideoCyto, package = "biovizBase")
+seqlengths(gr.snp) <- as.numeric(seqlengths(ideoCyto$hg18)[1:22])
+gr.snp <- gr.snp[!is.na(gr.snp$P)]
+values(gr.snp)$pvalue <- -log10(values(gr.snp)$P)
+gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
+names(gro) <- c("group1", "group2")
+plotGrandLinear(gr.snp, aes(y = pvalue), highlight.gr = gro)
+```
+
+##
+
+```{r echo=FALSE}
+gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
+data(ideoCyto, package = "biovizBase")
+seqlengths(gr.snp) <- as.numeric(seqlengths(ideoCyto$hg18)[1:22])
+gr.snp <- gr.snp[!is.na(gr.snp$P)]
+values(gr.snp)$neglogpvalue <- -log10(values(gr.snp)$P)
+gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
+names(gro) <- c("group1", "group2")
+plotGrandLinear(gr.snp, aes(y = neglogpvalue), highlight.gr = gro)
+```
+
+## Your turn
+
+Here is the basic Manhattan plot: 
+
+```{r eval=FALSE}
+plotGrandLinear(gr.snp, aes(y = pvalue))
+```
+
+- Colour each chromosome differently
+- Add a line indicating a (negative log) p-value cutoff of 3 (what does the value 3 represent on the original scale?)
+
+## Ideogram
+
+This is a plot of a single chromosome with cytoband.
+
+```{r fig.show='hold'}
+p.ideo <- Ideogram(genome = "hg19")
+p.ideo
+```
+
+##
+
+```{r}
+Ideogram(genome = "hg19", xlabel = TRUE)
+```
+
+## Tracks
+
+Lining up multiple plots along the chromosome is an important part of plotting genomic data
+
+```{r}
+library(Homo.sapiens)
+class(Homo.sapiens)
+data(genesymbol, package = "biovizBase")
+wh <- genesymbol[c("BRCA1", "NBR1")]
+wh <- range(wh, ignore.strand = TRUE)
+```
+
+## Gene model
+
+```{r}
+p.txdb <- autoplot(Homo.sapiens, which = wh)
+p.txdb
+```
+
+##
+
+```{r}
+autoplot(Homo.sapiens, which = wh, gap.geom = "chevron")
+```
+
+## Base locations
+
+```{r eval = FALSE}
+library(BSgenome.Hsapiens.UCSC.hg19)
+bg <- BSgenome.Hsapiens.UCSC.hg19
+p.bg <- autoplot(bg, which = wh)
+## no geom
+#p.bg
+## segment
+#p.bg + zoom(1/100)
+## rectangle
+#p.bg + zoom(1/1000)
+## text
+p.bg + zoom(1/2500)
+```
+
+##
+
+```{r echo=FALSE}
+library(BSgenome.Hsapiens.UCSC.hg19)
+bg <- BSgenome.Hsapiens.UCSC.hg19
+p.bg <- autoplot(bg, which = wh)
+p.bg + zoom(1/2500)
+```
+
+## Your turn
+
+What is plotted at `zoom(1/100)` resolution?
+
+## Base locations
+
+```{r}
+bg <- BSgenome.Hsapiens.UCSC.hg19
+## force to use geom segment at this level
+autoplot(bg, which = resize(wh, width = width(wh)/2000), geom = "segment")
+```
+
+## Plot coverage
+
+```{r}
+fl.bam <- system.file("extdata", "wg-brca1.sorted.bam", package = "biovizBase")
+wh <- keepSeqlevels(wh, "chr17")
+autoplot(fl.bam, which = wh)
+```
+
+## Plot mismatches
+
+```{r}
+bg <- BSgenome.Hsapiens.UCSC.hg19
+p.mis <- autoplot(fl.bam, bsgenome = bg, which = wh, stat = "mismatch")
+p.mis
+```
+
+## Putting it together with tracks
+
+```{r eval=FALSE}
+p.ideo <- Ideogram(genome = "hg19")
+gr17 <- GRanges("chr17", IRanges(41234415, 41234569))
+tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
+  heights = c(2, 3, 1, 4)) + xlim(gr17) + theme_tracks_sunset()
+tks
+```
+
+##
+
+```{r echo=FALSE}
+p.ideo <- Ideogram(genome = "hg19")
+gr17 <- GRanges("chr17", IRanges(41234415, 41234569))
+tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
+  heights = c(2, 3, 1, 4)) + xlim(gr17) + theme_tracks_sunset()
+tks
+```
+
+## Circular layout
+
+```{r eval=FALSE}
+data("CRC", package = "biovizBase")
+gr.crc1 <- crc.gr[values(crc.gr)$individual == "CRC-1"]
+p <- ggbio() +
+    circle(gr.crc1, geom = "link", linked.to = "to.gr", 
+      aes(color = rearrangements)) +
+    circle(gr.crc1, geom = "point", aes(y = score, size = tumreads),
+      color = "red", grid = TRUE) + scale_size(range = c(1, 2.5)) +
+    circle(mut.gr, geom = "rect", color = "steelblue") +
+    circle(hg19sub, geom = "ideo", fill = "gray70") + 
+    circle(hg19sub, geom = "scale", size = 2) +
+    circle(hg19sub, geom = "text", aes(label = seqnames), 
+      vjust = 0, size = 3)
+p
+```
+
+##
+
+```{r echo=FALSE}
+data("CRC", package = "biovizBase")
+gr.crc1 <- crc.gr[values(crc.gr)$individual == "CRC-1"]
+p <- ggbio() +
+    circle(gr.crc1, geom = "link", linked.to = "to.gr", 
+      aes(color = rearrangements)) +
+    circle(gr.crc1, geom = "point", aes(y = score, size = tumreads),
+      color = "red", grid = TRUE) + scale_size(range = c(1, 2.5)) +
+    circle(mut.gr, geom = "rect", color = "steelblue") +
+    circle(hg19sub, geom = "ideo", fill = "gray70") + 
+    circle(hg19sub, geom = "scale", size = 2) +
+    circle(hg19sub, geom = "text", aes(label = seqnames), 
+      vjust = 0, size = 3)
+p
+```
+
+## Your turn
+
+Which `circle` line of code plots the circle segments (grey filled) representing the chromosomes?
+
+## Resources
+
+- Yin T, Cook D and Lawrence M (2012). “ggbio: an R package for extending the grammar of graphics for genomic data.” Genome Biology, 13(8), pp. R77.
+- [bioconductor page](https://bioconductor.org/packages/release/bioc/html/ggbio.html)
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

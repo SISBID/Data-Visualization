@@ -1,0 +1,467 @@
+---
+title: "Tidying your data"
+subtitle: "SISBID 2016"
+author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation:
+    transition: default
+    widescreen: true
+css:
+  styles.css
+---
+
+```{r echo = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r echo=FALSE}
+library(knitr)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(HLMdiag)
+library(RColorBrewer)
+library(gridExtra)
+library(broom)
+```
+
+## Using the Packages `tidyr`, `dplyr`
+
+- Writing readable code using **pipes**
+- What is **tidy data**? Why do you want tidy data? Getting your data into tidy form using tidyr.
+- Reading different **data formats**
+- String operations, working with **text**
+
+## Pipes `%>%`
+
+Pipes allow the code to be *read* like a sequence of operations
+
+```{r}
+student2012.sub <- readRDS("../data/student_sub.rds")
+# table(student2012.sub$CNT)
+student2012.sub %>% group_by(CNT) %>% tally()
+```
+
+## Your turn 1
+
+What are the variables?
+
+```{r echo=FALSE}
+grad <- read_csv("../data/graduate-programs.csv")
+kable(head(grad[c(2,3,4,6)]))
+```
+
+```{r echo=FALSE, eval=FALSE}
+in the columns, subject, Inst, AvNumPubs, ...
+```
+
+## Your turn 2
+
+What's in the column names of this data? What are the experimental units? What are the measured variables?
+
+```{r, echo=FALSE}
+genes <- read_csv("../data/genes.csv")
+kable(genes)
+```
+
+```{r echo=FALSE, eval=FALSE}
+the experimental design is coded into the variable names, genotype:WI/WM, time:6/12, rep:1/2/4
+```
+
+## Your turn 3
+
+What are the variables? What are the records?
+
+```{r}
+melbtemp <- read.fwf("../data/ASN00086282.dly", 
+   c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)), fill=T)
+kable(head(melbtemp[,c(1,2,3,4,seq(5,128,4))]))
+```
+
+```{r echo=FALSE, eval=FALSE}
+variables are TMAX, TMIN, PRCP, year, month, day, stationid. Each row contains the values for one month!
+```
+
+## Your turn 4
+
+What are the variables? What are the experimental units?
+
+```{r}
+tb <- read_csv("../data/tb.csv")
+#tail(tb)
+colnames(tb)
+```
+
+## Your turn 5 
+
+What are the variables? What are the experimental units?
+
+```{r}
+pew <- read.delim(
+  file = "http://stat405.had.co.nz/data/pew.txt",
+  header = TRUE,
+  stringsAsFactors = FALSE,
+  check.names = F
+)
+kable(pew[1:5, 1:5])
+```
+
+## Your turn 6
+
+10 week sensory experiment, 12 individuals assessed taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do they taste?), fried in one of 3 different oils, replicated twice. First few rows:
+
+```{r, echo = FALSE}
+data(french_fries, package = "reshape2")
+kable(head(french_fries, 4), format = "markdown", row.names = F)
+```
+
+What is the experimental unit? What are the factors of the experiment? What was measured? What do you want to know?
+
+## Messy Data Patterns
+
+There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns.
+
+- Column headers are values, not variable names
+- Variables are stored in both rows and columns, contingency table format
+- One type of experimental unit stored in multiple tables
+- Dates in many different formats
+
+## What is Tidy Data?
+
+- Each observation forms a row
+- Each variable forms a column
+- Contained in a single table
+- Long form makes it easier to reshape in many different ways
+- Wide form is common for analysis
+
+## Tidy Data {.flexbox .vcenter #myImagePage1}
+
+![](lego.pdf)
+
+## Messy Data {.flexbox .vcenter #myImagePage1}
+
+![](playmobile.pdf)
+
+## Tidy Verbs
+
+- **gather**: specify the **keys** (identifiers) and the **values** (measures) to make long form (used to be called melting)
+- **spread**: variables in columns (used to be called casting)
+- nest/unnest: working with lists
+- separate/unite: split and combine columns
+
+## French Fries 
+
+10 week sensory experiment, 12 individuals assessed taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do they taste?), fried in one of 3 different oils, replicated twice. First few rows:
+
+```{r, echo=FALSE, results='asis'}
+kable(head(french_fries), format = "markdown", row.names = FALSE)
+```
+
+## What Would We Like to Know?
+
+- Is the design complete?
+- Are replicates like each other?
+- How do the ratings on the different scales differ?
+- Are raters giving different scores on average?
+- Do ratings change over the weeks?
+
+Each of these questions involves different summaries of the data.
+
+## Gathering
+
+- When gathering, you need to specify the **keys** (identifiers) and the **values** (measures).
+
+Keys/Identifiers:
+- Identify a record (must be unique)
+- Example: Indices on an random variable
+- Fixed by design of experiment (known in advance)
+- May be single or composite (may have one or more variables)
+
+Values/Measures:
+- Collected during the experiment (not known in advance)
+- Usually numeric quantities
+
+## Gathering the French Fries
+
+```{r}
+ff_long <- gather(french_fries, key = variable, value = 
+                    rating, potato:painty)
+head(ff_long)
+```
+
+## Long to Wide
+
+In certain applications, we may wish to take a long dataset and convert it to a wide dataset (perhaps displaying in a table).
+
+This is called "spreading" the data.
+
+## Spread
+
+We use the **spread** function from tidyr to do this:
+
+```{r}
+french_fries_wide <- spread(ff_long, key = variable, 
+                            value = rating)
+
+head(french_fries_wide)
+```
+
+## Answer some Questions
+
+- Easiest question to start is whether the ratings are similar on the different scales, potato'y, buttery, grassy, rancid and painty. 
+
+- We need to gather the data into long form, and make plots facetted by the scale. 
+
+## Ratings on the Different Scales
+
+```{r}
+ff.m <- french_fries %>% 
+  gather(type, rating, -subject, -time, -treatment, -rep)
+head(ff.m)
+```
+
+##
+
+```{r, fig.height=2, fig.width=8}
+ggplot(data=ff.m, aes(x=rating)) + geom_histogram(binwidth=2) + 
+  facet_wrap(~type, ncol=5) 
+```
+
+## Side-By-Side Boxplots
+
+```{r fig.width=8, fig.height=5}
+ggplot(data=ff.m, aes(x=type, y=rating, fill=type)) + 
+  geom_boxplot()
+```
+
+
+## Do the Replicates Look Like Each Other?
+
+We will start to tackle this by plotting the replicates against each other using a scatterplot. 
+
+We need to gather the data into long form, and then get the replicates spread into separate columns. 
+
+## Check Replicates
+
+```{r}
+head(ff.m)
+ff.s <- ff.m %>% spread(rep, rating)
+head(ff.s)
+```
+
+## Check Replicates
+
+```{r, fig.show='hold', fig.align='default', fig.height=4, fig.width=4}
+ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
+  theme(aspect.ratio=1) + xlab("Rep 1") + ylab("Rep 2")
+ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
+  theme(aspect.ratio=1) + xlab("Rep 1") + ylab("Rep 2") + 
+  scale_x_sqrt() + scale_y_sqrt()
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+Make the scatterplots of reps against each other separately for scales, and treatment. 
+
+```{r, echo=FALSE, eval=FALSE}
+ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
+  theme(aspect.ratio=1) + 
+  xlab("Rep 1") + ylab("Rep 2") + facet_wrap(~type, ncol=5)
+ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
+  theme(aspect.ratio=1) + 
+  xlab("Rep 1") + ylab("Rep 2") + facet_grid(treatment~type)
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+Read in the billboard top 100 music data, which contains N'Sync and Backstreet Boys songs that entered the billboard charts in the year 2000
+
+```{r}
+billboard <- read.csv("../data/billboard.csv")
+```
+
+What's in this data? What's X1-X76?
+
+## Your turn
+
+![](lorikeets.png)
+
+1. Use `tidyr` to convert this data into a long format appropriate for plotting a time series (date on the x axis, chart position on the y axis)
+2. Use `ggplot2` to create this time series plot:
+
+```{r, echo=FALSE, fig.height=3}
+long_billboard <- gather(billboard, key = week, value = rank, X1:X76)
+long_billboard$week <- as.numeric(gsub("X", "", long_billboard$week))
+
+ggplot(data = long_billboard, aes(x=week, y=rank, colour = artist, group = track)) + geom_line() + theme(legend.position="bottom")
+
+# alternative:
+ggplot(data=long_billboard) + geom_line(aes(x=week+lubridate::week(date.entered), y=rank, group=track, colour=artist)) + theme(legend.position="bottom")
+# the backstreet boys' 2nd song of the year 'flopped'
+```
+
+
+## String Manipulation
+
+When the experimental design is packed into column names, we need to extract it, and tidy it up. 
+
+```{r}
+genes <- read_csv("../data/genes.csv")
+kable(head(genes))
+```
+
+## Gather Column Names into Long Form
+
+```{r}
+gather(genes, variable, expr, -id) %>% kable
+```
+
+## Separate Columns
+
+```{r}
+genes %>%
+  gather(variable, expr, -id) %>%
+  separate(variable, c("trt", "leftover"), "-") %>%
+  kable
+```
+
+##
+
+```{r}
+genes %>%
+  gather(variable, expr, -id) %>%
+  separate(variable, c("trt", "leftover"), "-") %>%
+  separate(leftover, c("time", "rep"), "\\.") %>% kable
+```
+
+##
+
+```{r}
+gtidy <- genes %>%
+  gather(variable, expr, -id) %>%
+  separate(variable, c("trt", "leftover"), "-") %>%
+  separate(leftover, c("time", "rep"), "\\.") %>%
+  mutate(trt = sub("W", "", trt)) %>%
+  mutate(rep = sub("R", "", rep))
+kable(head(gtidy))
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+(1) Using the tidied dataset (`gtidy`), find the mean expression for each combination of id, trt, and time.
+(2) Use this tidied data to make this plot.
+
+```{r, echo=FALSE, fig.height=3}
+gmean <- gtidy %>% 
+  group_by(id, trt, time) %>% 
+  summarise(expr = mean(expr))
+ggplot(data = gtidy, aes(trt, expr, colour = time)) + 
+         geom_point() + 
+  xlab("Type of modification") + ylab("Expression") + 
+  facet_wrap(~id) +
+  geom_line(data = gmean, aes(group = time))
+```
+
+## Tidying model output
+
+The package `broom` gets model results into a tidy format. 
+
+```{r}
+ff_long <- gather(french_fries, key = variable, value = 
+                    rating, potato:painty)
+ff_lm <- lm(rating~variable+treatment+time+subject, 
+            data=ff_long)
+```
+
+## Model estimates
+
+```{r}
+ff_lm_tidy <- tidy(ff_lm)
+glimpse(ff_lm_tidy)
+```
+
+## Model diagnostics
+
+```{r}
+ff_lm_all <- augment(ff_lm)
+glimpse(ff_lm_all)
+```
+
+## Residual plot
+
+```{r}
+ggplot(ff_lm_all, aes(x=.fitted, y=.resid)) + geom_point()
+```
+
+## Back to autism
+
+Fit a random slopes model to the data:
+
+$$vsae = \beta_0 + \beta_1 age2 +  b_1 childid + \varepsilon$$
+
+```{r results='hide'}
+library(lme4)
+data(autism)
+autism_keep <- autism %>% group_by(childid) %>% 
+  tally(sort=TRUE) %>% filter(n>2)
+autism_sub <- autism %>% 
+  filter(childid %in% autism_keep$childid)
+autism_lmer <- lmer(vsae ~ age2 + ( age2 - 1 | childid ), 
+                    data = autism_sub)
+```
+
+## Your turn
+
+- Augment the autism data with the model diagnostics
+- Plot the residuals from the (a) fixed, (b) random effects
+- Color the residuals by (a) gender, (b) besttest2
+- Plot fitted values against observed values
+
+![](lorikeets.png)
+
+```{r echo=FALSE, eval=FALSE}
+autism_lmer_all <- augment(autism_lmer, autism_sub)
+glimpse(autism_lmer_all)
+ggplot(autism_lmer_all, aes(x=.fitted, y=.fixed)) + geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=.resid)) + geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=.resid, colour=gender)) +
+  geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=.resid, colour=bestest2)) +
+  geom_point()
+ggplot(autism_lmer_all, aes(x=.fitted, y=vsae, label=childid)) +
+  geom_point()
+library(plotly)
+ggplotly()
+ggplot(autism_lmer_all, aes(x=.fitted, y=vsae, label=childid)) +
+  geom_point() + geom_line(aes(group=childid))
+```
+
+## Resources
+
+- [tidyr and dplyr cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+- [Wickham (2007) Reshaping data](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
+- [broom vignettes, David Robinson](https://cran.r-project.org/web/packages/broom/vignettes/broom.html)
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

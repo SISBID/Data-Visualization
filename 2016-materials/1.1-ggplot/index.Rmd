@@ -1,0 +1,568 @@
+---
+title: "Grammar of Graphics and ggplot2"
+subtitle: "SISBID 2016"
+author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "`r Sys.Date()`"
+output:
+  ioslides_presentation:
+    transition: default
+    widescreen: true
+css:
+  styles.css
+---
+
+```{r echo=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE, 
+  collapse = TRUE,
+  comment = "#",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r echo=FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(HLMdiag)
+library(RColorBrewer)
+library(gridExtra)
+library(dichromat)
+library(xkcd)
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+- What is a (data) plot?
+- What are the three most important data plots?
+
+
+## Your turn
+
+How would you describe this plot?
+
+```{r echo=FALSE}
+ggplot(filter(autism, 
+              childid %in% sample(unique(childid), 20)), 
+       aes(x=age2+2, y=vsae, group=childid, colour=gender)) + 
+  geom_point() +
+  geom_line() + xlim(c(0, 15)) +
+  xlab("Age (in years)") + ylab("Vineland Socialization Age Equivalent")
+```
+
+## What about this one?
+
+```{r echo=FALSE}
+ggplot(autism, aes(x=factor(age2+2), y=vsae, colour=bestest2)) + 
+  geom_boxplot() + 
+  xlab("Age (in years)") + ylab("Vineland Socialization Age Equivalent") +
+  scale_colour_hue("Diagnosis at age 2")
+```
+
+## Using the package ggplot2
+
+Elements of a plot
+
+- data
+- aesthetics: mapping of variables to graphical elements
+- geom: type of plot structure to use
+- transformations: log scale, ...
+
+Additional components 
+
+- layers: multiple geoms, multiple data sets, annotation
+- facets: show subsets in different plots
+- themes: modifying style
+
+## Why use a grammar of graphics?
+
+<font face="DidyBold" color="#ED9121" size=8> Variable in the data is directly mapped to an element in the plot </font>
+
+## Data - Autism
+
+```{r}
+glimpse(autism)
+```
+
+## Plotting points
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae)) + 
+  geom_point()
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+How is the data mapped to graphical elements?
+
+- data: _______
+- aesthetics: _________
+- geom: ________
+- transformations: _________
+
+```{r echo=FALSE, eval=FALSE}
+autism, x and y position along a line, point, none
+```
+
+## Jittering points
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae)) + 
+  geom_jitter()
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+How is the data mapped to graphical elements?
+
+- data: _______
+- aesthetics: _________
+- geom: ________
+- transformations: _________
+
+```{r echo=FALSE, eval=FALSE}
+autism, x and y position along a line, point, jitter (random noise component added to each x, y value)
+```
+
+## Adding lines
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae)) + 
+  geom_point() + geom_line()
+```
+
+## Not the lines we want
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae, group=childid)) + 
+  geom_point() + geom_line()
+```
+
+## Too much ink
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae, group=childid)) + 
+  geom_point() + geom_line(alpha=0.5)
+```
+
+## Log scale y?
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae, group=childid)) + 
+  geom_point() + geom_line(alpha=0.5) + scale_y_log10()
+```
+
+## By age 2 diagnosis
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae, group=childid, colour=bestest2)) + 
+  geom_point() + geom_line(alpha=0.5) + scale_y_log10()
+```
+
+## Refine groups
+
+```{r}
+ggplot(autism, aes(x=age2, y=vsae, colour=bestest2)) + 
+  geom_point(alpha=0.1) + geom_line(aes(group=childid), alpha=0.1) + 
+  geom_smooth(se=F) +
+  scale_y_log10()
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+What do we learn about autism, age, and the diagnosis at age 2?
+
+```{r echo=FALSE, eval=FALSE}
+In terms of categorisation into either pdd or autism the vsae score is not distinct, but on average the autism diagnosis 2 year olds have lower scores. There a lot of overlap between ths group.
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+How is the data mapped to graphical elements?
+
+- data: _______
+- aesthetics: _________
+- geom: ________
+- transformations: _________
+
+```{r echo=FALSE, eval=FALSE}
+autism, age to x and vsae score to y position, besttest2 is mapped to color, and smoothed vsae values mapped to y position, point, line, log10 transformation of y-axis
+```
+
+## A different look
+
+```{r echo=FALSE}
+ggplot(autism, aes(x=age2, y=vsae, colour=bestest2)) + 
+  geom_boxplot() + scale_y_log10()
+```
+
+That's not what I wanted ....
+
+## For each age measured
+
+```{r echo=FALSE}
+ggplot(autism, aes(x=factor(age2), y=vsae, colour=bestest2)) + 
+  geom_boxplot() + scale_y_log10()
+```
+
+## Which is better?
+
+```{r echo=FALSE}
+p1 <- ggplot(autism, aes(x=age2, y=vsae, colour=bestest2)) + 
+  geom_point(alpha=0.1) + geom_line(aes(group=childid), alpha=0.1) + 
+  geom_smooth(se=F) +
+  scale_y_log10() + theme(legend.position="none")
+p2 <- ggplot(autism, aes(x=factor(age2), y=vsae, colour=bestest2)) + 
+  geom_boxplot() + scale_y_log10() + theme(legend.position="none")
+grid.arrange(p1, p2, ncol=2)
+```
+
+## New example - Flying etiquette
+
+[41% Of Fliers Think You’re Rude If You Recline Your Seat](http://fivethirtyeight.com/datalab/airplane-etiquette-recline-seat/)
+
+```{r echo=FALSE}
+fly <- read_csv("../data/flying-etiquette.csv")
+glimpse(fly)
+```
+
+## Variables
+
+Mix of categorical and quantiative variables. What mappings are appropriate? Area for counts of categories, side-by-side boxplots for mixed pair. 
+
+## Support
+
+```{r}
+ggplot(fly, aes(x=`How often do you travel by plane?`)) + 
+  geom_bar() + coord_flip()
+```
+
+Categories are not sorted
+
+## Sorted categories
+
+```{r}
+fly$`How often do you travel by plane?` <- 
+  factor(fly$`How often do you travel by plane?`, levels=c(
+    "Never","Once a year or less","Once a month or less",
+    "A few times per month","A few times per week","Every day"))
+ggplot(fly, aes(x=`How often do you travel by plane?`)) + geom_bar() + coord_flip()
+```
+
+## Filter data
+
+```{r}
+fly_sub <- fly %>% filter(`How often do you travel by plane?` %in% 
+                            c("Once a year or less","Once a month or less")) %>%
+  filter(!is.na(`Do you ever recline your seat when you fly?`)) %>%
+  filter(!is.na(Age)) %>% filter(!is.na(Gender))
+```
+
+## Recline by height
+
+```{r}
+fly_sub$`Do you ever recline your seat when you fly?` <- factor(
+  fly_sub$`Do you ever recline your seat when you fly?`, levels=c(
+    "Never","Once in a while","About half the time",
+    "Usually","Always"))
+ggplot(fly_sub, aes(y=`How tall are you?`, x=`Do you ever recline your seat when you fly?`)) + geom_boxplot() + coord_flip()
+```
+
+## Cheat sheet
+
+Take a look at the ggplot2 [Cheat sheet](http://www.rstudio.com/wp-content/uploads/2015/12/ggplot2-cheatsheet-2.0.pdf)
+
+## Your turn
+
+![](lorikeets.png)
+
+How many geoms are available in ggplot2? What is `geom_rug`?
+
+```{r echo=FALSE, eval=FALSE}
+A lot of geoms!
+  
+geom_rug adds tick marks to the axis, particularly for a scatterplot, or density, indicating values of data on that variable. 
+```
+
+
+## Your turn
+
+![](lorikeets.png)
+
+
+What is the difference between `colour` and `fill`?
+
+```{r echo=FALSE, eval=FALSE}
+# colour is for 0 or 1-dimensional elements, and fill is for area (2-d) geoms
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+What does `coord_fixed()` do? What is the difference between this and using `theme(aspect.ratio=...)`?
+
+```{r echo=FALSE, eval=FALSE}
+coord_fixed operates on the raw data values, but theme(aspect_ratio=...) works on the plot dimensions
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+What are scales? How many numeric transformation scales are there?
+
+```{r echo=FALSE, eval=FALSE}
+scales do the transformation between data values and graphical element value. most often it is applied to position along x, y which is common, to log or sqrt, .. there are 3 numeric transformations. 
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+What are position adjustments? When would they be used?
+
+```{r echo=FALSE, eval=FALSE}
+positions shift the location some from original coordinates. most often used with bar charts to stack, or put side-by-side
+```
+
+## Your turn 
+
+![](lorikeets.png)
+
+Use your cheat sheet to work out how to make plot to explore the relationship between 
+
+`Do you ever recline your seat when you fly?` and `Is it rude to recline your seat on a plane?`
+
+```{r echo=FALSE, eval=FALSE}
+ggplot(fly_sub, aes(x=`Do you ever recline your seat when you fly?`)) +
+  geom_bar() + 
+  facet_wrap(~`Is itrude to recline your seat on a plane?`, ncol=3) +
+  coord_flip()
+```
+
+
+
+## Facets
+
+```{r}
+ggplot(fly_sub, 
+       aes(x=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar() + coord_flip() + facet_wrap(~Gender)
+```
+
+## Facets
+
+```{r}
+fly_sub$Age <- factor(fly_sub$Age, levels=c("18-29","30-44","45-60","> 60"))
+ggplot(fly_sub, aes(x=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar() + coord_flip() + facet_grid(Age~Gender)
+```
+
+## Color palettes - default
+
+```{r}
+p <- ggplot(fly_sub, aes(x=`In general, is itrude to bring a baby on a plane?`,
+                    fill=Gender)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Age, ncol=5)
+p
+```
+
+What do we learn?
+
+## Color palettes - brewer
+
+```{r}
+p + scale_fill_brewer(palette="Dark2") 
+```
+
+## Color blind-proofing
+
+```{r fig.show='hide'}
+library(scales)
+library(dichromat)
+clrs <- hue_pal()(3)
+p + theme(legend.position = "none")
+clrs <- dichromat(hue_pal()(3))
+p + scale_fill_manual("", values=clrs) + theme(legend.position = "none")
+```
+
+---
+
+```{r echo=FALSE, fig.width=4.5, fig.show='hold', fig.align='default'}
+clrs <- hue_pal()(3)
+p + theme(legend.position = "none")
+clrs <- dichromat(hue_pal()(3))
+p + scale_fill_manual("", values=clrs) + theme(legend.position = "none")
+```
+
+## Perceptual principles
+
+- Hierarchy of mappings: (first) position along an axis - (last) color (Cleveland, 1984; Heer and Bostock, 2009)
+- Pre-attentive: Some elements are noticed before you even realise it.
+- Color: (pre-attentive) palettes - qualitative, sequential, diverging.
+- Proximity: Place elements for primary comparison close together. 
+- Change blindness: When focus is interrupted differences may not be noticed.
+
+## Hierarchy of mappings
+
+1. Position - common scale (BEST)
+2. Position - nonaligned scale
+3. Length, direction, angle
+4. Area
+5. Volume, curvature
+6. Shading, color (WORST)
+
+## Pre-attentive
+
+Can you find the odd one out?
+
+```{r echo=FALSE}
+df <- data.frame(x=runif(100), y=runif(100), cl=sample(c(rep("A", 1), rep("B", 99))))
+ggplot(data=df, aes(x, y, shape=cl)) + theme_bw() + 
+  geom_point() +
+  theme(legend.position="None", aspect.ratio=1)
+```
+
+---
+
+Is it easier now?
+
+```{r echo=FALSE}
+ggplot(data=df, aes(x, y, colour=cl)) + 
+  geom_point() +
+  theme_bw() + 
+  theme(legend.position="None", aspect.ratio=1)
+```
+
+
+## Color palettes
+
+- Qualitative: categorical variables
+- Sequential: low to high numeric values
+- Diverging: negative to positive values
+
+---
+
+```{r, echo=FALSE, fig.height=7, fig.width=12}
+library(RColorBrewer)
+display.brewer.all()
+```
+
+
+## Proximity
+
+```{r fig.show='hide'}
+ggplot(fly_sub, aes(x=`In general, is itrude to bring a baby on a plane?`,
+                    fill=Gender)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Age, ncol=5)
+```
+
+With this arrangement we can see proportion of gender within each rudeness category, and compare these across age groups.  How could we arrange this differently?
+
+##
+
+
+```{r echo=FALSE}
+ggplot(fly_sub, aes(x=`In general, is itrude to bring a baby on a plane?`,
+                    fill=Gender)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Age, ncol=5)
+```
+
+
+## Proximity
+
+```{r fig.show='hide'}
+ggplot(fly_sub, aes(x=Gender,
+   fill=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Age, ncol=5) +
+  theme(legend.position="bottom")
+```
+
+##
+
+```{r echo=FALSE}
+ggplot(fly_sub, aes(x=Gender,
+                    fill=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Age, ncol=5) + theme(legend.position="bottom")
+```
+
+What is different about the comparison now?
+
+## Another arrangement
+
+```{r fig.show='hide'}
+ggplot(fly_sub, aes(x=Age,
+                    fill=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Gender, ncol=5) + 
+  theme(legend.position="bottom")
+```
+
+##
+
+```{r echo=FALSE}
+ggplot(fly_sub, aes(x=Age,
+                    fill=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Gender, ncol=5) + theme(legend.position="bottom")
+```
+
+## Themes
+
+The `ggthemes` package has many different styles for the plots. Other packages such as `xkcd`, `skittles`, `wes anderson`, `beyonce`, ....
+
+```{r fig.show='hide'}
+library(xkcd)
+ggplot(fly_sub, aes(x=Gender,
+                    fill=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Age, ncol=5) +
+  theme_xkcd() + theme(legend.position="bottom")
+```
+
+See the [vignette](https://cran.r-project.org/web/packages/xkcd/vignettes/xkcd-intro.pdf) for instructions on installing the xkcd font. 
+
+##
+
+```{r echo=FALSE}
+library(xkcd)
+ggplot(fly_sub, aes(x=Gender,
+                    fill=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar(position="fill") + coord_flip() + facet_wrap(~Age, ncol=5) +
+  theme_xkcd() + theme(legend.position="bottom")
+```
+
+## Your turn
+
+![](lorikeets.png)
+
+Compile the rmarkdown document that you have put together thus far in the workshop!
+
+## Resources
+
+- [Cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/08/ggplot2-cheatsheet.pdf)
+- [ggplot2: Elegant Graphics for Data Analysis, Hadley Wickham](http://ggplot2.org/book/), [web site](http://ggplot2.org)
+- [R Graphics Cookbook, Winston Chang](http://www.cookbook-r.com/Graphs/)
+- [Naomi Robbins, Creating More Effective Graphs](http://www.nbr-graphs.com)
+- [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
+
+## Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
