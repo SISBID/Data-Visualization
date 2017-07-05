@@ -1,14 +1,16 @@
 ---
 title: "Shiny app examples"
-subtitle: "SISBID 2016"
-author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
-date: "`r Sys.Date()`"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
 output:
-  ioslides_presentation:
-    transition: default
-    widescreen: true
-css:
-  ../styles.css
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
 
 ```{r, echo = FALSE, warning = FALSE, message=FALSE}
@@ -30,63 +32,76 @@ library(scales)
 library(readr)
 ```
 
-## A shiny app for exploring soybean milestone cultivars
+# A shiny app for exploring soybean milestone cultivars
 
 - Explore genetic signatures, genealogy and phenotypic changes of soybean breeding
 - Ultimate task is to understand how the genome changed with the breeding of lines, and how this affected other traits
 
-## Data: three sources
+---
+# Data: three sources
 
 - Next-generation sequencing DNA-seq on 79 lines: DNA sequencing libraries were prepared using TruSeq DNA sample prep and NuGENs unamplified prep kits (Illumina Inc., San Diego, CA and NuGEN Technologies Inc., San Carlos, CA). 
 - Field yield trials: 30/79 + 138 ancestral lines
 - Breeding literature, what lines were bred to produce what line
 
-## Three apps
+---
+# Three apps
 
 - Copy number variation (CNV): 2Gb of analysis files, annotations
 - SNPs: 12Gb of data, 20mill SNPs, 1mil locations, 79 lines
 - Genealogy: Shows the parent to child lineage
 
-## CNV app
+---
+# CNV app
 
 - Seven tabs containing different functionality
 - Four of the tabs, CNV Location, Copy Number, "Search CNVs by Location", and CNV List, primarily concerned with exploring the identified copy number variants
 - The other three tabs, Phenotype Data, Genealogy, and Methodology provide additional information about the soybean cultivars and the experimental methodology
 - App written by Dr Susan Vanderplas
 
-## Software
+---
+# Software
 
 - shiny: provides the infrastructure, web interface
 - ggplot2: static plots
 - animint: interactive plots
 
-## Main page
+---
+# Main page
 
 ![](CNV1.png)
 
-## 
+---
+# 
 
 ![](CNV2.png)
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
 What does copy number variation mean?
 
-## Barcode plots
+---
+# Barcode plots
 
 ![](CNV3.png)
 
-## Field trial data
+---
+# Field trial data
 
 ![](CNV4.png)
 
-## Lineage
+---
+# Lineage
 
 ![](CNV5.png)
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -98,7 +113,9 @@ or
 
 (It might be best to share one computer between three or four people, so that the servers don't get overloaded.)
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -119,7 +136,9 @@ IA 3023
 Lawrence
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -137,7 +156,9 @@ Perry, N48-1248, S-100, CNS
 Illini is a great-great-grandparent of Lawrence
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -149,29 +170,32 @@ Find some locations on the genome that Lawrence might have inherited from Illini
 middle of Chr 1, chunks of Chr 3, one spot on Chr 8, end of Chr 16, ...
 ```
 
-## SNP app
+---
+# SNP app
 
 - Five tabs containing different functionality
 - Overview, SNP locations, search by id, SNP browser, SNP distance and the Kevin Bacon distance
 - App written by Susan Vanderplas
 
-## Browse SNPs
+---
+# Browse SNPs
 
 ![](SNP1.png)
 
-##
+---
 
 ![](SNP2.png)
 
-##
+---
 
 ![](SNP3.png)
 
-##
+---
 
 ![](SNP4.png)
 
-## Quick overview of three other shiny apps
+---
+# Quick overview of three other shiny apps
 
 - Exploring the answer space for a theoretical question: https://erichare.shinyapps.io/pelica/
 - Getting an image and the code for a logo plot:  https://erichare.shinyapps.io/gglogo/
@@ -179,7 +203,8 @@ middle of Chr 1, chunks of Chr 3, one spot on Chr 8, end of Chr 16, ...
 
 - Author: Eric Hare
 
-## PeLiCa - peptide library calculator
+---
+# PeLiCa - peptide library calculator
 
 https://erichare.shinyapps.io/pelica/
 
@@ -187,24 +212,29 @@ https://erichare.shinyapps.io/pelica/
 - What is the baseline probability that a peptide of length p is included in a synthetic library of size N (really large)?
 - What role does peptide encoding play?
 
-## Expected Coverage 
+---
+# Expected Coverage 
 
 <img width="950px" src="pelica-1.png">
 
-## Creating a logo plot
+---
+# Creating a logo plot
 
 https://erichare.shinyapps.io/gglogo/
 
 <img width="950px" src="gglogo-1.png">
 
-## Matching Bullets
+---
+# Matching Bullets
 
 https://erichare.shinyapps.io/x3prplus/
 
 <img width="650px" src="matching-1.png">
 
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -215,7 +245,8 @@ Pick one of the three shiny apps and explore it for yourself:
 - bullet matching: http://erichare.shinyapps.io/x3prplus 
 
 
-## Resources
+---
+# Resources
 
 - [Cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/08/ggplot2-cheatsheet.pdf)
 - [ggplot2: Elegant Graphics for Data Analysis, Hadley Wickham](http://ggplot2.org/book/), [web site](http://ggplot2.org)
@@ -225,6 +256,7 @@ Pick one of the three shiny apps and explore it for yourself:
 - [Naomi Robbins, Creating More Effective Graphs](http://www.nbr-graphs.com)
 - [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
 
-## Share and share alike
+---
+# Share and share alike
 
-This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

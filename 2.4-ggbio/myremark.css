@@ -1,0 +1,153 @@
+@import url(https://fonts.googleapis.com/css?family=Actor);
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+@import url(https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600);
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
+
+body {
+  font-family: 'Actor', sans-serif;
+}
+h1, h2, h3 {
+  font-family: 'Yanone Kaffeesatz';
+  font-weight: 400;
+  margin-bottom: 0;
+  color: #1B9E77;
+}
+h1:before {
+  color: #D95F02;
+  font-family: "FontAwesome";
+  margin-right: 10px;
+}
+.remark-slide-content h1 { font-size: 3em; }
+.remark-slide-content h2 { font-size: 1.9em; }
+.remark-slide-content h3 { font-size: 1.5em; }
+.footnote {
+  position: absolute;
+  bottom: 3em;
+  font-style: italic;
+  font-size: 70%;
+}
+li { line-height: 1.85em; }
+li p { line-height: 1.25em; }
+li {
+  list-style-type: none;
+}
+ul li:before {
+  content: "\f080";
+  font-family: "FontAwesome";
+  margin-right: 10px;
+  color: #D95F02;
+}
+ul li li:before {
+  content: "\f1fe";
+  font-family: "FontAwesome";
+  margin-right: 10px;
+}
+.red { color: #D00000; }
+.orange { color: #FFBA08; }
+.blue { color: #3F88C5; }
+.large { font-size: 2em; }
+a, a > code {
+  color: #D95F02;
+  text-decoration: none;
+}
+code {
+  border-radius: 5px;
+}
+.remark-code, .remark-inline-code { font-family: 'Source Code Pro'; font-size: 80%; }
+.remark-code-line-highlighted     { background-color: #373832; }
+.pull-left {
+  float: left;
+  width: 47%;
+}
+.pull-right {
+  float: right;
+  width: 47%;
+}
+.pull-right ~ p {
+  clear: both;
+}
+#slideshow .slide .content code {
+  font-size: 0.8em;
+}
+#slideshow .slide .content pre code {
+  font-size: 0.9em;
+  padding: 15px;
+}
+.inverse {
+  background: #464646;
+  color: #D8DAEB;
+  text-shadow: 0 0 0px #333;
+}
+.inverse h1 {
+  color: #1B9E77;
+  font-size: 2.5em;
+  line-height: 1.2em;
+}
+.inverse h2 {
+  color: #1B9E77;
+  font-size: 2.5em;
+  line-height: 1.2em;
+}
+.inverse h3 {
+  color: #D8DAEB;
+  font-size: 1.5em;
+  line-height: 1.0em;
+}
+.inverse ul li:before {
+  content: "\f080";
+  font-family: "FontAwesome";
+  margin-right: 10px;
+  color: #D95F02;
+}
+
+/* Slide-specific styling */
+#slide-inverse .footnote {
+  bottom: 12px;
+  left: 20px;
+}
+#slide-how .slides {
+  font-size: 0.9em;
+  position: absolute;
+  top:  151px;
+  right: 140px;
+}
+#slide-how .slides h3 {
+  margin-top: 0.2em;
+}
+#slide-how .slides .first, #slide-how .slides .second {
+  padding: 1px 20px;
+  height: 90px;
+  width: 120px;
+  -moz-box-shadow: 0 0 10px #777;
+  -webkit-box-shadow: 0 0 10px #777;
+  box-shadow: 0 0 10px #777;
+}
+#slide-how .slides .first {
+  background: #fff;
+  position: absolute;
+  top: 20%;
+  left: 20%;
+  z-index: 1;
+}
+#slide-how .slides .second {
+  position: relative;
+  background: #fff;
+  z-index: 0;
+}
+
+/* Two-column layout */
+.left-column {
+  color: #777;
+  width: 20%;
+  height: 92%;
+  float: left;
+}
+  .left-column h2:last-of-type, .left-column h3:last-child {
+    color: #000;
+  }
+.right-column {
+  width: 75%;
+  float: right;
+  padding-top: 1em;
+}

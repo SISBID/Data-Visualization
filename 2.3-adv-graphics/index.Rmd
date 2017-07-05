@@ -1,0 +1,294 @@
+---
+title: "Advanced plots and inference"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
+output:
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      incremental: true
+---
+
+```{r, echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(RColorBrewer)
+library(gridExtra)
+library(ggenealogy)
+```
+
+# Tidy data and random variables
+
+- The concept of tidy data matches elementary statistics
+- Tabular form puts variables in columns and observations in rows
+- Not all tabular data is in this form
+- This is the point of tidy data
+
+$$X = \left[ \begin{array}{rrrr}
+           X_1 & X_2 & ... & X_p 
+           \end{array} \right] \\
+  = \left[ \begin{array}{rrrr}
+           X_{11} & X_{12} & ... & X_{1p} \\
+           X_{21} & X_{22} & ... & X_{2p} \\
+           \vdots & \vdots & \ddots& \vdots \\
+           X_{n1} & X_{n2} & ... & X_{np}
+           \end{array} \right]$$
+
+- $X_1 \sim N(0,1), ~~X_2 \sim exp(1) ...$
+---
+# Grammar of graphics and statistics
+
+- A statistic is a function on the values of items in a sample, e.g. for $n$ iid random variates $\bar{X}_1=\sum_{i=1}^n X_{i1}$, $s_1^2=\frac{1}{n-1}\sum_{i=1}^n(X_{i1}-\bar{X}_1)^2$
+- We study the behaviour of the statistic over all possible samples of size $n$. 
+- The grammar of graphics is the mapping of (random) variables to graphical elements, making plots of data into statistics
+
+---
+# Pipeline: Messy to tidy to plot
+
+```{r}
+messy_data <- read_csv("../data/tb.csv")
+head(messy_data)
+```
+
+---
+
+```{r}
+tidy_data <- messy_data %>% 
+  gather(demo, count, -year, -iso2, na.rm = TRUE) %>% 
+  separate(demo, c("gender", "age"))
+tidy_data <- tidy_data %>% 
+  filter(!(age %in% c("014", "04", "514")))
+head(tidy_data)
+```
+
+---
+# 100% charts
+
+```{r fig.width=10, fig.height=3}
+tidy_data %>% 
+  filter(iso2 == "AU") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# Stacked barcharts
+
+```{r fig.width=10, fig.height=3}
+tidy_data %>% 
+  filter(iso2 == "AU") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# Side-by-side barcharts
+
+```{r fig.width=10, fig.height=3}
+tidy_data %>% 
+  filter(iso2 == "AU") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity", position="dodge") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# facetted barcharts
+
+```{r fig.width=10, fig.height=3}
+tidy_data %>% 
+  filter(iso2 == "AU") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# Rose plot
+
+```{r fig.width=10, fig.height=3}
+tidy_data %>% 
+  filter(iso2 == "AU") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) + coord_polar()
+```
+
+---
+# Rainbow charts
+
+```{r fig.width=10, fig.height=3}
+tidy_data %>% 
+  filter(iso2 == "AU") %>% 
+  ggplot(aes(x = 1, y = count, fill = factor(year))) +
+  geom_bar(stat = "identity", position="fill") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) 
+```
+
+---
+# Pie charts
+
+```{r fig.width=10, fig.height=3}
+tidy_data %>% 
+  filter(iso2 == "AU") %>% 
+  ggplot(aes(x = 1, y = count, fill = factor(year))) +
+  geom_bar(stat = "identity", position="fill") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) + coord_polar(theta="y")
+```
+
+---
+class: inverse middle 
+# Your turn
+
+What do you learn about tb incidence in Australia by gender and age and year from the
+- 100% charts?
+- stacked bar charts?
+- side-by-side barcharts?
+- facetted barcharts?
+
+---
+# Inference
+
+- Choice of plot implicitly sets $H_0$, $H_1$
+- Generically, we are thinking  $H_0$: no pattern, $H_1$: pattern, but the choice of plot makes this much more explicit
+
+---
+# Putting the pieces together
+
+```{r}
+df <- data.frame(v1=c(rexp(20), rexp(15, 2)), 
+                 v2=c(rep("A", 20), rep("B", 15)))
+ggplot(df, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() + coord_flip()
+```
+
+---
+
+- Question?
+- Data, variables
+- Mapping
+- Null generating mechanism
+
+---
+
+> - Question? Is there a difference between the two groups? $H_0$: no difference, $H_1$: difference
+> - Data, variables: Two variables: v1, v2; v2 is categorical
+> - Mapping: x=V2, y=V1, colour=V1, geom=boxplot
+> - Null generating mechanism: permute the values of V1, relative to V2
+
+---
+# Clarity
+
+- The null hypothesis is determined based on the plot type
+- It is not based on the structure seen in a data set
+
+---
+# Lineup
+
+```{r fig.height=8}
+library(nullabor)
+pos <- sample(1:20, 1)
+df_null <- lineup(null_permute('v1'), df, pos=pos)
+ggplot(df_null, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() +
+  facet_wrap(~.sample, ncol=5) + coord_flip()
+```
+
+Which plot shows the most difference between the groups?
+
+---
+# Evaluation
+
+- Computing p-values
+- Power
+
+---
+# Null-generating mechanisms
+
+
+---
+class: inverse middle 
+# Your turn
+
+For these plot descriptions, decide on:
+
+- null hypothesis
+- null generating mechanism
+
+---
+class: inverse middle 
+# Your turn
+
+- For the tb data, subset to 2008
+- Decide on two possible plot designs to show the relationship between age, gender.
+- Write the code to make the plots
+- Determine an appropriate null generating mechanism to test $H_o$: no relationship between age and gender.
+- Make a lineup to for each plot design. 
+
+---
+# Resources
+
+- Hofmann, H., Follett, L., Majumder, M. and Cook, D. (2012) Graphical Tests for Power Comparison of Competing Designs, http://doi.ieeecomputersociety.org/10.1109/TVCG.2012.230.
+- Wickham, H., Cook, D., Hofmann, H. and Buja, A. (2010) Graphical Inference for Infovis,  http://doi.ieeecomputersociety.org/10.1109/TVCG.2010.161. 
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

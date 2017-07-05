@@ -1,14 +1,16 @@
 ---
 title: "Tidying your data"
-subtitle: "SISBID 2016"
-author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
-date: "`r Sys.Date()`"
+subtitle: "SISBID 2017"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
 output:
-  ioslides_presentation:
-    transition: default
-    widescreen: true
-css:
-  styles.css
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
 
 ```{r echo = FALSE}
@@ -16,7 +18,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   collapse = TRUE,
-  comment = "#>",
+  comment = "",
   fig.height = 4,
   fig.width = 8,
   fig.align = "center",
@@ -39,14 +41,15 @@ library(gridExtra)
 library(broom)
 ```
 
-## Using the Packages `tidyr`, `dplyr`
+# Using `tidyr`, `dplyr`
 
 - Writing readable code using **pipes**
 - What is **tidy data**? Why do you want tidy data? Getting your data into tidy form using tidyr.
 - Reading different **data formats**
 - String operations, working with **text**
 
-## Pipes `%>%`
+---
+# Pipes `%>%`
 
 Pipes allow the code to be *read* like a sequence of operations
 
@@ -56,82 +59,95 @@ student2012.sub <- readRDS("../data/student_sub.rds")
 student2012.sub %>% group_by(CNT) %>% tally()
 ```
 
-## Your turn 1
+---
+class: inverse middle 
+# Your turn 1
 
 What are the variables?
 
 ```{r echo=FALSE}
 grad <- read_csv("../data/graduate-programs.csv")
-kable(head(grad[c(2,3,4,6)]))
+head(grad[c(2,3,4,6)])
 ```
 
 ```{r echo=FALSE, eval=FALSE}
 in the columns, subject, Inst, AvNumPubs, ...
 ```
 
-## Your turn 2
+---
+class: inverse middle 
+# Your turn 2
 
 What's in the column names of this data? What are the experimental units? What are the measured variables?
 
 ```{r, echo=FALSE}
 genes <- read_csv("../data/genes.csv")
-kable(genes)
+head(genes)
 ```
 
 ```{r echo=FALSE, eval=FALSE}
 the experimental design is coded into the variable names, genotype:WI/WM, time:6/12, rep:1/2/4
 ```
 
-## Your turn 3
+---
+class: inverse middle 
+# Your turn 3
 
 What are the variables? What are the records?
 
-```{r}
+```{r echo=FALSE}
 melbtemp <- read.fwf("../data/ASN00086282.dly", 
    c(11, 4, 2, 4, rep(c(5, 1, 1, 1), 31)), fill=T)
-kable(head(melbtemp[,c(1,2,3,4,seq(5,128,4))]))
+head(melbtemp[,c(1,2,3,4,seq(5,100,4))])
 ```
 
 ```{r echo=FALSE, eval=FALSE}
 variables are TMAX, TMIN, PRCP, year, month, day, stationid. Each row contains the values for one month!
 ```
 
-## Your turn 4
+---
+class: inverse middle 
+# Your turn 4
 
 What are the variables? What are the experimental units?
 
-```{r}
+```{r echo=FALSE}
 tb <- read_csv("../data/tb.csv")
 #tail(tb)
 colnames(tb)
 ```
 
-## Your turn 5 
+---
+class: inverse middle 
+# Your turn 5 
 
 What are the variables? What are the experimental units?
 
-```{r}
+```{r echo=FALSE}
 pew <- read.delim(
   file = "http://stat405.had.co.nz/data/pew.txt",
   header = TRUE,
   stringsAsFactors = FALSE,
   check.names = F
 )
-kable(pew[1:5, 1:5])
+pew[1:5, 1:5]
 ```
 
-## Your turn 6
+---
+class: inverse middle 
+# Your turn 6
 
 10 week sensory experiment, 12 individuals assessed taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do they taste?), fried in one of 3 different oils, replicated twice. First few rows:
 
 ```{r, echo = FALSE}
 data(french_fries, package = "reshape2")
-kable(head(french_fries, 4), format = "markdown", row.names = F)
+head(french_fries, 4)
 ```
 
 What is the experimental unit? What are the factors of the experiment? What was measured? What do you want to know?
 
-## Messy Data Patterns
+---
+# Messy Data Patterns
 
 There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns.
 
@@ -140,7 +156,8 @@ There are various features of messy data that one can observe in practice. Here 
 - One type of experimental unit stored in multiple tables
 - Dates in many different formats
 
-## What is Tidy Data?
+---
+# What is Tidy Data?
 
 - Each observation forms a row
 - Each variable forms a column
@@ -148,30 +165,33 @@ There are various features of messy data that one can observe in practice. Here 
 - Long form makes it easier to reshape in many different ways
 - Wide form is common for analysis
 
-## Tidy Data {.flexbox .vcenter #myImagePage1}
+---
 
 ![](lego.pdf)
 
-## Messy Data {.flexbox .vcenter #myImagePage1}
+---
 
 ![](playmobile.pdf)
 
-## Tidy Verbs
+---
+# Tidy Verbs
 
 - **gather**: specify the **keys** (identifiers) and the **values** (measures) to make long form (used to be called melting)
 - **spread**: variables in columns (used to be called casting)
 - nest/unnest: working with lists
 - separate/unite: split and combine columns
 
-## French Fries 
+---
+# French Fries 
 
 10 week sensory experiment, 12 individuals assessed taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do they taste?), fried in one of 3 different oils, replicated twice. First few rows:
 
-```{r, echo=FALSE, results='asis'}
-kable(head(french_fries), format = "markdown", row.names = FALSE)
+```{r, echo=FALSE}
+head(french_fries)
 ```
 
-## What Would We Like to Know?
+---
+# What Would We Like to Know?
 
 - Is the design complete?
 - Are replicates like each other?
@@ -181,21 +201,23 @@ kable(head(french_fries), format = "markdown", row.names = FALSE)
 
 Each of these questions involves different summaries of the data.
 
-## Gathering
+---
+# Gathering
 
-- When gathering, you need to specify the **keys** (identifiers) and the **values** (measures).
+When gathering, you need to specify the **keys** (identifiers) and the **values** (measures).
 
-Keys/Identifiers:
-- Identify a record (must be unique)
-- Example: Indices on an random variable
-- Fixed by design of experiment (known in advance)
-- May be single or composite (may have one or more variables)
+- Keys/Identifiers:
+  - Identify a record (must be unique)
+  - Example: Indices on an random variable
+  - Fixed by design of experiment (known in advance)
+  - May be single or composite (may have one or more variables)
 
-Values/Measures:
-- Collected during the experiment (not known in advance)
-- Usually numeric quantities
+- Values/Measures:
+  - Collected during the experiment (not known in advance)
+  - Usually numeric quantities
 
-## Gathering the French Fries
+---
+# Gathering the French Fries
 
 ```{r}
 ff_long <- gather(french_fries, key = variable, value = 
@@ -203,13 +225,15 @@ ff_long <- gather(french_fries, key = variable, value =
 head(ff_long)
 ```
 
-## Long to Wide
+---
+# Long to Wide
 
 In certain applications, we may wish to take a long dataset and convert it to a wide dataset (perhaps displaying in a table).
 
 This is called "spreading" the data.
 
-## Spread
+---
+# Spread
 
 We use the **spread** function from tidyr to do this:
 
@@ -220,13 +244,15 @@ french_fries_wide <- spread(ff_long, key = variable,
 head(french_fries_wide)
 ```
 
-## Answer some Questions
+---
+# Answer some Questions
 
 - Easiest question to start is whether the ratings are similar on the different scales, potato'y, buttery, grassy, rancid and painty. 
 
 - We need to gather the data into long form, and make plots facetted by the scale. 
 
-## Ratings on the Different Scales
+---
+# Ratings on the Different Scales
 
 ```{r}
 ff.m <- french_fries %>% 
@@ -234,14 +260,15 @@ ff.m <- french_fries %>%
 head(ff.m)
 ```
 
-##
+---
 
 ```{r, fig.height=2, fig.width=8}
 ggplot(data=ff.m, aes(x=rating)) + geom_histogram(binwidth=2) + 
   facet_wrap(~type, ncol=5) 
 ```
 
-## Side-By-Side Boxplots
+---
+# Side-By-Side Boxplots
 
 ```{r fig.width=8, fig.height=5}
 ggplot(data=ff.m, aes(x=type, y=rating, fill=type)) + 
@@ -249,13 +276,15 @@ ggplot(data=ff.m, aes(x=type, y=rating, fill=type)) +
 ```
 
 
-## Do the Replicates Look Like Each Other?
+---
+# Do the Replicates Look Like Each Other?
 
 We will start to tackle this by plotting the replicates against each other using a scatterplot. 
 
 We need to gather the data into long form, and then get the replicates spread into separate columns. 
 
-## Check Replicates
+---
+# Check Replicates
 
 ```{r}
 head(ff.m)
@@ -263,7 +292,8 @@ ff.s <- ff.m %>% spread(rep, rating)
 head(ff.s)
 ```
 
-## Check Replicates
+---
+# Check Replicates
 
 ```{r, fig.show='hold', fig.align='default', fig.height=4, fig.width=4}
 ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
@@ -273,7 +303,9 @@ ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
   scale_x_sqrt() + scale_y_sqrt()
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -288,7 +320,9 @@ ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
   xlab("Rep 1") + ylab("Rep 2") + facet_grid(treatment~type)
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -300,7 +334,9 @@ billboard <- read.csv("../data/billboard.csv")
 
 What's in this data? What's X1-X76?
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -319,40 +355,42 @@ ggplot(data=long_billboard) + geom_line(aes(x=week+lubridate::week(date.entered)
 ```
 
 
-## String Manipulation
+---
+# String Manipulation
 
 When the experimental design is packed into column names, we need to extract it, and tidy it up. 
 
 ```{r}
 genes <- read_csv("../data/genes.csv")
-kable(head(genes))
+head(genes)
 ```
 
-## Gather Column Names into Long Form
+---
+# Gather Column Names into Long Form
 
 ```{r}
-gather(genes, variable, expr, -id) %>% kable
+gather(genes, variable, expr, -id) 
 ```
 
-## Separate Columns
+---
+# Separate Columns
+
+```{r}
+genes %>%
+  gather(variable, expr, -id) %>%
+  separate(variable, c("trt", "leftover"), "-") 
+```
+
+---
 
 ```{r}
 genes %>%
   gather(variable, expr, -id) %>%
   separate(variable, c("trt", "leftover"), "-") %>%
-  kable
+  separate(leftover, c("time", "rep"), "\\.") 
 ```
 
-##
-
-```{r}
-genes %>%
-  gather(variable, expr, -id) %>%
-  separate(variable, c("trt", "leftover"), "-") %>%
-  separate(leftover, c("time", "rep"), "\\.") %>% kable
-```
-
-##
+---
 
 ```{r}
 gtidy <- genes %>%
@@ -361,10 +399,12 @@ gtidy <- genes %>%
   separate(leftover, c("time", "rep"), "\\.") %>%
   mutate(trt = sub("W", "", trt)) %>%
   mutate(rep = sub("R", "", rep))
-kable(head(gtidy))
+head(gtidy)
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -382,7 +422,8 @@ ggplot(data = gtidy, aes(trt, expr, colour = time)) +
   geom_line(data = gmean, aes(group = time))
 ```
 
-## Tidying model output
+---
+# Tidying model output
 
 The package `broom` gets model results into a tidy format. 
 
@@ -393,27 +434,31 @@ ff_lm <- lm(rating~variable+treatment+time+subject,
             data=ff_long)
 ```
 
-## Model estimates
+---
+# Model estimates
 
 ```{r}
 ff_lm_tidy <- tidy(ff_lm)
 glimpse(ff_lm_tidy)
 ```
 
-## Model diagnostics
+---
+# Model diagnostics
 
 ```{r}
 ff_lm_all <- augment(ff_lm)
 glimpse(ff_lm_all)
 ```
 
-## Residual plot
+---
+# Residual plot
 
 ```{r}
 ggplot(ff_lm_all, aes(x=.fitted, y=.resid)) + geom_point()
 ```
 
-## Back to autism
+---
+# Back to autism
 
 Fit a random slopes model to the data:
 
@@ -430,7 +475,9 @@ autism_lmer <- lmer(vsae ~ age2 + ( age2 - 1 | childid ),
                     data = autism_sub)
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 - Augment the autism data with the model diagnostics
 - Plot the residuals from the (a) fixed, (b) random effects
@@ -456,12 +503,14 @@ ggplot(autism_lmer_all, aes(x=.fitted, y=vsae, label=childid)) +
   geom_point() + geom_line(aes(group=childid))
 ```
 
-## Resources
+---
+# Resources
 
-- [tidyr and dplyr cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+- Data transformation [cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/source/pdfs/data-transformation-cheatsheet.pdf)
 - [Wickham (2007) Reshaping data](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
 - [broom vignettes, David Robinson](https://cran.r-project.org/web/packages/broom/vignettes/broom.html)
 
-## Share and share alike
+---
+# Share and share alike
 
-This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

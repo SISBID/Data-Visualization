@@ -1,14 +1,16 @@
 ---
 title: "Data manipulation with dplyr, purrr and broom"
-subtitle: "SISBID 2016"
-author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
-date: "`r Sys.Date()`"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
 output:
-  ioslides_presentation:
-    transition: default
-    widescreen: true
-css:
-  ../styles.css
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
 
 ```{r, echo = FALSE}
@@ -16,7 +18,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   collapse = TRUE,
-  comment = "#>",
+  comment = "",
   fig.height = 4,
   fig.width = 8,
   fig.align = "center",
@@ -39,12 +41,13 @@ library(gridExtra)
 library(GGally)
 ```
 
-## Outline
+# Outline
 
 - dplyr package: motivation, functions, chaining
 - purrr: working with lists, vectors of data frames
 
-## dplyr verbs
+---
+# dplyr verbs
 
 There are five primary dplyr **verbs**, representing distinct data analysis tasks:
 
@@ -56,7 +59,8 @@ There are five primary dplyr **verbs**, representing distinct data analysis task
 - (Group By: Introduce structure to a data frame)
  
  
-## Filter
+---
+# Filter
 
 ```{r}
 data(french_fries, package = "reshape2")
@@ -64,7 +68,8 @@ french_fries %>%
     filter(subject == 3, time == 1)
 ```
 
-## Arrange
+---
+# Arrange
 
 ```{r}
 french_fries %>%
@@ -72,7 +77,8 @@ french_fries %>%
     head
 ```
 
-## Select
+---
+# Select
 
 ```{r}
 french_fries %>%
@@ -80,7 +86,8 @@ french_fries %>%
     head
 ```
 
-## Summarise
+---
+# Summarise
 
 ```{r}
 french_fries %>%
@@ -88,7 +95,8 @@ french_fries %>%
               sd_rancid = sd(rancid, na.rm = TRUE))
 ```
 
-## Summarise and Group_by
+---
+# Summarise and Group_by
 
 ```{r}
 french_fries %>%
@@ -98,7 +106,8 @@ french_fries %>%
 
 
 
-## Let's use these tools
+---
+# Let's use these tools
 
 to answer these french fry experiment questions:
 
@@ -108,12 +117,14 @@ to answer these french fry experiment questions:
 - Are raters giving different scores on average?
 - Do ratings change over the weeks?
 
-## Completeness 
+---
+# Completeness 
 If the data is complete it should be 12 x 10 x 3 x 2, that is, 6 records for each person. (Assuming that each person rated on all scales.) 
 
 To check this we want to tabulate the number of records for each subject, time and treatment. This means select appropriate columns, tabulate, count and spread it out to give a nice table.
 
-## 
+---
+# 
 
 ```{r}
 french_fries %>% 
@@ -123,18 +134,20 @@ french_fries %>%
   spread(time, n)
 ```
 
-## Check completeness with different scales, too
+---
+# Check completeness with different scales, too
 
 ```{r}
 french_fries %>% 
   gather(type, rating, -subject, -time, -treatment, -rep) %>%
-#  select(subject, time, treatment, type) %>% 
-#  tbl_df() %>% 
+  select(subject, time, treatment, type) %>% 
+  tbl_df() %>% 
   count(subject, time) %>%
   spread(time, n)
 ```
 
-## Change in ratings over weeks, relative to experimental design
+---
+# Change in ratings over weeks, relative to experimental design
 
 ```{r fig.show='hide'}
 ff.m <- french_fries %>% 
@@ -144,15 +157,17 @@ ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) +
   facet_grid(subject~type) 
 ```
 
-##
+---
 
-```{r echo=FALSE, fig.width=10, fig.height=6}
+
+```{r echo=FALSE, fig.width=12, fig.height=9}
 ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) +
   geom_point() +
   facet_grid(subject~type) 
 ```
 
-## Add means over reps, and connect the dots
+---
+# Add means over reps, and connect the dots
 
 ```{r fig.show='hide'}
 ff.m.av <- ff.m %>% 
@@ -163,15 +178,17 @@ ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) +
   geom_line(data=ff.m.av, aes(group=treatment))
 ```
 
-##
+---
 
-```{r echo=FALSE, fig.width=10, fig.height=6}
+```{r echo=FALSE, fig.width=12, fig.height=9}
 ggplot(data=ff.m, aes(x=time, y=rating, colour=treatment)) + 
   facet_grid(subject~type) +
   geom_line(data=ff.m.av, aes(group=treatment))
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
@@ -183,28 +200,17 @@ Write an answer to each of the questions:
 - Are raters giving different scores on average?
 - Do ratings change over the weeks?
 
-```{r}
-ffp <- french_fries %>% select(time, treatment, subject, rep, potato) %>% spread(rep, potato)
+---
+# Working with lots of models
 
-ggplot(ffp, aes(x = `1`, y=`2`)) + geom_point()
-
-ff_all <- ff.m %>% spread(rep, rating)
-ggplot(ff_all, aes(x = `1`, y=`2`)) + geom_point(aes(colour=type))
-
-```
-
-## Working with lots of models
-
- Why would we even do that???
+Why would we even do that?
 
 - Hans Rosling can explain that really well in his [TED talk](https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen?language=en)
-
 - [gapminder project](https://www.gapminder.org/)
+- gapminder also makes data available (in R through the package `gapminder`)
 
-- gapminder also makes data available (in R through the package ```gapminder```)
-
-
-##First Look
+---
+# First Look
 
 ```{r}
 library(gapminder)
@@ -214,7 +220,8 @@ ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country)) +
 
 How would you describe this plot?
 
-##First Look
+---
+# First Look
 
 ```{r}
 library(gapminder)
@@ -224,13 +231,13 @@ ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country, colour=continent)) 
 
 How about now?
 
+---
+# Using models as exploratory tools
 
-##Using models as exploratory tools
-
-- Idea: fit a line to each one of the countries' life expectancies
+- Idea: fit a line to each one of the countries life expectancies
 - then use e.g. intercept and slope to characterise groups of countries
 
-```{r, echo=FALSE}
+```{r echo=FALSE}
 library(dplyr)
 library(tidyr)
 library(purrr)
@@ -254,10 +261,13 @@ ggplot(data=country_coefs, aes(x=`(Intercept)`, y=year, colour=continent)) +
   ylab("Average Gain in Life Expectancy per Year")
 ```
 
-##Prepping
+---
 
-- `purrr` package has been unveiled in February (presented by Hadley Wickham at WOMBAT)
-- you might have to re-install the packages ```tidyr``` and ```purrr```, i.e. run the following code:
+--- 
+# Prepping
+
+- The `purrr` package has been unveiled in February (presented by Hadley Wickham at WOMBAT)
+- you might have to re-install the packages `tidyr` and `purrr`, i.e. run the following code
 
 ```{r, eval=FALSE}
 install.packages("tidyr")
@@ -267,14 +277,17 @@ library(tidyr)
 library(purrr)
 ```
 
-## Life Expectancy in the U.S.
+
+---
+# Life Expectancy in the U.S.
 
 ```{r}
 usa <- gapminder %>% filter(country=="United States")
 head(usa)
 ```
 
-##Life Expectancy in the U.S. since 1950
+---
+# Life Expectancy in the U.S. since 1950
 
 ```{r}
 ggplot(data=usa, aes(x=year, y=lifeExp)) + 
@@ -282,7 +295,8 @@ ggplot(data=usa, aes(x=year, y=lifeExp)) +
   geom_smooth(method="lm")
 ```
 
-##Life Expectancy in the U.S. since 1950
+---
+# Life Expectancy in the U.S. since 1950
 
 ```{r}
 usa.lm <- lm(lifeExp~year, data=usa)
@@ -295,44 +309,49 @@ Intercept is estimated life expectancy at 0 BC - let's use 1950 for the first va
 gapminder <- gapminder %>% mutate(year = year-1950)
 ```
 
-##Nesting data
+---
+# Nesting data
 
 We don't want to subset the data for every country ... 
 
-```nest()``` makes a data frame part of another data frame:
+`nest()` makes a data frame part of another data frame:
 
 ```{r}
 by_country <- gapminder %>% group_by(continent, country) %>% nest()
 head(by_country)
 ```
 
-***
+---
 
-Each element of the ```data``` variable in ```by_country``` is a dataset:
+Each element of the `data` variable in `by_country` is a dataset:
 
 ```{r}
 head(by_country$data[[1]])
 lm(lifeExp~year, data=by_country$data[[1]])
 ```
 
-##Fitting multiple models
+---
 
-Now we are using the ```map``` function in the package ```purrr```.
+--- 
+# Fitting multiple models
 
-```map``` allows us to apply a function to each element of a list.
+Now we are using the `map` function in the package `purrr`.
+
+`map` allows us to apply a function to each element of a list.
 
 ```{r}
 by_country$model <- by_country$data %>% purrr::map(~lm(lifeExp~year, data=.))
 head(by_country)
 ```
 
-##On to the ```broom``` package
+---
+# On to the `broom` package
 
-```broom``` allows to extract values from models on three levels:
+`broom` allows to extract values from models on three levels:
 
-- for each model: ```broom::glance```
-- for each coefficient in the model: ```broom::tidy```
-- for each value in the dataset: ```broom::augment```
+- for each model: `broom::glance`
+- for each coefficient in the model: `broom::tidy`
+- for each value in the dataset: `broom::augment`
 
 ```{r}
 library(broom)
@@ -340,14 +359,18 @@ broom::glance(by_country$model[[1]])
 broom::tidy(by_country$model[[1]])
 ```
 
-***
+---
+
 ```{r}
 broom::augment(by_country$model[[1]])
 ```
 
-##Extract values for each coefficient
+---
 
-Extract all countries automatically (hello ```map``` again!)
+--- 
+# Extract values for each coefficient
+
+Extract all countries automatically (hello `map` again!)
 
 ```{r}
 by_country$stats <- by_country$model %>% purrr::map(broom::tidy)
@@ -362,7 +385,8 @@ ggplot(data=coefs, aes(x=`(Intercept)`, y=year, colour=continent)) +
   geom_point()
 ```
 
-##Extract other model diagnostics
+--- 
+# Extract other model diagnostics
 
 ```{r}
 by_country <- by_country %>% unnest(model %>% purrr::map(broom::glance))
@@ -373,7 +397,8 @@ ggplot(data=by_country, aes(x=country, y=r.squared, colour=continent)) +
   scale_colour_brewer(palette="Dark2")
 ```
 
-## Compare groups of countries
+---
+# Compare groups of countries
 
 ```{r}
 country_all <- by_country %>% unnest(data)
@@ -385,7 +410,7 @@ ggplot(data=subset(country_all, r.squared <= 0.45),
 
 What do the patterns mean?
 
-***
+---
 
 ```{r}
 ggplot(data=subset(country_all, between(r.squared, 0.45, 0.75)), 
@@ -394,12 +419,13 @@ ggplot(data=subset(country_all, between(r.squared, 0.45, 0.75)),
   facet_wrap(~country)
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 ![](lorikeets.png)
 
 - extract residuals for each of the models and store it in a dataset together with country and continent information
-
 - plot residuals across the years and fit a smooth. What does the pattern mean?
 
 ```{r eval=FALSE, echo=FALSE}
@@ -409,8 +435,8 @@ ggplot(data=by_country_fits, aes(x = lifeExp, y=resids)) + geom_point() +  geom_
 # overall, a linear fit is not great: at low and high life expectancy, linear fit is too fast
 ```      
 
-
-## broom for bio data
+---
+# broom for bio data
 
 `biobroom` package (Bioconductor; Bass, Nelson, Robinson, Storey, 2016) has the same functions as `broom`, i.e. `glance`, `tidy`, and `augment`.
 
@@ -424,7 +450,8 @@ counts <- Biobase::exprs(hammer)
 head(counts)
 ```
 
-## The Hammer study
+---
+# The Hammer study
 
 published as part of the `biobroom` package, part of the [ReCount project](http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-449)
 ```{r}
@@ -432,7 +459,8 @@ published as part of the `biobroom` package, part of the [ReCount project](http:
 Biobase::phenoData(hammer)@data
 ```
 
-## biobroom and edgeR
+---
+# biobroom and edgeR
 
 identify differentially expressed genes following the protocol by Robinson, McCarthy and Smyth 2009
 
@@ -447,7 +475,8 @@ et <- exactTest(y)
 glance(et, alpha = 0.05) # glance on DGEExact
 ```
 
-## biobroom and edgeR
+---
+# biobroom and edgeR
 
 ```{r}
 tet <- tidy(et)
@@ -459,7 +488,8 @@ ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
 `augment(y)` stops in an error (this is a bug and reported)
 
 
-## biobroom and limma
+---
+# biobroom and limma
 
 ```{r}
 bb <- data.frame(read_tsv("../data/biotin-rma2.txt"))
@@ -467,15 +497,17 @@ head(data.frame(bb[,-2]))
 row.names(bb) <- bb$Gene
 ```
 
-## Looking at the gene expression data
+---
+# Looking at the gene expression data
 
-```{r}
+```{r fig.width=6, fig.height=6}
 ggpairs(bb, columns=c(3,7,4,8))
 ```
 
-## A porcupine plot again
+---
+# A porcupine plot again
 
-```{r}
+```{r fig.width=6, fig.height=6}
 sub <- bb %>% select(Gene, biotin.WT.01.1, biotin.WT.02.1, biotin.bio101.4, biotin.bio102.4)
 ggplot(sub, aes(x=biotin.WT.01.1, xend=biotin.WT.02.1, y=biotin.bio101.4, yend=biotin.bio102.4)) +
   geom_segment() +
@@ -484,7 +516,9 @@ ggplot(sub, aes(x=biotin.WT.01.1, xend=biotin.WT.02.1, y=biotin.bio101.4, yend=b
   ylab("mutant, treated")
 ```
 
-## Fit a limma model
+---
+# Fit a limma model
+
 ```{r}
 design <- expand.grid(type=c("wild", "mutant"), trt=c("control", "treatment"), rep=1:2)
 
@@ -494,12 +528,15 @@ fit <- eBayes(fit)
 head(topTable(fit))
 ```
 
-## Your Turn
+---
+class: inverse middle 
+# Your Turn
 
 ![](lorikeets.png)
 
-For the previous example, try out what output the different broom functions (`glance`, `tidy`, `augment`)  produce.
-Create a Volcano plot for each of the model terms, i.e. plot estimates on x by log(p.values) on y. Are there differences visible between the terms?
+- For the previous example, try out what output the different broom functions (`glance`, `tidy`, `augment`)  produce.
+- Create a Volcano plot for each of the model terms, i.e. plot estimates on x by log(p.values) on y. 
+- Are there differences visible between the terms?
 
 ```{r, echo=FALSE, eval=FALSE}
 head(tidy(fit))
@@ -508,7 +545,7 @@ ggplot(tidy(fit), aes(x=estimate, y=log(p.value), colour = p.value < 0.05)) +
   geom_point() + ggtitle("Volcano Plots with limma") 
 ```
 
-## 
+---
 
 ```{r}
 bbfit <- tidy(fit)
@@ -517,7 +554,7 @@ ggplot(data=bbfit, aes(x=term, y=estimate, group=gene)) +
   geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
 
-##
+---
 
 Is type*treatment interaction necessary? Very strong negative correlation is suspicious.
 
@@ -535,14 +572,15 @@ ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
           ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
 ```
 
-##
+---
 
-```{r echo=FALSE, fig.width=6, fig.height=6}
+```{r echo=FALSE, fig.width=8, fig.height=8}
 ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
           ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
 ```
 
-## 
+---
+
 ```{r}
 fit2 <- lmFit(bb[,-(1:2)], model.matrix(~ type+trt, design))
 fit2 <- eBayes(fit2)
@@ -552,16 +590,18 @@ ggplot(data=bbfit2, aes(x=term, y=estimate, group=gene)) +
   geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
 
-## References
+---
+# References
 
-- [Using purrr by Ian Lyttle](http://ijlyttle.github.io/isugg_purrr/presentation.html#(1))
-- [RStudio's blog on using purrr](https://blog.rstudio.org/2015/09/29/purrr-0-1-0/)
+- Ian Lyttle's notes on using [purrr ](http://ijlyttle.github.io/isugg_purrr/presentation.html#(1)
+- RStudio's tutorial by Charlotte Wickham on using [purrr](https://www.rstudio.com/resources/videos/happy-r-users-purrr-tutorial/)
 - [R blogger's article on purrr](http://www.r-bloggers.com/purrr-0-1-0/)
-- [Wrangling cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+- Data transformation [cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/source/pdfs/data-transformation-cheatsheet.pdf)
 - [Wickham (2007) Reshaping data](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
 - [broom vignettes, David Robinson](https://cran.r-project.org/web/packages/broom/vignettes/broom.html)
 - [Wickham (2011) Split-Apply-Combine](https://www.jstatsoft.org/article/view/v040i01)
 
-## Share and share alike
+---
+# Share and share alike
 
-This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

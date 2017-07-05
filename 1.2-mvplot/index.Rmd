@@ -1,14 +1,16 @@
 ---
 title: "Multivariate data plots"
-subtitle: "SISBID 2016"
-author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
-date: "`r Sys.Date()`"
+subtitle: "SISBID 2017"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
 output:
-  ioslides_presentation:
-    transition: default
-    widescreen: true
-css:
-  styles.css
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
 
 ```{r echo = FALSE}
@@ -17,7 +19,7 @@ knitr::opts_chunk$set(
   warning = FALSE,
   error = FALSE,
   collapse = TRUE,
-  comment = "#>",
+  comment = "",
   fig.height = 4,
   fig.width = 8,
   fig.align = "center",
@@ -34,7 +36,8 @@ library(GGally)
 library(edgeR)
 ```
 
-## Your turn
+class: inverse middle 
+# Your turn
 
 - What is multivariate data?
 - What makes multivariate analysis different from univariate analysis?
@@ -46,15 +49,17 @@ data is multivariate, if we have more information than a single aspect for each 
 mutivariate analysis takes relationships between these different aspects into account.
 ```
 
-## Main types of plots
+---
+# Main types of plots
 
-- pairwise plots: explore replicates, and associations
-- porcupine plots: to explore treatments vs replicates
-- parallel coordinate plots: explore high-dimensional relationships with parallel axes
+- __pairwise plots__: explore replicates, and associations
+- __porcupine plots__: to explore treatments vs replicates
+- __parallel coordinate plots__: explore high-dimensional relationships with parallel axes
 
-## GGally
+---
+# GGally
 
-Classical scatterplot matrix (draftman's) plot. All variables are numeric, show all possible pairs.
+Classical scatterplot matrix plot. All variables are numeric, show all possible pairs.
 
 
 ```{r}
@@ -62,7 +67,7 @@ data(flea)
 ggscatmat(flea, columns = 2:4, color = "species") 
 ```
 
-##
+---
 
 Generalized pairs plot, any combination of types of plots
 
@@ -71,7 +76,8 @@ data(tips, package = "reshape")
 ggpairs(tips[, 1:4])
 ```
 
-## For biological data
+---
+# For biological data
 
 Brown, A. and Hudson, K. (2015) Developmental profiling of gene expression in soybean trifoliate leaves and cotyledons, [GSE61857](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61857). 
 
@@ -79,7 +85,7 @@ Brown, A. and Hudson, K. (2015) Developmental profiling of gene expression in so
 coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
   delim="\t", col_types="cddddddddd", 
   col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
-  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R2"),
+  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R3"),
   skip=1)
 coty <- as.data.frame(coty)
 ggscatmat(coty, columns=2:7, alpha=0.1)
@@ -87,7 +93,7 @@ ggscatmat(coty, columns=2:7, alpha=0.1)
 
 Normalized data for the first 6 samples are shown.
 
-##
+---
 
 ```{r echo=FALSE, fig.width=6, fig.height=6}
 coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
@@ -103,13 +109,16 @@ coty <- as.data.frame(coty)
 ggscatmat(coty[sample(1:nrow(coty), 5000),], columns=2:7, alpha=0.1)
 ```
 
-## What we learn
+---
+# What we learn
 
 - The replicates look more like each other than the developmental stage 1 vs 2. This is great data!
 - There is a lot of variability in counts across stages, would indicate a lot of gene activity. 
 - There are a few genes that have some difference from one rep to another. These could be problematic when it comes to testing. To identify these it is easier to use interactive graphics - stay tuned for this tomorrow.
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 - Read the leaf data in from Brown and Hudson, and make a scatterplot matrix. (If it is too slow on your computer, sample the number of rows, to get a glimpse of the data to start.)
 - Summarise what you learn about the data in a couple of sentences
@@ -130,7 +139,8 @@ GGally::ggscatmat(head(coty,1000), columns=2:7, alpha=0.1) # use just the first 
 # - replicates (samples under the same experimental condition) are more similar (closer to the line of identity) than non-replicates
 ```
 
-## Porcupine plots
+---
+# Porcupine plots
 
 Compare treatment vs reps. Focus on reps 1, 2 from stages 1 and 2. 
 
@@ -141,7 +151,7 @@ ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
   theme(aspect.ratio = 1)
 ```
 
-##
+---
 
 ```{r echo=FALSE}
 sub <- coty %>% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
@@ -152,7 +162,9 @@ ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
 
 The best prospects should be shortest lines further from the `X=Y`. 
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 Make a porcupine plot for the first two reps of the first two developmental stages of the leaf data.
 
@@ -165,13 +177,15 @@ ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
   theme(aspect.ratio = 1)
 ```
 
-## Parallel coordinate plots 
+---
+# Parallel coordinate plots 
 
 - Parallel coordinate plots, use parallel axes, and each observation is represented by a line tracing through the axes.
 - They are useful for getting a sense of the multivariate shape of the data. You can typically read association, clustering and outliers from the plot. 
 - Can handle more variables than scatterplot matrices.
 
-## Side-by-side boxplots to par coords
+---
+# Side-by-side boxplots to par coords
 
 ```{r}
 ggparcoord(coty, columns=2:10, scale="globalminmax", boxplot=TRUE,
@@ -180,7 +194,8 @@ ggparcoord(coty, columns=2:10, scale="globalminmax", boxplot=TRUE,
 
 If the data is normalised well these should be identical boxplots, or very close to that. This is not quite what we see. 
 
-## Parallel coordinates, connect the dots
+---
+# Parallel coordinates, connect the dots
 
 
 ```{r eval=F}
@@ -194,14 +209,17 @@ ggparcoord(coty[sample(1:nrow(coty), 1000),],
            alphaLines=0.1)
 ```
 
-## Scaling choices
+---
+# Scaling choices
 
 - *std*: univariately, subtract mean and divide by standard deviation
 - *robust*: univariately, subtract median and divide by median absolute deviation
 - *uniminmax*: univariately, scale so the minimum of the variable is zero, and the maximum is one
 - *globalminmax*: no scaling is done; the range of the graphs is defined by the global minimum and the global maximum
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 - Make parallel coordinate plots for the 9 samples of the leaf data
 - Start with side-by-side boxplots, and then generate the lines
@@ -224,13 +242,12 @@ ggparcoord(data= coty[1:1000,], scale="uniminmax", columns=2:10, boxplot=FALSE, 
 
 ```
 
-## Parcoords to interaction plots
+---
+# Parcoords to interaction plots
 
-Experiments are often displayed using interaction plots. These are similar to parallel coordinates, which display all the measurements, but interaction plots show one gene at a time.
-
-##
-
-Process the data, and then plot
+- Experiments are often displayed using interaction plots. 
+- These are similar to parallel coordinates, which display all the measurements, but interaction plots show one gene at a time.
+- Process the data, and then plot
 
 ```{r}
 sub <- coty[sample(1:nrow(coty), 6),] %>% 
@@ -241,7 +258,8 @@ sub.m <- sub %>% group_by(ID, stage) %>%
   summarise(expr = mean(expr))
 ```
 
-##
+---
+
 
 
 ```{r}
@@ -250,7 +268,9 @@ ggplot(sub, aes(x=stage, y=expr)) + geom_point(alpha=0.4) +
   geom_line(data=sub.m, aes(x=stage, y=expr), colour="red")
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 Re-make the previous plot, by overlaying them in one plot, instead of faceting, and colour by the ID. 
 
@@ -261,7 +281,8 @@ ggplot(sub, aes(x=stage, y=expr, colour=factor(ID))) + geom_point(alpha=0.4) +
   geom_line(data=sub.m, aes(x=stage, y=expr))
 ```
 
-## With significance testing
+---
+# With significance testing
 
 ```{r}
 d <- DGEList(counts = coty[,-1], 
@@ -278,7 +299,8 @@ results <- glmLRT(de)
 top10 <- as.data.frame(topTags(results, n=12))
 ```
 
-## Plot
+---
+# Plot
 
 ```{r eval=FALSE}
 sub <- coty %>% 
@@ -293,7 +315,8 @@ ggplot(top10, aes(x=stage, y=expr, colour=genes)) +
   geom_line(data=top10.m, aes(x=stage, y=expr, colour=genes))
 ```
 
-##
+---
+
 
 ```{r echo=FALSE}
 sub <- coty %>% 
@@ -308,7 +331,9 @@ ggplot(top10, aes(x=stage, y=expr, colour=genes)) +
   geom_line(data=top10.m, aes(x=stage, y=expr, colour=genes))
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 Plot the next 12 most significant genes. 
 
@@ -324,11 +349,12 @@ ggplot(top10, aes(x=stage, y=expr, colour=genes)) +
 
 ![](lorikeets.png)
 
-## Extracting the significant genes
+---
+# Extracting the significant genes
 
 Just look pairwise for simplicity here.
 
-```{r}
+```{r fig.width=10, fig.height=10}
 d <- DGEList(counts = coty[,2:7], 
   group = c(rep("S1", 3), rep("S2", 3)), 
   genes = coty[,1])
@@ -342,21 +368,25 @@ sig.tab$genes <- coty$ID
 sig.tab <- sig.tab %>% filter(PValue < 0.01)
 ```
 
-##
+---
+
 
 ```{r}
 sig.tab <- merge(sig.tab, coty[,1:7], by.x="genes", by.y="ID")
 ggscatmat(sig.tab, columns=5:10, alpha=0.1)
 ```
 
-##
+---
+
 
 ```{r}
 ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
            alphaLines=0.1)
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 - Test the first two stages of the leaf data. 
 - Plot the genes that have a p-value of less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
@@ -374,7 +404,9 @@ ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
 
 ```        
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 Make the porcupine plot for the two stages, just for rep 1 and rep 2, only the genes that have P-value less than 0.01
 
@@ -385,13 +417,15 @@ ggplot(data=sig.tab) +
   geom_segment(aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2))
 ```
 
-## Resources
+---
+# Resources
 
 - [GGobi web site](http://www.ggobi.org), [ggobi book](http://www.ggobi.org/book)
 - Emerson et al (2013) The Generalized Pairs Plot, Journal of Computational and Graphical Statistics, 22:1, 79-91
 - Cook et al (2007) Exploring Gene Expression Data, Using Plots, Journal of Data Science, 5(2):151-182
 - [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
 
-## Share and share alike
+---
+# Share and share alike
 
-This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

@@ -1,14 +1,16 @@
 ---
-title: "ggbio: Biological data plots"
-subtitle: "SISBID 2016"
-author: "Di Cook (dicook@monash.edu, @visnut); Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
-date: "`r Sys.Date()`"
+title: "Biological data plots"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
 output:
-  ioslides_presentation:
-    transition: default
-    widescreen: true
-css:
-  styles.css
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
 
 ```{r, echo = FALSE}
@@ -16,7 +18,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   collapse = TRUE,
-  comment = "#>",
+  comment = "",
   fig.height = 4,
   fig.width = 8,
   fig.align = "center",
@@ -26,18 +28,226 @@ knitr::opts_chunk$set(
 
 
 ```{r, echo = FALSE}
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-library(lubridate)
-library(scales)
-library(readr)
-library(ggbio)
+library(tidyverse)
 library(biovizBase)
 library(GenomicRanges)
+library(ggbio)
+library(ggenealogy)
 ```
 
-## What is ggbio?
+# GGenealogy
+
+- Genealogy is the study of parent-child relationships.
+- Comparative geneticists, computational biologists, and bioinformaticians commonly use genealogical tools to better understand the histories of novel traits arising across biological lineages, e.g. modifications in crops could include an increase in protein yield.
+- R packages: `ggenealogy`, `pedigree`, `kinship2`
+
+---
+# Package comparison
+
+- `pedigree`: standardized chart used to study human family lines (Coster, 2013)
+- `kinship2`: basic pedigree charts (Therneau, Daniel, Sinnwell, Atkinson, 2015)
+- `ggenealogy`: focused on agronomic genealogical lineages (Rutter, Vanderplas, Cook, Graham 2016)
+
+---
+# Soybeans
+
+```{r}
+data("sbGeneal")
+str(sbGeneal)
+```
+
+---
+# Input format
+
+- data frame structure with at least two columns
+- One column must be labeled "child", and be `character`
+- other column must be labeled "parent"" and each case in that column must either be of type character, or a missing denoted by NA, or "".
+- additional information can be useful, e.g. `year`, `yield`
+
+---
+# Conversion to graph structure
+
+Needed for most other functions
+
+```{r}
+ig <- dfToIG(sbGeneal)
+ig
+```
+
+---
+# Basic statistics
+
+```{r}
+getBasicStatistics(ig)
+```
+
+---
+# Functions
+
+- shortest path
+- plotting ancestors and descendants
+- plotting distance matrix
+- using interaction
+
+---
+# Shortest path
+
+```{r fig.show='hide'}
+pathTN <- getPath("Brim", "Bedford", ig, sbGeneal, "devYear")
+pathTN
+plotPath(pathTN, sbGeneal, "devYear")
+```
+
+---
+
+```{r echo=FALSE}
+plotPath(pathTN, sbGeneal, "devYear")
+```
+
+---
+
+We can plot the path on the entire network, but it is messy
+
+```{r}
+sb <- sbGeneal[complete.cases(sbGeneal[1:3]),]
+ig <- dfToIG(sb)
+pathCL <- getPath("Clark", "Lawrence", ig, sb, "yield")
+plotPathOnAll(pathCL, sb, ig, "yield", "devYear") + 
+  ggplot2::xlab("Yield") + ggplot2::ylab("Year")
+```
+
+---
+class: inverse middle 
+# Your turn
+
+- Read the Statistics genealogy data (`statGeneal`)
+- Plot the shortest path between `Irène Gijbels` and `Gerda Claeskens`
+- BONUS: Who are these statisticians? What do they work on?
+
+```{r echo=FALSE, eval=FALSE}
+data(statGeneal)
+stat <- statGeneal[complete.cases(statGeneal[1:3]),]
+statIG <- dfToIG(statGeneal)
+pathG <- getPath("Irène Gijbels", "Gerda Claeskens", 
+                 statIG, stat, "gradYear")
+plotPath(pathG, statIG, "gradYear")
+plotPathOnAll(pathG, statGeneal, statIG, 
+              "gradYear")
+```
+
+
+---
+# Plotting ancestors and descendants
+
+This allows focusing on individuals, and examine where they came from and what was produced. 
+
+```{r}
+plotAncDes("Lee", sbGeneal, mAnc = 6, mDes = 6, vCol = "blue")
+```
+
+---
+class: inverse middle 
+# Your turn
+
+How many repeated lines can you see in the descendants?
+
+---
+# Repeats
+
+- Some varieties are repeated in the plot, to alleviate ambiguities in the soybean breeding knowledge
+- e.g., the variety 5601T is represented four times - once as a third generation descendant of Lee, once as a fourth generation descendant of Lee, and twice as a fifth generation descendant of Lee.
+- Because, there are multiple paths between Lee and 5601T
+
+---
+
+![](repeats.png)
+
+---
+class: inverse middle 
+# Your turn
+
+- For the statistics genealogy find the ancestors and descendants of `Irène Gijbels`
+
+```{r echo=FALSE, eval=FALSE}
+plotAncDes("Irène Gijbels", statGeneal, mAnc = 3, mDes = 3, vCol = "blue")
+```
+
+---
+# Another fun example
+
+Have a look at Hadley's academic family tree:
+```{r}
+hw <- read_csv("../data/hw-gen.csv")
+names(hw)[2:3] <- c("parent", "child")
+plotAncDes("Hadley Alexander Wickham", hw, mAnc=6, mDes=1)
+```
+
+---
+# You are not in `statGeneal`?
+
+You can use the `mathGen` package (github repo: `heike/mathGen`) to scrape the MathGenealogy project (remember to scrape responsibly!).
+
+```{r, eval = FALSE}
+# devtools::install_github("heike/mathGen")
+library(mathGen) 
+hw <- ancestry(id = 145799, steps = 4) # look up ID from MathGenealogy
+hw <- plyr::rbind.fill(data.frame(advisorMGID=145799, advisorName="Hadley Alexander Wickham"), hw)
+names(hw)[2:3] <- c("parent", "child")
+hw$parent <- as.character(hw$parent)
+```
+```{r}
+head(hw)
+```
+
+---
+# Plotting distance matrix
+
+a.k.a the `Kevin Bacon distance`
+
+```{r fig.show='hide'}
+varieties <- c("Brim", "Bedford", "Calland", "Dillon", "Hood", "Narow",
+  "Pella", "Tokyo", "Young", "Zane")
+p <- plotDegMatrix(varieties, ig, sbGeneal)
+p + ggplot2::scale_fill_continuous(low = "white", high = "darkgreen")
+```
+
+---
+#
+
+```{r echo=FALSE}
+p <- plotDegMatrix(varieties, ig, sbGeneal)
+p + ggplot2::scale_fill_continuous(low = "white", high = "darkgreen")
+```
+
+---
+class: inverse middle 
+# Your turn
+
+Plot the distance matrix for these statisticians: `Thomas Lumley`, `Rob Hyndman`, `Grace Wahba`, `Gordon Smyth`, `Elizaveta Levina`, `David Cox`, `Irène Gijbels`, `Gerda Claeskens`
+
+```{r echo=FALSE, eval=FALSE}
+statisticians <- c("Thomas Lumley", "Rob Hyndman", "Grace Wahba", "Gordon Smyth", "Elizaveta Levina", "David Cox", "Irène Gijbels", "Gerda Claeskens")
+p <- plotDegMatrix(statisticians, statIG, statGeneal) 
+p + ggplot2::scale_fill_continuous(low = "white", high = "darkgreen") 
+```
+
+---
+# Interaction
+
+- When paths are plotted on the entire network most of the information gets lost. 
+- This can be alleviated by making the plot interactive, so that node labels appear on mouse over.
+- This is facilitated with the package `plotly`.
+- Demo
+
+```{r eval=FALSE}
+plotPathOnAll(pathTN, sbGeneal, sbIG, "devYear",
+              pathEdgeCol = "seagreen2", nodeSize = 1, 
+              pathNodeSize = 3,
+   animate = TRUE)
+```
+
+---
+# What is ggbio?
 
 This is a package originally developed by Tengfei Yin and Michael Lawrence building on ggplot2, making it easier to produce some standard genomic plots. 
 
@@ -46,12 +256,13 @@ This is a package originally developed by Tengfei Yin and Michael Lawrence build
 - tracks
 - circular layout
 
-## Manhattan plot
+---
+# Manhattan plot
 
 - A Manhattan plot is special scatter plot used to visualize data with a large number of data points, often with some high-magnitude values, along a genomic reference like chromosome number
 - `plotGrandLinear` function
 
-##
+---
 
 ```{r}
 snp <- read.table(system.file("extdata", "plink.assoc.sub.txt", 
@@ -61,7 +272,7 @@ gr.snp <- transformDfToGr(snp, seqnames = "CHR", start = "BP",
 head(gr.snp)
 ```
 
-##
+---
 
 ```{r eval=FALSE}
 gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
@@ -71,10 +282,10 @@ gr.snp <- gr.snp[!is.na(gr.snp$P)]
 values(gr.snp)$pvalue <- -log10(values(gr.snp)$P)
 gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
 names(gro) <- c("group1", "group2")
-plotGrandLinear(gr.snp, aes(y = pvalue), highlight.gr = gro)
+#plotGrandLinear(gr.snp, aes(y = pvalue))
 ```
 
-##
+---
 
 ```{r echo=FALSE}
 gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
@@ -84,21 +295,24 @@ gr.snp <- gr.snp[!is.na(gr.snp$P)]
 values(gr.snp)$neglogpvalue <- -log10(values(gr.snp)$P)
 gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
 names(gro) <- c("group1", "group2")
-plotGrandLinear(gr.snp, aes(y = neglogpvalue), highlight.gr = gro)
+#plotGrandLinear(gr.snp, aes(y = neglogpvalue), highlight.gr = gro)
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 Here is the basic Manhattan plot: 
 
 ```{r eval=FALSE}
-plotGrandLinear(gr.snp, aes(y = pvalue))
+#plotGrandLinear(gr.snp, aes(y = pvalue))
 ```
 
 - Colour each chromosome differently
 - Add a line indicating a (negative log) p-value cutoff of 3 (what does the value 3 represent on the original scale?)
 
-## Ideogram
+---
+# Ideogram
 
 This is a plot of a single chromosome with cytoband.
 
@@ -107,91 +321,103 @@ p.ideo <- Ideogram(genome = "hg19")
 p.ideo
 ```
 
-##
+---
 
 ```{r}
 Ideogram(genome = "hg19", xlabel = TRUE)
 ```
 
-## Tracks
+---
+# Tracks
 
 Lining up multiple plots along the chromosome is an important part of plotting genomic data
 
 ```{r}
+# biocLite("Homo.sapiens")
 library(Homo.sapiens)
 class(Homo.sapiens)
 data(genesymbol, package = "biovizBase")
 wh <- genesymbol[c("BRCA1", "NBR1")]
-wh <- range(wh, ignore.strand = TRUE)
+#wh <- range(wh, ignore.strand = TRUE)
 ```
 
-## Gene model
+---
+# Gene model
 
-```{r}
+```{r eval=FALSE}
 p.txdb <- autoplot(Homo.sapiens, which = wh)
 p.txdb
 ```
 
-##
+---
 
-```{r}
+```{r eval=FALSE}
 autoplot(Homo.sapiens, which = wh, gap.geom = "chevron")
 ```
 
-## Base locations
+---
+# Base locations
 
 ```{r eval = FALSE}
 library(BSgenome.Hsapiens.UCSC.hg19)
 bg <- BSgenome.Hsapiens.UCSC.hg19
 p.bg <- autoplot(bg, which = wh)
-## no geom
+
+# no geom
 #p.bg
-## segment
+
+# segment
 #p.bg + zoom(1/100)
-## rectangle
+# rectangle
 #p.bg + zoom(1/1000)
-## text
+# text
 p.bg + zoom(1/2500)
 ```
 
-##
+---
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 library(BSgenome.Hsapiens.UCSC.hg19)
 bg <- BSgenome.Hsapiens.UCSC.hg19
 p.bg <- autoplot(bg, which = wh)
-p.bg + zoom(1/2500)
+p.bg + zoom(1/100)
 ```
 
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 What is plotted at `zoom(1/100)` resolution?
 
-## Base locations
+---
+# Base locations
 
-```{r}
+```{r eval=FALSE}
 bg <- BSgenome.Hsapiens.UCSC.hg19
-## force to use geom segment at this level
+# force to use geom segment at this level
 autoplot(bg, which = resize(wh, width = width(wh)/2000), geom = "segment")
 ```
 
-## Plot coverage
+---
+# Plot coverage
 
-```{r}
+```{r eval=FALSE}
 fl.bam <- system.file("extdata", "wg-brca1.sorted.bam", package = "biovizBase")
 wh <- keepSeqlevels(wh, "chr17")
 autoplot(fl.bam, which = wh)
 ```
 
-## Plot mismatches
+---
+# Plot mismatches
 
-```{r}
+```{r eval=FALSE}
 bg <- BSgenome.Hsapiens.UCSC.hg19
 p.mis <- autoplot(fl.bam, bsgenome = bg, which = wh, stat = "mismatch")
 p.mis
 ```
 
-## Putting it together with tracks
+---
+# Putting it together with tracks
 
 ```{r eval=FALSE}
 p.ideo <- Ideogram(genome = "hg19")
@@ -201,9 +427,9 @@ tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
 tks
 ```
 
-##
+---
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 p.ideo <- Ideogram(genome = "hg19")
 gr17 <- GRanges("chr17", IRanges(41234415, 41234569))
 tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
@@ -211,9 +437,28 @@ tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
 tks
 ```
 
-## Circular layout
+---
+# Circular layout
 
 ```{r eval=FALSE}
+data("CRC", package = "biovizBase")
+gr.crc1 <- crc.gr[values(crc.gr)$individual == "CRC-1"]
+p <- ggbio() +
+    circle(gr.crc1, geom = "link", linked.to = "to.gr", 
+      aes(color = rearrangements)) +
+    circle(gr.crc1, geom = "point", aes(y = score, size = tumreads),
+      color = "red", grid = TRUE) + scale_size(range = c(1, 2.5)) +
+    circle(mut.gr, geom = "rect", color = "steelblue") +
+    circle(hg19sub, geom = "ideo", fill = "gray70") + 
+    circle(hg19sub, geom = "scale", size = 2) +
+    circle(hg19sub, geom = "text", aes(label = seqnames), 
+      vjust = -2, size = 3)
+p
+```
+
+---
+
+```{r echo=FALSE, eval=FALSE}
 data("CRC", package = "biovizBase")
 gr.crc1 <- crc.gr[values(crc.gr)$individual == "CRC-1"]
 p <- ggbio() +
@@ -229,33 +474,20 @@ p <- ggbio() +
 p
 ```
 
-##
-
-```{r echo=FALSE}
-data("CRC", package = "biovizBase")
-gr.crc1 <- crc.gr[values(crc.gr)$individual == "CRC-1"]
-p <- ggbio() +
-    circle(gr.crc1, geom = "link", linked.to = "to.gr", 
-      aes(color = rearrangements)) +
-    circle(gr.crc1, geom = "point", aes(y = score, size = tumreads),
-      color = "red", grid = TRUE) + scale_size(range = c(1, 2.5)) +
-    circle(mut.gr, geom = "rect", color = "steelblue") +
-    circle(hg19sub, geom = "ideo", fill = "gray70") + 
-    circle(hg19sub, geom = "scale", size = 2) +
-    circle(hg19sub, geom = "text", aes(label = seqnames), 
-      vjust = 0, size = 3)
-p
-```
-
-## Your turn
+---
+class: inverse middle 
+# Your turn
 
 Which `circle` line of code plots the circle segments (grey filled) representing the chromosomes?
 
-## Resources
+---
+# Resources
 
+- [ggenealogy github repo](https://github.com/cran/ggenealogy)
 - Yin T, Cook D and Lawrence M (2012). “ggbio: an R package for extending the grammar of graphics for genomic data.” Genome Biology, 13(8), pp. R77.
 - [bioconductor page](https://bioconductor.org/packages/release/bioc/html/ggbio.html)
 
-## Share and share alike
+---
+# Share and share alike
 
-This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

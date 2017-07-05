@@ -1,4 +1,4 @@
-# SISBID 2016 Module 2: Visualization of Biomedical Big Data
+# SISBID 2017 Module 2: Visualization of Biomedical Big Data
 
 Instructors: Dianne Cook and Heike Hofmann
 
@@ -15,7 +15,7 @@ We will use a hands-on teaching methodology that combines short lectures with lo
 new techniques, they will also be able to put them into practice and receive feedback from experts. We will teach using R and Rstudio. 
 We will assume some familiarity with R.
 
-Recommended Reading: Cookbook for R, by Winston Chang, available at <http://www.cookbook-r.com>.
+Recommended Reading: Cookbook for R, by Winston Chang, available at <http://www.cookbook-r.com>, and R for Data Science, by Garrett Grolemund and Hadley Wickham, available at <http://r4ds.had.co.nz>.
 
 ## Course outline
 
@@ -26,39 +26,36 @@ Recommended Reading: Cookbook for R, by Winston Chang, available at <http://www.
 
 ### Day 2
 
-1. Tidy data and tidying your messy data with tidyr (Di).
+1. Tidy data and tidying your messy data with tidyr (Heike).
 1. Data manipulation with dplyr, purrr and broom (Heike).
-1. Logo plots for genome sequences and proteins (Heike).
-1. Genomic plots using ggbio (Di).
+1. Advanced graphics, and statistical inference (Di) 
+1. Drawing lineage using ggenealogy and genomic plots (Di).
 
 ### Day 3
 
-1. Drawing lineage using ggenealogy (Di), networks (Heike)
-1. Interactive graphics using plotly, animint and ggvis (Di).
-1. Building interactive web apps with shiny (Heike).
-1. Make your own shiny app (Heike).
+1. Logo plots for genome sequences and proteins, networks (Heike).
+1. Interactive graphics using plotly, animint and ggvis (Heike).
+1. Building interactive web apps with shiny (Di).
+1. Make your own shiny app (Di).
 
 ## Software list
 
-Download [RStudio >= 0.99.902](https://www.rstudio.com/products/rstudio/download/), [R >= 3.3.0](https://cran.r-project.org/) (2016-05-03) -- "Supposedly Educational" and install these and their dependencies
+Download [RStudio >= 1.0.143](https://www.rstudio.com/products/rstudio/download/), [R >= 3.4.1](https://cran.r-project.org/) (2017-06-30) -- "Single Candle" (Its ok to have 3.4.0, too.)
+
 Open RStudio, and run the code below to install these packages and their dependencies:
 ```
 # CRAN packages
-packages <- c("devtools", "ggplot2", "tidyr", "dplyr", "purrr", "broom", "biobroom", 
-"GGally", "nullabor", "shiny", "ggvis", "plotly", "xkcd", "gglogo",
-"seqinr")
+packages <- c("tidyverse", "broom", "GGally", "nullabor", "shiny", "plotly", "xkcd", "gglogo", "geomnet", "seqinr", "ggenealogy", "ggmosaic")
 
 install.packages(packages, dep=TRUE, repos = "https://cloud.r-project.org/")
 
 
 # Bioconductor packages
-bioC <- c("ggbio", "epivzr", "edgeR", "EDAseq")
+bioC <- c("ggbio", "edgeR", "EDASeq", "limma", "splatter", "Glimma", "gplots")
 source("https://bioconductor.org/biocLite.R")
 biocLite(bioC)
 
 
 # packages under development
-devtools::install_github("sctyner/geomnet")
-devtools::install_github("lrutter/ggenealogy")
-devtools::install_github("haleyjeppson/ggmosaic")
+devtools::install_github("dicook/nullabor")
 ```

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Advanced plots and inference</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Di Cook (dicook@monash.edu, @visnut)   Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)" />
+    <link href="index_files/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <link rel="stylesheet" href="myremark.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Advanced plots and inference
+## SISBID 2017 <br> <a href="https://github.com/SISBID/Module2" class="uri">https://github.com/SISBID/Module2</a>
+### Di Cook (<a href="mailto:dicook@monash.edu">dicook@monash.edu</a>, <span class="citation">@visnut</span>) <br> Heike Hofmann (<a href="mailto:heike.hofmann@gmail.com">heike.hofmann@gmail.com</a>, <span class="citation">@heike_hh</span>)
+### 07/12-14/2017
+
+---
+
+
+
+
+# Tidy data and random variables
+
+- The concept of tidy data matches elementary statistics
+- Tabular form puts variables in columns and observations in rows
+- Not all tabular data is in this form
+- This is the point of tidy data
+
+`$$X = \left[ \begin{array}{rrrr}
+           X_1 &amp; X_2 &amp; ... &amp; X_p 
+           \end{array} \right] \\
+  = \left[ \begin{array}{rrrr}
+           X_{11} &amp; X_{12} &amp; ... &amp; X_{1p} \\
+           X_{21} &amp; X_{22} &amp; ... &amp; X_{2p} \\
+           \vdots &amp; \vdots &amp; \ddots&amp; \vdots \\
+           X_{n1} &amp; X_{n2} &amp; ... &amp; X_{np}
+           \end{array} \right]$$`
+
+- `\(X_1 \sim N(0,1), ~~X_2 \sim exp(1) ...\)`
+---
+# Grammar of graphics and statistics
+
+- A statistic is a function on the values of items in a sample, e.g. for `\(n\)` iid random variates `\(\bar{X}_1=\sum_{i=1}^n X_{i1}\)`, `\(s_1^2=\frac{1}{n-1}\sum_{i=1}^n(X_{i1}-\bar{X}_1)^2\)`
+- We study the behaviour of the statistic over all possible samples of size `\(n\)`. 
+- The grammar of graphics is the mapping of (random) variables to graphical elements, making plots of data into statistics
+
+---
+# Pipeline: Messy to tidy to plot
+
+
+```r
+messy_data &lt;- read_csv("../data/tb.csv")
+head(messy_data)
+# A tibble: 6 x 22
+   iso2  year  m_04 m_514 m_014 m_1524 m_2534 m_3544 m_4554 m_5564  m_65
+  &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt; &lt;int&gt;
+1    AD  1989    NA    NA    NA     NA     NA     NA     NA     NA    NA
+2    AD  1990    NA    NA    NA     NA     NA     NA     NA     NA    NA
+3    AD  1991    NA    NA    NA     NA     NA     NA     NA     NA    NA
+4    AD  1992    NA    NA    NA     NA     NA     NA     NA     NA    NA
+5    AD  1993    NA    NA    NA     NA     NA     NA     NA     NA    NA
+6    AD  1994    NA    NA    NA     NA     NA     NA     NA     NA    NA
+# ... with 11 more variables: m_u &lt;int&gt;, f_04 &lt;int&gt;, f_514 &lt;int&gt;,
+#   f_014 &lt;int&gt;, f_1524 &lt;int&gt;, f_2534 &lt;int&gt;, f_3544 &lt;int&gt;, f_4554 &lt;int&gt;,
+#   f_5564 &lt;int&gt;, f_65 &lt;int&gt;, f_u &lt;int&gt;
+```
+
+---
+
+
+```r
+tidy_data &lt;- messy_data %&gt;% 
+  gather(demo, count, -year, -iso2, na.rm = TRUE) %&gt;% 
+  separate(demo, c("gender", "age"))
+tidy_data &lt;- tidy_data %&gt;% 
+  filter(!(age %in% c("014", "04", "514")))
+head(tidy_data)
+# A tibble: 6 x 5
+   iso2  year gender   age count
+  &lt;chr&gt; &lt;int&gt;  &lt;chr&gt; &lt;chr&gt; &lt;int&gt;
+1    AD  1996      m  1524     0
+2    AD  1997      m  1524     0
+3    AD  1998      m  1524     0
+4    AD  1999      m  1524     0
+5    AD  2000      m  1524     0
+6    AD  2002      m  1524     0
+```
+
+---
+# 100% charts
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "AU") %&gt;% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Stacked barcharts
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "AU") %&gt;% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Side-by-side barcharts
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "AU") %&gt;% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity", position="dodge") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# facetted barcharts
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "AU") %&gt;% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Rose plot
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "AU") %&gt;% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) + coord_polar()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Rainbow charts
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "AU") %&gt;% 
+  ggplot(aes(x = 1, y = count, fill = factor(year))) +
+  geom_bar(stat = "identity", position="fill") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) 
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Pie charts
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "AU") %&gt;% 
+  ggplot(aes(x = 1, y = count, fill = factor(year))) +
+  geom_bar(stat = "identity", position="fill") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) + coord_polar(theta="y")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+What do you learn about tb incidence in Australia by gender and age and year from the
+- 100% charts?
+- stacked bar charts?
+- side-by-side barcharts?
+- facetted barcharts?
+
+---
+# Inference
+
+- Choice of plot implicitly sets `\(H_0\)`, `\(H_1\)`
+- Generically, we are thinking  `\(H_0\)`: no pattern, `\(H_1\)`: pattern, but the choice of plot makes this much more explicit
+
+---
+# Putting the pieces together
+
+
+```r
+df &lt;- data.frame(v1=c(rexp(20), rexp(15, 2)), 
+                 v2=c(rep("A", 20), rep("B", 15)))
+ggplot(df, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() + coord_flip()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+- Question?
+- Data, variables
+- Mapping
+- Null generating mechanism
+
+---
+
+&gt; - Question? Is there a difference between the two groups? `\(H_0\)`: no difference, `\(H_1\)`: difference
+&gt; - Data, variables: Two variables: v1, v2; v2 is categorical
+&gt; - Mapping: x=V2, y=V1, colour=V1, geom=boxplot
+&gt; - Null generating mechanism: permute the values of V1, relative to V2
+
+---
+# Clarity
+
+- The null hypothesis is determined based on the plot type
+- It is not based on the structure seen in a data set
+
+---
+# Lineup
+
+
+```r
+library(nullabor)
+pos &lt;- sample(1:20, 1)
+df_null &lt;- lineup(null_permute('v1'), df, pos=pos)
+ggplot(df_null, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() +
+  facet_wrap(~.sample, ncol=5) + coord_flip()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+Which plot shows the most difference between the groups?
+
+---
+# Evaluation
+
+- Computing p-values
+- Power
+
+---
+# Null-generating mechanisms
+
+
+---
+class: inverse middle 
+# Your turn
+
+For these plot descriptions, decide on:
+
+- null hypothesis
+- null generating mechanism
+
+---
+class: inverse middle 
+# Your turn
+
+- For the tb data, subset to 2008
+- Decide on two possible plot designs to show the relationship between age, gender.
+- Write the code to make the plots
+- Determine an appropriate null generating mechanism to test `\(H_o\)`: no relationship between age and gender.
+- Make a lineup to for each plot design. 
+
+---
+# Resources
+
+- Hofmann, H., Follett, L., Majumder, M. and Cook, D. (2012) Graphical Tests for Power Comparison of Competing Designs, http://doi.ieeecomputersociety.org/10.1109/TVCG.2012.230.
+- Wickham, H., Cook, D., Hofmann, H. and Buja, A. (2010) Graphical Inference for Infovis,  http://doi.ieeecomputersociety.org/10.1109/TVCG.2010.161. 
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
