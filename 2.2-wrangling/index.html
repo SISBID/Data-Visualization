@@ -46,6 +46,7 @@ There are five primary dplyr **verbs**, representing distinct data analysis task
 # Filter
 
 
+
 ```r
 data(french_fries, package = "reshape2")
 french_fries %&gt;%
@@ -155,8 +156,7 @@ To check this we want to tabulate the number of records for each subject, time a
 
 ```r
 french_fries %&gt;% 
-  select(subject, time, treatment) %&gt;% 
-  tbl_df() %&gt;% 
+#  select(subject, time, treatment) %&gt;% 
   count(subject, time) %&gt;%
   spread(time, n)
 # A tibble: 12 x 11
@@ -184,7 +184,6 @@ french_fries %&gt;%
 french_fries %&gt;% 
   gather(type, rating, -subject, -time, -treatment, -rep) %&gt;%
   select(subject, time, treatment, type) %&gt;% 
-  tbl_df() %&gt;% 
   count(subject, time) %&gt;%
   spread(time, n)
 # A tibble: 12 x 11
@@ -297,26 +296,11 @@ How about now?
 
 &lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
 
----
-
---- 
-# Prepping
-
-- The `purrr` package has been unveiled in February (presented by Hadley Wickham at WOMBAT)
-- you might have to re-install the packages `tidyr` and `purrr`, i.e. run the following code
-
-
-```r
-install.packages("tidyr")
-install.packages("purrr")
-
-library(tidyr)
-library(purrr)
-```
-
 
 ---
 # Life Expectancy in the U.S.
+
+Start with a single country, then generalize over all countries: 
 
 
 ```r
@@ -343,7 +327,7 @@ ggplot(data=usa, aes(x=year, y=lifeExp)) +
   geom_smooth(method="lm")
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Life Expectancy in the U.S. since 1950
@@ -390,31 +374,9 @@ head(by_country)
 6   Oceania   Australia &lt;tibble [12 x 4]&gt;
 ```
 
----
+Each element of the `data` variable in `by_country` is a dataset.
 
-Each element of the `data` variable in `by_country` is a dataset:
-
-
-```r
-head(by_country$data[[1]])
-# A tibble: 6 x 4
-   year lifeExp      pop gdpPercap
-  &lt;dbl&gt;   &lt;dbl&gt;    &lt;int&gt;     &lt;dbl&gt;
-1     2  28.801  8425333  779.4453
-2     7  30.332  9240934  820.8530
-3    12  31.997 10267083  853.1007
-4    17  34.020 11537966  836.1971
-5    22  36.088 13079460  739.9811
-6    27  38.438 14880372  786.1134
-lm(lifeExp~year, data=by_country$data[[1]])
-
-Call:
-lm(formula = lifeExp ~ year, data = by_country$data[[1]])
-
-Coefficients:
-(Intercept)         year  
-    29.3566       0.2753  
-```
+We will fit a linear model to each one of the elements of the `by_country` data.
 
 ---
 
@@ -441,59 +403,16 @@ head(by_country)
 ```
 
 ---
-# On to the `broom` package
+# `broom` again
 
-`broom` allows to extract values from models on three levels:
-
-- for each model: `broom::glance`
-- for each coefficient in the model: `broom::tidy`
-- for each value in the dataset: `broom::augment`
+using `broom::tidy` we extract coefficients for each model
 
 
 ```r
-library(broom)
-broom::glance(by_country$model[[1]])
-  r.squared adj.r.squared    sigma statistic      p.value df    logLik
-1 0.9477123     0.9424835 1.222788  181.2494 9.835213e-08  2 -18.34693
-       AIC      BIC deviance df.residual
-1 42.69387 44.14859  14.9521          10
 broom::tidy(by_country$model[[1]])
          term   estimate  std.error statistic      p.value
 1 (Intercept) 29.3566375 0.69898128  41.99918 1.404235e-12
 2        year  0.2753287 0.02045093  13.46289 9.835213e-08
-```
-
----
-
-
-```r
-broom::augment(by_country$model[[1]])
-   lifeExp year  .fitted   .se.fit      .resid       .hat   .sigma
-1   28.801    2 29.90729 0.6639995 -1.10629487 0.29487179 1.211813
-2   30.332    7 31.28394 0.5799442 -0.95193823 0.22494172 1.237512
-3   31.997   12 32.66058 0.5026799 -0.66358159 0.16899767 1.265886
-4   34.020   17 34.03722 0.4358337 -0.01722494 0.12703963 1.288917
-5   36.088   22 35.41387 0.3848726  0.67413170 0.09906760 1.267003
-6   38.438   27 36.79051 0.3566719  1.64748834 0.08508159 1.154002
-7   39.854   32 38.16716 0.3566719  1.68684499 0.08508159 1.147076
-8   40.822   37 39.54380 0.3848726  1.27820163 0.09906760 1.208243
-9   41.674   42 40.92044 0.4358337  0.75355828 0.12703963 1.260583
-10  41.763   47 42.29709 0.5026799 -0.53408508 0.16899767 1.274051
-11  42.129   52 43.67373 0.5799442 -1.54472844 0.22494172 1.148593
-12  43.828   57 45.05037 0.6639995 -1.22237179 0.29487179 1.194109
-        .cooksd  .std.resid
-1  2.427205e-01 -1.07742164
-2  1.134714e-01 -0.88428127
-3  3.603567e-02 -0.59530844
-4  1.653992e-05 -0.01507681
-5  1.854831e-02  0.58082792
-6  9.225358e-02  1.40857509
-7  9.671389e-02  1.44222437
-8  6.668277e-02  1.10129103
-9  3.165567e-02  0.65958143
-10 2.334344e-02 -0.47913530
-11 2.987950e-01 -1.43494020
-12 2.963271e-01 -1.19046907
 ```
 
 ---
@@ -505,63 +424,79 @@ Extract all countries automatically (hello `map` again!)
 
 
 ```r
-by_country$stats &lt;- by_country$model %&gt;% purrr::map(broom::tidy)
-by_country_coefs &lt;- by_country %&gt;% unnest(stats)
-coefs &lt;- by_country_coefs %&gt;% select(country, continent, term, estimate) %&gt;% spread(term, estimate)
+by_country$coefs &lt;- by_country$model %&gt;% purrr::map(broom::tidy)
+by_country
+# A tibble: 142 x 5
+   continent     country              data    model                coefs
+      &lt;fctr&gt;      &lt;fctr&gt;            &lt;list&gt;   &lt;list&gt;               &lt;list&gt;
+ 1      Asia Afghanistan &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 2    Europe     Albania &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 3    Africa     Algeria &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 4    Africa      Angola &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 5  Americas   Argentina &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 6   Oceania   Australia &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 7    Europe     Austria &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 8      Asia     Bahrain &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+ 9      Asia  Bangladesh &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+10    Europe     Belgium &lt;tibble [12 x 4]&gt; &lt;S3: lm&gt; &lt;data.frame [2 x 5]&gt;
+# ... with 132 more rows
 ```
 
-and finally, a visualization:
+---
+
+--- 
+# Get the coefficients into one data set
+
+`unnest` pulls little data frames back into the whole frame
 
 
 ```r
+by_country_coefs &lt;- by_country %&gt;% unnest(coefs)
+by_country_coefs
+# A tibble: 284 x 7
+   continent     country        term   estimate   std.error  statistic
+      &lt;fctr&gt;      &lt;fctr&gt;       &lt;chr&gt;      &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;
+ 1      Asia Afghanistan (Intercept) 29.3566375 0.698981278  41.999176
+ 2      Asia Afghanistan        year  0.2753287 0.020450934  13.462890
+ 3    Europe     Albania (Intercept) 58.5597618 1.133575812  51.659325
+ 4    Europe     Albania        year  0.3346832 0.033166387  10.091036
+ 5    Africa     Algeria (Intercept) 42.2364149 0.756269040  55.848399
+ 6    Africa     Algeria        year  0.5692797 0.022127070  25.727749
+ 7    Africa      Angola (Intercept) 31.7079741 0.804287463  39.423683
+ 8    Africa      Angola        year  0.2093399 0.023532003   8.895964
+ 9  Americas   Argentina (Intercept) 62.2250191 0.167091314 372.401279
+10  Americas   Argentina        year  0.2317084 0.004888791  47.395847
+# ... with 274 more rows, and 1 more variables: p.value &lt;dbl&gt;
+```
+
+---
+
+--- 
+# ... and finally, a visualization:
+
+
+```r
+coefs &lt;- by_country_coefs %&gt;% 
+  select(country, continent, term, estimate) %&gt;% 
+  spread(term, estimate)
 ggplot(data=coefs, aes(x=`(Intercept)`, y=year, colour=continent)) +
   geom_point()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-28-1.png" style="display: block; margin: auto;" /&gt;
-
---- 
-# Extract other model diagnostics
-
-
-```r
-by_country &lt;- by_country %&gt;% unnest(model %&gt;% purrr::map(broom::glance))
-by_country$country &lt;- reorder(by_country$country, by_country$r.squared)
-ggplot(data=by_country, aes(x=country, y=r.squared, colour=continent)) +
-  geom_point() +
-  theme(axis.text.x=element_text(angle=-90, hjust=0)) +
-  scale_colour_brewer(palette="Dark2")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-26-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
-# Compare groups of countries
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+- use `broom::glance` to get model fits for each one of the linear models of life expectancy by year
+- which countries have the best five fits? which countries have the worst fits?
+- are there meaningful patterns?
 
 
-```r
-country_all &lt;- by_country %&gt;% unnest(data)
-ggplot(data=subset(country_all, r.squared &lt;= 0.45), 
-       aes(x=year+1950, y=lifeExp)) +
-  geom_line() +
-  facet_wrap(~country)
-```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" style="display: block; margin: auto;" /&gt;
-
-What do the patterns mean?
-
----
-
-
-```r
-ggplot(data=subset(country_all, between(r.squared, 0.45, 0.75)), 
-       aes(x=year+1950, y=lifeExp)) +
-  geom_line() +
-  facet_wrap(~country)
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-31-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: inverse middle 
@@ -653,9 +588,9 @@ ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
   geom_point(alpha=.1) + facet_wrap(~significant, labeller="label_both")
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-36-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-32-1.png" style="display: block; margin: auto;" /&gt;
 
-`augment(y)` stops in an error (this is a bug and reported)
+`augment(y)` only works for DGEList objects
 
 
 ---
@@ -690,7 +625,7 @@ row.names(bb) &lt;- bb$Gene
 ggpairs(bb, columns=c(3,7,4,8))
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # A porcupine plot again
@@ -705,7 +640,7 @@ ggplot(sub, aes(x=biotin.WT.01.1, xend=biotin.WT.02.1, y=biotin.bio101.4, yend=b
   ylab("mutant, treated")
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-39-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Fit a limma model
@@ -756,7 +691,7 @@ ggplot(data=bbfit, aes(x=term, y=estimate, group=gene)) +
   geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-42-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -779,7 +714,7 @@ ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
 
 ---
 
-&lt;img src="index_files/figure-html/unnamed-chunk-44-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-40-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -793,7 +728,7 @@ ggplot(data=bbfit2, aes(x=term, y=estimate, group=gene)) +
   geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-45-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-41-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # References

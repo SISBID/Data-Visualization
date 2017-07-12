@@ -49,9 +49,13 @@ library(broom)
 - String operations, working with **text**
 
 ---
-# Pipes `%>%`
+# The pipe operator `%>%`
 
-Pipes allow the code to be *read* like a sequence of operations
+- `x %>% f(y)` is the same as `f(x, y)`
+- part of `dplyr` package
+- pipes allow the code to be *read* like a sequence of operations
+
+Example:
 
 ```{r}
 student2012.sub <- readRDS("../data/student_sub.rds")
@@ -113,8 +117,8 @@ What are the variables? What are the experimental units?
 
 ```{r echo=FALSE}
 tb <- read_csv("../data/tb.csv")
-#tail(tb)
-colnames(tb)
+tail(tb)
+#colnames(tb)
 ```
 
 ---
@@ -149,7 +153,7 @@ What is the experimental unit? What are the factors of the experiment? What was 
 ---
 # Messy Data Patterns
 
-There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns.
+There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns:
 
 - Column headers are values, not variable names
 - Variables are stored in both rows and columns, contingency table format
@@ -161,17 +165,17 @@ There are various features of messy data that one can observe in practice. Here 
 
 - Each observation forms a row
 - Each variable forms a column
-- Contained in a single table
+- Data is contained in a single table
 - Long form makes it easier to reshape in many different ways
 - Wide form is common for analysis
 
 ---
 
-![](lego.pdf)
+![](lego.png)
 
 ---
 
-![](playmobile.pdf)
+![](playmobile.png)
 
 ---
 # Tidy Verbs
@@ -235,7 +239,7 @@ This is called "spreading" the data.
 ---
 # Spread
 
-We use the **spread** function from tidyr to do this:
+We use the **spread** function from `tidyr` to do this:
 
 ```{r}
 french_fries_wide <- spread(ff_long, key = variable, 
@@ -260,7 +264,6 @@ ff.m <- french_fries %>%
 head(ff.m)
 ```
 
----
 
 ```{r, fig.height=2, fig.width=8}
 ggplot(data=ff.m, aes(x=rating)) + geom_histogram(binwidth=2) + 
@@ -347,7 +350,7 @@ class: inverse middle
 long_billboard <- gather(billboard, key = week, value = rank, X1:X76)
 long_billboard$week <- as.numeric(gsub("X", "", long_billboard$week))
 
-ggplot(data = long_billboard, aes(x=week, y=rank, colour = artist, group = track)) + geom_line() + theme(legend.position="bottom")
+#ggplot(data = long_billboard, aes(x=week, y=rank, colour = artist, group = track)) + geom_line() + theme(legend.position="bottom")
 
 # alternative:
 ggplot(data=long_billboard) + geom_line(aes(x=week+lubridate::week(date.entered), y=rank, group=track, colour=artist)) + theme(legend.position="bottom")
@@ -425,17 +428,29 @@ ggplot(data = gtidy, aes(trt, expr, colour = time)) +
 ---
 # Tidying model output
 
-The package `broom` gets model results into a tidy format. 
+The package `broom` gets model results into a tidy format at different levels
+
+- for each model: `broom::glance`
+- for each coefficient in the model: `broom::tidy`
+- for each value in the dataset: `broom::augment`
 
 ```{r}
 ff_long <- gather(french_fries, key = variable, value = 
                     rating, potato:painty)
 ff_lm <- lm(rating~variable+treatment+time+subject, 
             data=ff_long)
+
 ```
 
 ---
-# Model estimates
+# Goodness of fit statistics: `glance`
+
+```{r}
+glance(ff_lm)
+```
+
+---
+# Model estimates: `tidy`
 
 ```{r}
 ff_lm_tidy <- tidy(ff_lm)
@@ -443,7 +458,7 @@ glimpse(ff_lm_tidy)
 ```
 
 ---
-# Model diagnostics
+# Model diagnostics: `augment`
 
 ```{r}
 ff_lm_all <- augment(ff_lm)

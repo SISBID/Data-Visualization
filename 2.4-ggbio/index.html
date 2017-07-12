@@ -352,25 +352,24 @@ values(gr.snp)$pvalue &lt;- -log10(values(gr.snp)$P)
 gro &lt;- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
 names(gro) &lt;- c("group1", "group2")
 #plotGrandLinear(gr.snp, aes(y = pvalue))
+df &lt;- data.frame(gr.snp@elementMetadata@listData)
+ggplot(df, aes(x=CHR, y=pvalue, colour=CHR)) +
+  geom_jitter(width=0.2, height=0) + 
+  scale_color_viridis() +
+  xlab("") + ylab("Neg log p-value") +
+  theme(legend.position="none")
 ```
 
----
-
-
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: inverse middle 
 # Your turn
 
-Here is the basic Manhattan plot: 
-
-
-```r
-#plotGrandLinear(gr.snp, aes(y = pvalue))
-```
-
-- Colour each chromosome differently
-- Add a line indicating a (negative log) p-value cutoff of 3 (what does the value 3 represent on the original scale?)
+Change the Manhattan plot to have
+- Each chromosome is labelled on the x axis
+- A line corresponding to 3 is drawn
+- SNP's with higher p-values are labelled
 
 ---
 # Ideogram
@@ -383,7 +382,7 @@ p.ideo &lt;- Ideogram(genome = "hg19")
 p.ideo
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -392,7 +391,7 @@ p.ideo
 Ideogram(genome = "hg19", xlabel = TRUE)
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Tracks
@@ -552,7 +551,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "highlightLines": true,
 "countIncrementalSlides": false
 });
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -566,7 +565,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);

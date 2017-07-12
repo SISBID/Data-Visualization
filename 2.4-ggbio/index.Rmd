@@ -33,6 +33,7 @@ library(biovizBase)
 library(GenomicRanges)
 library(ggbio)
 library(ggenealogy)
+library(viridis)
 ```
 
 # GGenealogy
@@ -274,7 +275,7 @@ head(gr.snp)
 
 ---
 
-```{r eval=FALSE}
+```{r}
 gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
 data(ideoCyto, package = "biovizBase")
 seqlengths(gr.snp) <- as.numeric(seqlengths(ideoCyto$hg18)[1:22])
@@ -283,33 +284,22 @@ values(gr.snp)$pvalue <- -log10(values(gr.snp)$P)
 gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
 names(gro) <- c("group1", "group2")
 #plotGrandLinear(gr.snp, aes(y = pvalue))
-```
-
----
-
-```{r echo=FALSE}
-gr.snp <- keepSeqlevels(gr.snp, as.character(1:22))
-data(ideoCyto, package = "biovizBase")
-seqlengths(gr.snp) <- as.numeric(seqlengths(ideoCyto$hg18)[1:22])
-gr.snp <- gr.snp[!is.na(gr.snp$P)]
-values(gr.snp)$neglogpvalue <- -log10(values(gr.snp)$P)
-gro <- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
-names(gro) <- c("group1", "group2")
-#plotGrandLinear(gr.snp, aes(y = neglogpvalue), highlight.gr = gro)
+df <- data.frame(gr.snp@elementMetadata@listData)
+ggplot(df, aes(x=CHR, y=pvalue, colour=CHR)) +
+  geom_jitter(width=0.2, height=0) + 
+  scale_color_viridis() +
+  xlab("") + ylab("Neg log p-value") +
+  theme(legend.position="none")
 ```
 
 ---
 class: inverse middle 
 # Your turn
 
-Here is the basic Manhattan plot: 
-
-```{r eval=FALSE}
-#plotGrandLinear(gr.snp, aes(y = pvalue))
-```
-
-- Colour each chromosome differently
-- Add a line indicating a (negative log) p-value cutoff of 3 (what does the value 3 represent on the original scale?)
+Change the Manhattan plot to have
+- Each chromosome is labelled on the x axis
+- A line corresponding to 3 is drawn
+- SNP's with higher p-values are labelled
 
 ---
 # Ideogram

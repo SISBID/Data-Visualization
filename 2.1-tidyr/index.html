@@ -31,9 +31,13 @@ class: center, middle, inverse, title-slide
 - String operations, working with **text**
 
 ---
-# Pipes `%&gt;%`
+# The pipe operator `%&gt;%`
 
-Pipes allow the code to be *read* like a sequence of operations
+- `x %&gt;% f(y)` is the same as `f(x, y)`
+- part of `dplyr` package
+- pipes allow the code to be *read* like a sequence of operations
+
+Example:
 
 
 ```r
@@ -131,10 +135,18 @@ What are the variables? What are the experimental units?
 
 
 ```
- [1] "iso2"   "year"   "m_04"   "m_514"  "m_014"  "m_1524" "m_2534"
- [8] "m_3544" "m_4554" "m_5564" "m_65"   "m_u"    "f_04"   "f_514" 
-[15] "f_014"  "f_1524" "f_2534" "f_3544" "f_4554" "f_5564" "f_65"  
-[22] "f_u"   
+# A tibble: 6 x 22
+   iso2  year  m_04 m_514 m_014 m_1524 m_2534 m_3544 m_4554 m_5564  m_65
+  &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt; &lt;int&gt;
+1    ZW  2003    NA    NA   133    874   3048   2228    981    367   205
+2    ZW  2004    NA    NA   187    833   2908   2298   1056    366   198
+3    ZW  2005    NA    NA   210    837   2264   1855    762    295   656
+4    ZW  2006    NA    NA   215    736   2391   1939    896    348   199
+5    ZW  2007     6   132   138    500   3693      0    716    292   153
+6    ZW  2008    NA    NA   127    614      0   3316    704    263   185
+# ... with 11 more variables: m_u &lt;int&gt;, f_04 &lt;int&gt;, f_514 &lt;int&gt;,
+#   f_014 &lt;int&gt;, f_1524 &lt;int&gt;, f_2534 &lt;int&gt;, f_3544 &lt;int&gt;, f_4554 &lt;int&gt;,
+#   f_5564 &lt;int&gt;, f_65 &lt;int&gt;, f_u &lt;int&gt;
 ```
 
 ---
@@ -173,7 +185,7 @@ What is the experimental unit? What are the factors of the experiment? What was 
 ---
 # Messy Data Patterns
 
-There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns.
+There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns:
 
 - Column headers are values, not variable names
 - Variables are stored in both rows and columns, contingency table format
@@ -185,17 +197,17 @@ There are various features of messy data that one can observe in practice. Here 
 
 - Each observation forms a row
 - Each variable forms a column
-- Contained in a single table
+- Data is contained in a single table
 - Long form makes it easier to reshape in many different ways
 - Wide form is common for analysis
 
 ---
 
-![](lego.pdf)
+![](lego.png)
 
 ---
 
-![](playmobile.pdf)
+![](playmobile.png)
 
 ---
 # Tidy Verbs
@@ -274,7 +286,7 @@ This is called "spreading" the data.
 ---
 # Spread
 
-We use the **spread** function from tidyr to do this:
+We use the **spread** function from `tidyr` to do this:
 
 
 ```r
@@ -315,7 +327,6 @@ head(ff.m)
 6    1         1      15   2 potato    8.8
 ```
 
----
 
 
 ```r
@@ -416,7 +427,7 @@ class: inverse middle
 1. Use `tidyr` to convert this data into a long format appropriate for plotting a time series (date on the x axis, chart position on the y axis)
 2. Use `ggplot2` to create this time series plot:
 
-&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" style="display: block; margin: auto;" /&gt;&lt;img src="index_files/figure-html/unnamed-chunk-23-2.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -544,7 +555,11 @@ class: inverse middle
 ---
 # Tidying model output
 
-The package `broom` gets model results into a tidy format. 
+The package `broom` gets model results into a tidy format at different levels
+
+- for each model: `broom::glance`
+- for each coefficient in the model: `broom::tidy`
+- for each value in the dataset: `broom::augment`
 
 
 ```r
@@ -555,7 +570,19 @@ ff_lm &lt;- lm(rating~variable+treatment+time+subject,
 ```
 
 ---
-# Model estimates
+# Goodness of fit statistics: `glance`
+
+
+```r
+glance(ff_lm)
+  r.squared adj.r.squared   sigma statistic p.value df    logLik      AIC
+1 0.3995198     0.3949865 2.89966  88.13113       0 27 -8606.787 17269.57
+       BIC deviance df.residual
+1 17441.83 28957.24        3444
+```
+
+---
+# Model estimates: `tidy`
 
 
 ```r
@@ -571,7 +598,7 @@ $ p.value   &lt;dbl&gt; 3.495385e-06, 1.489614e-13, 7.113736e-06, 2.275767e-...
 ```
 
 ---
-# Model diagnostics
+# Model diagnostics: `augment`
 
 
 ```r
@@ -602,7 +629,7 @@ $ .std.resid &lt;dbl&gt; -1.1882021, 2.6550643, 1.0225395, 0.6417396, -1.652...
 ggplot(ff_lm_all, aes(x=.fitted, y=.resid)) + geom_point()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-33-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Back to autism

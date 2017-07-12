@@ -68,7 +68,10 @@ ggplot(filter(autism,
 ```
 
 ---
-# What about this one?
+class: inverse middle 
+# Your turn
+
+What about this one?
 
 ```{r echo=FALSE}
 ggplot(autism, aes(x=factor(age2+2), y=vsae, colour=bestest2)) + 
@@ -96,7 +99,9 @@ Additional components
 ---
 # Why use a grammar of graphics?
 
-<font face="DidyBold" color="#D95F02" size=8>
+<br>
+<br>
+<font face="DidyBold" size=6>
 Variable in the data is directly mapped to an element in the plot </font>
 
 ---
@@ -481,12 +486,12 @@ p + scale_fill_manual("", values=clrs) + theme(legend.position = "none")
 ---
 # Hierarchy of mappings
 
-1. Position - common scale (BEST)
-2. Position - nonaligned scale
-3. Length, direction, angle
-4. Area
-5. Volume, curvature
-6. Shading, color (WORST)
+- 1. Position - common scale (BEST)
+- 2. Position - nonaligned scale
+- 3. Length, direction, angle
+- 4. Area
+- 5. Volume, curvature
+- 6. Shading, color (WORST)
 
 ---
 # Pre-attentive

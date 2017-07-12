@@ -21,6 +21,8 @@ class: center, middle, inverse, title-slide
 
 
 
+
+
 # Tidy data and random variables
 
 - The concept of tidy data matches elementary statistics
@@ -75,7 +77,7 @@ tidy_data &lt;- messy_data %&gt;%
   gather(demo, count, -year, -iso2, na.rm = TRUE) %&gt;% 
   separate(demo, c("gender", "age"))
 tidy_data &lt;- tidy_data %&gt;% 
-  filter(!(age %in% c("014", "04", "514")))
+  filter(!(age %in% c("014", "04", "514", "u")))
 head(tidy_data)
 # A tibble: 6 x 5
    iso2  year gender   age count
@@ -94,28 +96,9 @@ head(tidy_data)
 
 ```r
 tidy_data %&gt;% 
-  filter(iso2 == "AU") %&gt;% 
+  filter(iso2 == "US") %&gt;% 
   ggplot(aes(x = year, y = count, fill = gender)) +
   geom_bar(stat = "identity", position = "fill") +
-  facet_grid(~ age) +
-  theme(
-    axis.text = element_text(size = 14), 
-    strip.text = element_text(size = 16), 
-    axis.title = element_text(size = 16)
-  )
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
-
----
-# Stacked barcharts
-
-
-```r
-tidy_data %&gt;% 
-  filter(iso2 == "AU") %&gt;% 
-  ggplot(aes(x = year, y = count, fill = gender)) +
-  geom_bar(stat = "identity") +
   facet_grid(~ age) +
   theme(
     axis.text = element_text(size = 14), 
@@ -127,14 +110,14 @@ tidy_data %&gt;%
 &lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
-# Side-by-side barcharts
+# Stacked barcharts
 
 
 ```r
 tidy_data %&gt;% 
-  filter(iso2 == "AU") %&gt;% 
+  filter(iso2 == "US") %&gt;% 
   ggplot(aes(x = year, y = count, fill = gender)) +
-  geom_bar(stat = "identity", position="dodge") +
+  geom_bar(stat = "identity") +
   facet_grid(~ age) +
   theme(
     axis.text = element_text(size = 14), 
@@ -146,15 +129,15 @@ tidy_data %&gt;%
 &lt;img src="index_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
-# facetted barcharts
+# Side-by-side barcharts
 
 
 ```r
 tidy_data %&gt;% 
-  filter(iso2 == "AU") %&gt;% 
+  filter(iso2 == "US") %&gt;% 
   ggplot(aes(x = year, y = count, fill = gender)) +
-  geom_bar(stat = "identity") +
-  facet_grid(gender ~ age) +
+  geom_bar(stat = "identity", position="dodge") +
+  facet_grid(~ age) +
   theme(
     axis.text = element_text(size = 14), 
     strip.text = element_text(size = 16), 
@@ -165,12 +148,31 @@ tidy_data %&gt;%
 &lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
+# facetted barcharts
+
+
+```r
+tidy_data %&gt;% 
+  filter(iso2 == "US") %&gt;% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+---
 # Rose plot
 
 
 ```r
 tidy_data %&gt;% 
-  filter(iso2 == "AU") %&gt;% 
+  filter(iso2 == "US") %&gt;% 
   ggplot(aes(x = year, y = count, fill = gender)) +
   geom_bar(stat = "identity") +
   facet_grid(gender ~ age) +
@@ -181,7 +183,7 @@ tidy_data %&gt;%
   ) + coord_polar()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Rainbow charts
@@ -189,7 +191,7 @@ tidy_data %&gt;%
 
 ```r
 tidy_data %&gt;% 
-  filter(iso2 == "AU") %&gt;% 
+  filter(iso2 == "US") %&gt;% 
   ggplot(aes(x = 1, y = count, fill = factor(year))) +
   geom_bar(stat = "identity", position="fill") +
   facet_grid(gender ~ age) +
@@ -200,7 +202,7 @@ tidy_data %&gt;%
   ) 
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Pie charts
@@ -208,7 +210,7 @@ tidy_data %&gt;%
 
 ```r
 tidy_data %&gt;% 
-  filter(iso2 == "AU") %&gt;% 
+  filter(iso2 == "US") %&gt;% 
   ggplot(aes(x = 1, y = count, fill = factor(year))) +
   geom_bar(stat = "identity", position="fill") +
   facet_grid(gender ~ age) +
@@ -219,17 +221,26 @@ tidy_data %&gt;%
   ) + coord_polar(theta="y")
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: inverse middle 
 # Your turn
 
-What do you learn about tb incidence in Australia by gender and age and year from the
+What do you learn about tb incidence in the USA by gender and age and year from the
 - 100% charts?
 - stacked bar charts?
 - side-by-side barcharts?
 - facetted barcharts?
+
+
+
+---
+# Maps
+
+Make a world map, by merging iso2 with country codes to make a chloropleth
+
+&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Inference
@@ -240,15 +251,7 @@ What do you learn about tb incidence in Australia by gender and age and year fro
 ---
 # Putting the pieces together
 
-
-```r
-df &lt;- data.frame(v1=c(rexp(20), rexp(15, 2)), 
-                 v2=c(rep("A", 20), rep("B", 15)))
-ggplot(df, aes(x=v2, y=v1, fill=v2)) + 
-  geom_boxplot() + coord_flip()
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -273,29 +276,47 @@ ggplot(df, aes(x=v2, y=v1, fill=v2)) +
 ---
 # Lineup
 
-
-```r
-library(nullabor)
-pos &lt;- sample(1:20, 1)
-df_null &lt;- lineup(null_permute('v1'), df, pos=pos)
-ggplot(df_null, aes(x=v2, y=v1, fill=v2)) + 
-  geom_boxplot() +
-  facet_wrap(~.sample, ncol=5) + coord_flip()
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
 
 Which plot shows the most difference between the groups?
 
 ---
 # Evaluation
 
-- Computing p-values
-- Power
+- Computing `\(p\)`-values
+- Power - signal strength
+
+---
+# p-values
+
+Suppose `\(x\)` individuals selected the data plot from a lineup of `\(m\)` plots, shown to `\(K\)` independent observers, then simplistically we can think about the probability of this happening, if the data plot is from the same distribution as the null plots. This yields a binomial formula:
+
+`$$P(X\geq x) = \sum_{i=x}^{K} \binom{K}{i} \left(\frac{1}{m}\right)^i\left(\frac{m-1}{m}\right)^{K-i}$$`
+
+For `\(x=4, K=17, m=20\)`
+
+
+```
+     x simulated       binom
+[1,] 4    0.0209 0.008800605
+```
+
+---
+# Simulation approach
+
+- Scenario I: in each of K evaluations a different data set and a different set of (m-1) null plots is shown.
+- Scenario II: in each of K evaluations the same data set but a different set of (m-1) null plots is shown.
+- Scenario III: the same lineup, i.e. same data and same set of null plots, is shown to K different observers.
+
+---
+
+Explain the simulation??
 
 ---
 # Null-generating mechanisms
 
+- Permutation: randomizing the order of one of the variables breaks association, but keeps marginal distributions the same
+- Simulation: from a given distribution, or model. Assumption is that the data comes from that model 
 
 ---
 class: inverse middle 
@@ -310,11 +331,28 @@ For these plot descriptions, decide on:
 class: inverse middle 
 # Your turn
 
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
 - For the tb data, subset to 2008
 - Decide on two possible plot designs to show the relationship between age, gender.
 - Write the code to make the plots
 - Determine an appropriate null generating mechanism to test `\(H_o\)`: no relationship between age and gender.
 - Make a lineup to for each plot design. 
+- Show the lineups to 5 other participants, for each plot design
+- Record the number of people selecting the data plot
+- Compute the power for each test, the signal strength of the design
+
+
 
 ---
 # Resources
@@ -334,7 +372,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "countIncrementalSlides": false,
 "incremental": true
 });
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -348,7 +386,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);

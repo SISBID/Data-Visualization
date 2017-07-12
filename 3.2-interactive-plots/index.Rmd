@@ -62,6 +62,7 @@ data("economics", package = "ggplot2")
 ggvis(economics, x=~date, y=~psavert)
 ```
 
+
 ---
 #
 
@@ -156,8 +157,7 @@ economics %>%
   ggvis(~date, ~psavert) %>%
   layer_points() %>%
     layer_model_predictions(
-        model = model_type, 
-        span = input_slider(0.02, 0.5))
+        model = model_type)
 ```
 
 ---

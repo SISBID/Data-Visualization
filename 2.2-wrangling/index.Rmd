@@ -62,6 +62,7 @@ There are five primary dplyr **verbs**, representing distinct data analysis task
 ---
 # Filter
 
+
 ```{r}
 data(french_fries, package = "reshape2")
 french_fries %>%
@@ -128,8 +129,7 @@ To check this we want to tabulate the number of records for each subject, time a
 
 ```{r}
 french_fries %>% 
-  select(subject, time, treatment) %>% 
-  tbl_df() %>% 
+#  select(subject, time, treatment) %>% 
   count(subject, time) %>%
   spread(time, n)
 ```
@@ -141,7 +141,6 @@ french_fries %>%
 french_fries %>% 
   gather(type, rating, -subject, -time, -treatment, -rep) %>%
   select(subject, time, treatment, type) %>% 
-  tbl_df() %>% 
   count(subject, time) %>%
   spread(time, n)
 ```
@@ -261,25 +260,11 @@ ggplot(data=country_coefs, aes(x=`(Intercept)`, y=year, colour=continent)) +
   ylab("Average Gain in Life Expectancy per Year")
 ```
 
----
-
---- 
-# Prepping
-
-- The `purrr` package has been unveiled in February (presented by Hadley Wickham at WOMBAT)
-- you might have to re-install the packages `tidyr` and `purrr`, i.e. run the following code
-
-```{r, eval=FALSE}
-install.packages("tidyr")
-install.packages("purrr")
-
-library(tidyr)
-library(purrr)
-```
-
 
 ---
 # Life Expectancy in the U.S.
+
+Start with a single country, then generalize over all countries: 
 
 ```{r}
 usa <- gapminder %>% filter(country=="United States")
@@ -321,14 +306,9 @@ by_country <- gapminder %>% group_by(continent, country) %>% nest()
 head(by_country)
 ```
 
----
+Each element of the `data` variable in `by_country` is a dataset.
 
-Each element of the `data` variable in `by_country` is a dataset:
-
-```{r}
-head(by_country$data[[1]])
-lm(lifeExp~year, data=by_country$data[[1]])
-```
+We will fit a linear model to each one of the elements of the `by_country` data.
 
 ---
 
@@ -345,24 +325,12 @@ head(by_country)
 ```
 
 ---
-# On to the `broom` package
+# `broom` again
 
-`broom` allows to extract values from models on three levels:
-
-- for each model: `broom::glance`
-- for each coefficient in the model: `broom::tidy`
-- for each value in the dataset: `broom::augment`
+using `broom::tidy` we extract coefficients for each model
 
 ```{r}
-library(broom)
-broom::glance(by_country$model[[1]])
 broom::tidy(by_country$model[[1]])
-```
-
----
-
-```{r}
-broom::augment(by_country$model[[1]])
 ```
 
 ---
@@ -373,22 +341,47 @@ broom::augment(by_country$model[[1]])
 Extract all countries automatically (hello `map` again!)
 
 ```{r}
-by_country$stats <- by_country$model %>% purrr::map(broom::tidy)
-by_country_coefs <- by_country %>% unnest(stats)
-coefs <- by_country_coefs %>% select(country, continent, term, estimate) %>% spread(term, estimate)
+by_country$coefs <- by_country$model %>% purrr::map(broom::tidy)
+by_country
 ```
 
-and finally, a visualization:
+---
+
+--- 
+# Get the coefficients into one data set
+
+`unnest` pulls little data frames back into the whole frame
 
 ```{r}
+by_country_coefs <- by_country %>% unnest(coefs)
+by_country_coefs
+
+```
+
+---
+
+--- 
+# ... and finally, a visualization:
+
+```{r}
+coefs <- by_country_coefs %>% 
+  select(country, continent, term, estimate) %>% 
+  spread(term, estimate)
 ggplot(data=coefs, aes(x=`(Intercept)`, y=year, colour=continent)) +
   geom_point()
 ```
 
---- 
-# Extract other model diagnostics
+---
+class: inverse middle 
+# Your turn
 
-```{r}
+![](lorikeets.png)
+
+- use `broom::glance` to get model fits for each one of the linear models of life expectancy by year
+- which countries have the best five fits? which countries have the worst fits?
+- are there meaningful patterns?
+
+```{r, echo=FALSE, eval=FALSE}
 by_country <- by_country %>% unnest(model %>% purrr::map(broom::glance))
 by_country$country <- reorder(by_country$country, by_country$r.squared)
 ggplot(data=by_country, aes(x=country, y=r.squared, colour=continent)) +
@@ -397,27 +390,6 @@ ggplot(data=by_country, aes(x=country, y=r.squared, colour=continent)) +
   scale_colour_brewer(palette="Dark2")
 ```
 
----
-# Compare groups of countries
-
-```{r}
-country_all <- by_country %>% unnest(data)
-ggplot(data=subset(country_all, r.squared <= 0.45), 
-       aes(x=year+1950, y=lifeExp)) +
-  geom_line() +
-  facet_wrap(~country)
-```
-
-What do the patterns mean?
-
----
-
-```{r}
-ggplot(data=subset(country_all, between(r.squared, 0.45, 0.75)), 
-       aes(x=year+1950, y=lifeExp)) +
-  geom_line() +
-  facet_wrap(~country)
-```
 
 ---
 class: inverse middle 
@@ -485,7 +457,7 @@ ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
   geom_point(alpha=.1) + facet_wrap(~significant, labeller="label_both")
 ```
 
-`augment(y)` stops in an error (this is a bug and reported)
+`augment(y)` only works for DGEList objects
 
 
 ---
