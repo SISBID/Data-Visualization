@@ -1,6 +1,6 @@
 ---
 title: "Grammar of Graphics and ggplot2"
-subtitle: "SISBID 2017"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
 author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
 date: "07/12-14/2017"
 output:
@@ -28,12 +28,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r echo=FALSE}
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-library(lubridate)
-library(scales)
-library(readr)
+library(tidyverse)
 library(ggmap)
 library(HLMdiag)
 library(RColorBrewer)
@@ -141,7 +136,7 @@ autism, x and y position along a line, point, none
 
 ```{r}
 ggplot(autism, aes(x=age2, y=vsae)) + 
-  geom_jitter()
+  geom_jitter(width=0.3, height=0)
 ```
 
 ---
@@ -182,7 +177,7 @@ ggplot(autism, aes(x=age2, y=vsae, group=childid)) +
 
 ```{r}
 ggplot(autism, aes(x=age2, y=vsae, group=childid)) + 
-  geom_point() + geom_line(alpha=0.5)
+  geom_point() + geom_line(alpha=0.1)
 ```
 
 ---
@@ -190,7 +185,9 @@ ggplot(autism, aes(x=age2, y=vsae, group=childid)) +
 
 ```{r}
 ggplot(autism, aes(x=age2, y=vsae, group=childid)) + 
-  geom_point() + geom_line(alpha=0.5) + scale_y_log10()
+  geom_point() + geom_line(alpha=0.2) + scale_y_log10()
+ggplot(autism, aes(x=age2, y=log(vsae), group=childid)) + 
+  geom_point() + geom_line(alpha=0.2) 
 ```
 
 ---
@@ -208,7 +205,7 @@ ggplot(autism, aes(x=age2, y=vsae, group=childid, colour=bestest2)) +
 ggplot(autism, aes(x=age2, y=vsae, colour=bestest2)) + 
   geom_point(alpha=0.1) + geom_line(aes(group=childid), alpha=0.1) + 
   geom_smooth(se=F) +
-  scale_y_log10()
+  scale_y_log10() 
 ```
 
 ---
@@ -308,6 +305,9 @@ fly$`How often do you travel by plane?` <-
     "Never","Once a year or less","Once a month or less",
     "A few times per month","A few times per week","Every day"))
 ggplot(fly, aes(x=`How often do you travel by plane?`)) + geom_bar() + coord_flip()
+ggplot(fly, aes(x=`How often do you travel by plane?`, 
+                fill=`How often do you travel by plane?`)) + geom_bar() + coord_flip() +
+  scale_fill_brewer(palette="Dark2")
 ```
 
 ---
@@ -412,6 +412,10 @@ ggplot(fly_sub, aes(x=`Do you ever recline your seat when you fly?`)) +
   geom_bar() + 
   facet_wrap(~`Is itrude to recline your seat on a plane?`, ncol=3) +
   coord_flip()
+ggplot(fly_sub, aes(x=`Do you ever recline your seat when you fly?`,
+    fill=`Is itrude to recline your seat on a plane?`)) +
+  geom_bar(position="fill") +
+  coord_flip()
 ```
 
 
@@ -486,12 +490,12 @@ p + scale_fill_manual("", values=clrs) + theme(legend.position = "none")
 ---
 # Hierarchy of mappings
 
-- 1. Position - common scale (BEST)
-- 2. Position - nonaligned scale
-- 3. Length, direction, angle
-- 4. Area
-- 5. Volume, curvature
-- 6. Shading, color (WORST)
+- 1.Position - common scale (BEST)
+- 2.Position - nonaligned scale
+- 3.Length, direction, angle
+- 4.Area
+- 5.Volume, curvature
+- 6.Shading, color (WORST)
 
 ---
 # Pre-attentive

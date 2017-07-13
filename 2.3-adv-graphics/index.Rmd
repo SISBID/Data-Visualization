@@ -16,7 +16,7 @@ output:
 
 ```{r echo = FALSE, warning = FALSE, message=FALSE}
 knitr::opts_chunk$set(
-  echo = FALSE, 
+  echo = TRUE, 
   message = FALSE,
   warning = FALSE,
   collapse = TRUE,
@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r}
+```{r echo=FALSE}
 library(tidyverse)
 library(ggthemes)
 library(maps)
@@ -206,7 +206,7 @@ What do you learn about tb incidence in the USA by gender and age and year from 
 - side-by-side barcharts?
 - facetted barcharts?
 
-```{r eval=FALSE}
+```{r eval=FALSE, echo=FALSE}
 The US has been rocking it at reducing tb incidence, across most age groups, and gender. Different focus using the different charts:
   - 
   - 
@@ -239,6 +239,11 @@ tb_names_inc <- tb_names %>%
   unnest(model %>% purrr::map(broom::tidy)) %>%
   select(region, term, estimate) %>% 
   spread(term, estimate)
+```
+
+---
+
+```{r}
 ggplot(tb_names_inc, aes(map_id = region)) + 
     geom_map(aes(fill=year), map = world_map, color="grey70", size=0.3) + 
     expand_limits(x = world_map$long, y = world_map$lat) +
@@ -268,18 +273,26 @@ ggplot(df, aes(x=v2, y=v1, fill=v2)) +
 ```
 
 ---
+class: inverse middle 
+# Your turn
 
 - Question?
 - Data, variables
 - Mapping
 - Null generating mechanism
 
----
+--
+- Question? Is there a difference between the two groups? $H_0$: no difference, $H_1$: difference
 
-> - Question? Is there a difference between the two groups? $H_0$: no difference, $H_1$: difference
-> - Data, variables: Two variables: v1, v2; v2 is categorical
-> - Mapping: x=V2, y=V1, colour=V1, geom=boxplot
-> - Null generating mechanism: permute the values of V1, relative to V2
+--
+- Data, variables: Two variables: v1, v2; v2 is categorical
+
+--
+- Mapping: x=V2, y=V1, colour=V1, geom=boxplot
+
+--
+- Null generating mechanism: permute the values of V1, relative to V2
+
 
 ---
 # Clarity
@@ -290,7 +303,9 @@ ggplot(df, aes(x=v2, y=v1, fill=v2)) +
 ---
 # Lineup
 
-```{r fig.height=7, fig.width=10}
+Embed the data plot in a field of null plots
+
+```{r eval=FALSE}
 library(nullabor)
 pos <- sample(1:20, 1)
 df_null <- lineup(null_permute('v1'), df, pos=pos)
@@ -299,7 +314,18 @@ ggplot(df_null, aes(x=v2, y=v1, fill=v2)) +
   facet_wrap(~.sample, ncol=5) + coord_flip()
 ```
 
+---
+
 Which plot shows the most difference between the groups?
+
+```{r fig.height=7, fig.width=9, echo=FALSE}
+library(nullabor)
+pos <- sample(1:20, 1)
+df_null <- lineup(null_permute('v1'), df, pos=pos)
+ggplot(df_null, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() +
+  facet_wrap(~.sample, ncol=5) + coord_flip()
+```
 
 ---
 # Evaluation
@@ -328,8 +354,40 @@ pvisual(4, 17, m=20)
 - Scenario III: the same lineup, i.e. same data and same set of null plots, is shown to K different observers.
 
 ---
+# Simulation
 
-Explain the simulation??
+Crucial idea: assign a p-value to each plot (data and null); under null hypothesis, this p-value is from U[0,1] 
+
+Scenario I:
+- for the $k$th lineup evaluation do:
+ - pick 20 $p$-values from $U[0,1]$
+ - for data plot compute 'strength' of other plots: $q = (1-p_\text{data})/\sum_j(1-p_j)$
+ - Use $q$ to determine whether data was picked in simulation: $x_k \tilde B_{1,q}$
+ - repeat above three steps $K$ times, and find the number of data picks $X = \sum_k x_k$
+- Repeat N times to get distribution of $X$
+
+---
+# Simulation
+
+
+Scenario II (same data, different nulls):
+- for the $k$th lineup evaluation pick 20 $p$-values from $U[0,1]$:
+- for data plot compute 'strength' of other plots: $q = (1-p_\text{data})/\sum_j(1-p_j)$
+- Use $q$ to determine whether data was picked in simulation: $x_k \tilde B_{1,q}$
+- find the number of data picks $X = \sum_k x_k$
+- Repeat N times to get distribution of $X$
+
+---
+# Simulation
+
+
+Scenario III (same data, same nulls):
+- for the $k$th lineup evaluation pick $p_\text{data} \sim U[0,1]$:
+ - pick 19 $p$-values from $U[0,1]$
+ - for data plot compute 'strength' of other plots: $q = (1-p_\text{data})/\sum_j(1-p_j)$
+ - simulate number of data picks $X ~ B_{K, q}$
+- Repeat N times to get distribution of $X$
+
 
 ---
 # Null-generating mechanisms
@@ -351,8 +409,7 @@ class: inverse middle
 # Your turn
 
 ```{r echo=FALSE}
-ggplot(filter(autism, 
-              childid %in% sample(unique(childid), 20)), 
+ggplot(autism, 
        aes(x=age2+2, y=vsae, group=childid, colour=gender)) + 
   geom_point() +
   geom_line() + xlim(c(0, 15)) +
@@ -363,7 +420,7 @@ ggplot(filter(autism,
 class: inverse middle 
 # Your turn
 
-```{r}
+```{r echo=FALSE}
 fly <- read_csv("../data/flying-etiquette.csv")
 fly$`How often do you travel by plane?` <- 
   factor(fly$`How often do you travel by plane?`, levels=c(

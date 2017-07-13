@@ -1,6 +1,6 @@
 ---
 title: "Multivariate data plots"
-subtitle: "SISBID 2017"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
 author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
 date: "07/12-14/2017"
 output:
@@ -371,7 +371,7 @@ sig.tab <- sig.tab %>% filter(PValue < 0.01)
 ---
 
 
-```{r}
+```{r fig.height=6, fig.width=6}
 sig.tab <- merge(sig.tab, coty[,1:7], by.x="genes", by.y="ID")
 ggscatmat(sig.tab, columns=5:10, alpha=0.1)
 ```
@@ -418,12 +418,113 @@ ggplot(data=sig.tab) +
 ```
 
 ---
+# biobroom and limma
+
+```{r}
+bb <- data.frame(read_tsv("../data/biotin-rma2.txt"))
+head(data.frame(bb[,-2]))
+row.names(bb) <- bb$Gene
+```
+
+---
+# Looking at the gene expression data
+
+```{r fig.width=6, fig.height=6}
+ggpairs(bb, columns=c(3,7,4,8))
+```
+
+---
+# A porcupine plot again
+
+```{r fig.width=6, fig.height=6}
+sub <- bb %>% select(Gene, biotin.WT.01.1, biotin.WT.02.1, biotin.bio101.4, biotin.bio102.4)
+ggplot(sub, aes(x=biotin.WT.01.1, xend=biotin.WT.02.1, y=biotin.bio101.4, yend=biotin.bio102.4)) +
+  geom_segment() +
+  theme(aspect.ratio = 1) +
+  xlab("wildtype, control treatment") +
+  ylab("mutant, treated")
+```
+
+---
+# Fit a limma model
+
+```{r}
+design <- expand.grid(type=c("wild", "mutant"), trt=c("control", "treatment"), rep=1:2)
+
+fit <- lmFit(bb[,-(1:2)], model.matrix(~ type*trt, design))
+fit <- eBayes(fit)
+
+head(topTable(fit))
+```
+
+---
+class: inverse middle 
+# Your Turn
+
+![](lorikeets.png)
+
+- For the previous example, try out what output the different broom functions (`glance`, `tidy`, `augment`)  produce.
+- Create a Volcano plot for each of the model terms, i.e. plot estimates on x by log(p.values) on y. 
+- Are there differences visible between the terms?
+
+```{r, echo=FALSE, eval=FALSE}
+head(tidy(fit))
+ggplot(tidy(fit), aes(x=estimate, y=log(p.value), colour = p.value < 0.05)) +
+  facet_wrap(~term) +
+  geom_point() + ggtitle("Volcano Plots with limma") 
+```
+
+---
+
+```{r}
+bbfit <- tidy(fit)
+ggplot(data=bbfit, aes(x=term, y=estimate, group=gene)) +
+  geom_line(alpha=0.1) +
+  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
+```
+
+---
+
+Is type*treatment interaction necessary? Very strong negative correlation is suspicious.
+
+
+```{r fig.show='hide'}
+bbfit_m <- bbfit %>% select(gene, term, estimate, p.value) %>% 
+  gather(fit.stat, value, -gene, -term) %>%
+  unite(term_stat, term, fit.stat) %>%
+  spread(term_stat, value) %>% 
+  rename(trt=trttreatment_estimate, mut=typemutant_estimate,
+         int=`typemutant:trttreatment_estimate`, 
+         trtp=trttreatment_p.value, mutp=typemutant_p.value, 
+         intp=`typemutant:trttreatment_p.value`) 
+ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
+          ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
+```
+
+---
+
+```{r echo=FALSE, fig.width=8, fig.height=8}
+ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
+          ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
+```
+
+---
+
+```{r}
+fit2 <- lmFit(bb[,-(1:2)], model.matrix(~ type+trt, design))
+fit2 <- eBayes(fit2)
+bbfit2 <- tidy(fit2)
+ggplot(data=bbfit2, aes(x=term, y=estimate, group=gene)) +
+  geom_line(alpha=0.1) +
+  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
+```
+
+---
 # Resources
 
 - [GGobi web site](http://www.ggobi.org), [ggobi book](http://www.ggobi.org/book)
 - Emerson et al (2013) The Generalized Pairs Plot, Journal of Computational and Graphical Statistics, 22:1, 79-91
 - Cook et al (2007) Exploring Gene Expression Data, Using Plots, Journal of Data Science, 5(2):151-182
-- [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
 
 ---
 # Share and share alike

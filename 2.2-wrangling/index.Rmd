@@ -43,26 +43,26 @@ library(GGally)
 
 # Outline
 
-- dplyr package: motivation, functions, chaining
-- purrr: working with lists, vectors of data frames
+- `dplyr` package: motivation, functions, chaining
+- `purrr`: working with list variables, vectors of data frames
 
 ---
 # dplyr verbs
 
 There are five primary dplyr **verbs**, representing distinct data analysis tasks:
 
-- Filter: Remove the rows of a data frame, producing subsets
-- Arrange: Reorder the rows of a data frame
-- Select: Select particular columns of a data frame
-- Mutate: Add new columns that are functions of existing columns
-- Summarise: Create collapsed summaries of a data frame
-- (Group By: Introduce structure to a data frame)
+- `filter`: Remove the rows of a data frame, producing subsets
+- `arrange`: Reorder the rows of a data frame
+- `select`: Select particular columns of a data frame
+- `mutate`: Add new columns that are functions of existing columns
+- `summarise`: Create collapsed summaries of a data frame
+- (`group_by`: Introduce structure to a data frame)
  
  
 ---
 # Filter
 
-
+select a subset of the observations (horizontal selection)
 ```{r}
 data(french_fries, package = "reshape2")
 french_fries %>%
@@ -72,6 +72,7 @@ french_fries %>%
 ---
 # Arrange
 
+order the observations (hierarchically)
 ```{r}
 french_fries %>%
     arrange(desc(rancid)) %>%
@@ -81,6 +82,7 @@ french_fries %>%
 ---
 # Select
 
+select a subset of the variables (vertical selection)
 ```{r}
 french_fries %>%
     select(time, treatment, subject, rep, potato) %>%
@@ -90,6 +92,7 @@ french_fries %>%
 ---
 # Summarise
 
+summarize observations into a (set of) one-number statistic(s):
 ```{r}
 french_fries %>%
     summarise(mean_rancid = mean(rancid, na.rm=TRUE), 
@@ -213,7 +216,8 @@ Why would we even do that?
 
 ```{r}
 library(gapminder)
-ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country)) + 
+ggplot(data=gapminder, 
+       aes(x=year, y=lifeExp, group=country)) + 
   geom_line()
 ```
 
@@ -224,7 +228,8 @@ How would you describe this plot?
 
 ```{r}
 library(gapminder)
-ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country, colour=continent)) + 
+ggplot(data=gapminder, 
+       aes(x=year, y=lifeExp, group=country, colour=continent)) + 
   geom_line()
 ```
 
@@ -310,9 +315,8 @@ Each element of the `data` variable in `by_country` is a dataset.
 
 We will fit a linear model to each one of the elements of the `by_country` data.
 
----
 
---- 
+---
 # Fitting multiple models
 
 Now we are using the `map` function in the package `purrr`.
@@ -334,8 +338,6 @@ broom::tidy(by_country$model[[1]])
 ```
 
 ---
-
---- 
 # Extract values for each coefficient
 
 Extract all countries automatically (hello `map` again!)
@@ -346,8 +348,6 @@ by_country
 ```
 
 ---
-
---- 
 # Get the coefficients into one data set
 
 `unnest` pulls little data frames back into the whole frame
@@ -359,8 +359,6 @@ by_country_coefs
 ```
 
 ---
-
---- 
 # ... and finally, a visualization:
 
 ```{r}
@@ -451,7 +449,7 @@ glance(et, alpha = 0.05) # glance on DGEExact
 # biobroom and edgeR
 
 ```{r}
-tet <- tidy(et)
+tet <- broom::tidy(et)
 tet$significant <- tet$p.value < 0.05
 ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
   geom_point(alpha=.1) + facet_wrap(~significant, labeller="label_both")
@@ -463,104 +461,8 @@ ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
 ---
 # biobroom and limma
 
-```{r}
-bb <- data.frame(read_tsv("../data/biotin-rma2.txt"))
-head(data.frame(bb[,-2]))
-row.names(bb) <- bb$Gene
-```
-
----
-# Looking at the gene expression data
-
-```{r fig.width=6, fig.height=6}
-ggpairs(bb, columns=c(3,7,4,8))
-```
-
----
-# A porcupine plot again
-
-```{r fig.width=6, fig.height=6}
-sub <- bb %>% select(Gene, biotin.WT.01.1, biotin.WT.02.1, biotin.bio101.4, biotin.bio102.4)
-ggplot(sub, aes(x=biotin.WT.01.1, xend=biotin.WT.02.1, y=biotin.bio101.4, yend=biotin.bio102.4)) +
-  geom_segment() +
-  theme(aspect.ratio = 1) +
-  xlab("wildtype, control treatment") +
-  ylab("mutant, treated")
-```
-
----
-# Fit a limma model
-
-```{r}
-design <- expand.grid(type=c("wild", "mutant"), trt=c("control", "treatment"), rep=1:2)
-
-fit <- lmFit(bb[,-(1:2)], model.matrix(~ type*trt, design))
-fit <- eBayes(fit)
-
-head(topTable(fit))
-```
-
----
-class: inverse middle 
-# Your Turn
-
-![](lorikeets.png)
-
-- For the previous example, try out what output the different broom functions (`glance`, `tidy`, `augment`)  produce.
-- Create a Volcano plot for each of the model terms, i.e. plot estimates on x by log(p.values) on y. 
-- Are there differences visible between the terms?
-
-```{r, echo=FALSE, eval=FALSE}
-head(tidy(fit))
-ggplot(tidy(fit), aes(x=estimate, y=log(p.value), colour = p.value < 0.05)) +
-  facet_wrap(~term) +
-  geom_point() + ggtitle("Volcano Plots with limma") 
-```
-
----
-
-```{r}
-bbfit <- tidy(fit)
-ggplot(data=bbfit, aes(x=term, y=estimate, group=gene)) +
-  geom_line(alpha=0.1) +
-  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
-```
-
----
-
-Is type*treatment interaction necessary? Very strong negative correlation is suspicious.
-
-
-```{r fig.show='hide'}
-bbfit_m <- bbfit %>% select(gene, term, estimate, p.value) %>% 
-  gather(fit.stat, value, -gene, -term) %>%
-  unite(term_stat, term, fit.stat) %>%
-  spread(term_stat, value) %>% 
-  rename(trt=trttreatment_estimate, mut=typemutant_estimate,
-         int=`typemutant:trttreatment_estimate`, 
-         trtp=trttreatment_p.value, mutp=typemutant_p.value, 
-         intp=`typemutant:trttreatment_p.value`) 
-ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
-          ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
-```
-
----
-
-```{r echo=FALSE, fig.width=8, fig.height=8}
-ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
-          ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
-```
-
----
-
-```{r}
-fit2 <- lmFit(bb[,-(1:2)], model.matrix(~ type+trt, design))
-fit2 <- eBayes(fit2)
-bbfit2 <- tidy(fit2)
-ggplot(data=bbfit2, aes(x=term, y=estimate, group=gene)) +
-  geom_line(alpha=0.1) +
-  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
-```
+- ... works similarly to biobroom and edgeR ...
+- we will pick up on this in the multivariate session after lunch
 
 ---
 # References

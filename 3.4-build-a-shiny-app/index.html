@@ -21,129 +21,21 @@ class: center, middle, inverse, title-slide
 
 
 
-# Outline
+class: inverse middle 
+# Your turn
 
-**Shiny** is an R package that allows you to easily create interactive web applets using R. 
-
-- Produced by [RStudio](http://shiny.rstudio.com)
-- Code can be entirely within R (or customize with HTML/JavaScript)
-- Take a look at RStudio's [showcase](http://shiny.rstudio.com/gallery/) of Shiny applets
-
----
-# Shiny Documentation and Help
-
-- [RStudio Tutorial](http://shiny.rstudio.com/tutorial/)  
-Much of tonight's material is motivated by this tutorial
-- [Shiny Setup, Showcase, and Server setup](http://shiny.rstudio.com)  
-Useful if you want to use shiny on your own webserver
-- [Shiny Github Page](https://github.com/rstudio/shiny)  
-See the latest updates
-- [Shiny Mailing List](https://groups.google.com/forum/#!forum/shiny-discuss)  
-Check the tutorial first, then search the mailing list.
-
-
----
-# Run a first Example yourself
-
-1. set your working directory to the folder 3.4-build-a-shiny-app
-
-
-```r
-setwd("3.4-build-a-shiny-app")
-```
-
-2. Run the following code:
-
-
-```r
-library(shiny)
-runApp("01_Hello")
-```
-&lt;center&gt;
-&lt;img src="images/HelloShinyScreenshot.png" alt="Picture of Hello Shiny! Applet"&gt;
-&lt;/center&gt;
-
----
-# A Tale of Two Files
-
-The quickest/easiest way to create a shiny app is to define the user interface in a file named **ui.R** and the server side functionality in **server.R**.
-
-- **ui.R** defines the page layout and user interface
-- **server.R** contains the R code to create any output
-
----
-# ui.R
-
-
-```r
-library(shiny)
-
-# A simple/common user interface template
-shinyUI(fluidPage(
-
-  # Application title
-  titlePanel("Title"),
-  
-  sidebarPanel(
-    # Define some inputs here
-  ),
-  
-  mainPanel(
-    # output (from the server) go here
-  )
-
-))
-```
-
----
-# server.R
-
-
-```r
-library(shiny)
-
-# Server side logic 
-shinyServer(function(input, output) {
-  # do something
-})
-```
-
----
-# Reactivity
-
-shiny is built on the idea of **reactive programming**. The idea that outputs should be automatically updated whenever an input value changes.
-
-```
-input values =&gt; R code =&gt; output values
-```
-
-**Reactive expressions** keep track of what values they read and what values they change. If those values become "out of date", they know their return value is out of date and will automatically recalculate.
-
----
-# An example
-
-
-```r
-runApp("02_Reactivity", display.mode = "showcase")
-```
+- Sketch out an app that you would like to produce in this last session!
+- What is the purpose of the app?
+- What do you want to display? Plots, summary stats, model summaries, diagnostic plots, ...?
+- What UI elements to you want to include? That is, what parts of the display do you want to allow users to be able to change? What would be the defaults? Ranges?
+- Map out the steps to get it started, e.g. make it draw a scatterplot, add a slider that does a power tranformation on the x axis, ... Having this will help you build and diagnose cleanly.
 
 ---
 class: inverse middle 
-# Your Turn 
+# Create your first app
 
-![](lorikeets.png)
-
-- Consider extending the hello world example:
-
-
-```r
-runApp("01_Hello", display.mode = "showcase")
-```
-
-- **Challenge 1:** add an input to change the mean and standard deviation (Hint: see `?numericInput`).
-- **Challenge 2:** add an input to simulate from a gamma as well as a normal (Hint: you can simulate from gamma distribution with `rgamma`).
-- **Challenge 3:** Extend **Challenge 2** so that there are dynamic inputs according to the desired distribution. That is, display mean and std dev inputs for normal distribution and a shape input for gamma (Hint: see `conditionalPanel`).
-
+- On the RStudio, `File` menu, `New file`, `Shiny web app` to start a new app
+- The easiest start is the `One file`, which will put both server and ui functions in the same file, `app.R`
 
 ---
 # Shiny Inputs
@@ -184,37 +76,31 @@ Shiny also has many output options:
 
 ---
 class: inverse middle 
-# Your Turn 
+# Your turn: Deploy your first app
 
-![](lorikeets.png)
+- Sign up for an account on [https://www.shinyapps.io/](https://www.shinyapps.io/)
+- Authenticate your account
+- You may need to do some setup in your session, e.g. install the library `rsconnect`
 
-Using your own data or the NYC crime data provided, create a simple Shiny app. 
-Use the NYC_Emergency app as a starting point.
+---
+# My example
 
+- `myapp/mds-pcp/app.R` is an app that makes a t-SNE low-dimensional representation of 8D data linked to a parallel coordinate plot, so we can explore proximity in low-d space with the full data space
+- It is now deployed at https://visnut.shinyapps.io/mds-pcp/
 
-```r
-runApp("03_NYC_Emergency")
-```
+---
+# Show and tell!
 
-- Ideas: 
-    - Plot some aspect of the data with color based on another aspect of the data
-    - Use `subset()` and `checkboxInput()` to plot user-selected subsets
-    - Use `tabsetPanel()` to display different tables/plots
-    - **Extra Challenging:** Can you make a map of NYC crime by location?
+When you have an app deployed, share it with instructors so we can load it on the screen for you to explain.
 
 ---
 # Resources
 
-- [Cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/08/ggplot2-cheatsheet.pdf)
-- [ggplot2: Elegant Graphics for Data Analysis, Hadley Wickham](http://ggplot2.org/book/), [web site](http://ggplot2.org)
-- [RStudio Tutorial](http://shiny.rstudio.com/tutorial/)  
-Much of tonight's material is motivated by this tutorial
-- [Shiny Setup, Showcase, and Server setup](http://shiny.rstudio.com)  
-Useful if you want to use shiny on your own webserver
-- [Shiny Github Page](https://github.com/rstudio/shiny)  
-See the latest updates
-- [Shiny Mailing List](https://groups.google.com/forum/#!forum/shiny-discuss)  
-Check the tutorial first, then search the mailing list.
+- RStudio [Tutorial](http://shiny.rstudio.com/tutorial/)  
+- Deploy your app for [others to use](https://www.shinyapps.io/)
+- Shiny Setup, Showcase, and Server [setup](http://shiny.rstudio.com)  
+- Shiny Github Page [source code!](https://github.com/rstudio/shiny)  
+- Shiny Mailing [List](https://groups.google.com/forum/#!forum/shiny-discuss)  
 
 ---
 # Share and share alike
@@ -227,7 +113,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "highlightLines": true,
 "countIncrementalSlides": false
 });
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -241,7 +127,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);

@@ -339,11 +339,7 @@ p.txdb <- autoplot(Homo.sapiens, which = wh)
 p.txdb
 ```
 
----
-
-```{r eval=FALSE}
-autoplot(Homo.sapiens, which = wh, gap.geom = "chevron")
-```
+![](figures/tracks1.png)
 
 ---
 # Base locations
@@ -363,21 +359,7 @@ p.bg <- autoplot(bg, which = wh)
 # text
 p.bg + zoom(1/2500)
 ```
-
----
-
-```{r echo=FALSE, eval=FALSE}
-library(BSgenome.Hsapiens.UCSC.hg19)
-bg <- BSgenome.Hsapiens.UCSC.hg19
-p.bg <- autoplot(bg, which = wh)
-p.bg + zoom(1/100)
-```
-
----
-class: inverse middle 
-# Your turn
-
-What is plotted at `zoom(1/100)` resolution?
+![](figures/base.png)
 
 ---
 # Base locations
@@ -388,6 +370,8 @@ bg <- BSgenome.Hsapiens.UCSC.hg19
 autoplot(bg, which = resize(wh, width = width(wh)/2000), geom = "segment")
 ```
 
+![](figures/base2.png)
+
 ---
 # Plot coverage
 
@@ -397,6 +381,8 @@ wh <- keepSeqlevels(wh, "chr17")
 autoplot(fl.bam, which = wh)
 ```
 
+![](figures/coverage.png)
+
 ---
 # Plot mismatches
 
@@ -405,6 +391,8 @@ bg <- BSgenome.Hsapiens.UCSC.hg19
 p.mis <- autoplot(fl.bam, bsgenome = bg, which = wh, stat = "mismatch")
 p.mis
 ```
+
+![](figures/mismatch.png)
 
 ---
 # Putting it together with tracks
@@ -426,6 +414,8 @@ tks <- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
   heights = c(2, 3, 1, 4)) + xlim(gr17) + theme_tracks_sunset()
 tks
 ```
+
+![](figures/tracks2.png)
 
 ---
 # Circular layout
@@ -464,18 +454,14 @@ p <- ggbio() +
 p
 ```
 
----
-class: inverse middle 
-# Your turn
-
-Which `circle` line of code plots the circle segments (grey filled) representing the chromosomes?
+![](figures/circular.png)
 
 ---
 # Resources
 
-- [ggenealogy github repo](https://github.com/cran/ggenealogy)
+- ggenealogy [github repo](https://github.com/lrutter/ggenealogy)
 - Yin T, Cook D and Lawrence M (2012). “ggbio: an R package for extending the grammar of graphics for genomic data.” Genome Biology, 13(8), pp. R77.
-- [bioconductor page](https://bioconductor.org/packages/release/bioc/html/ggbio.html)
+- bioconductor page for [ggbio](https://bioconductor.org/packages/release/bioc/html/ggbio.html)
 
 ---
 # Share and share alike

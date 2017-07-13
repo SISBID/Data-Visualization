@@ -420,12 +420,7 @@ p.txdb &lt;- autoplot(Homo.sapiens, which = wh)
 p.txdb
 ```
 
----
-
-
-```r
-autoplot(Homo.sapiens, which = wh, gap.geom = "chevron")
-```
+![](figures/tracks1.png)
 
 ---
 # Base locations
@@ -446,16 +441,7 @@ p.bg &lt;- autoplot(bg, which = wh)
 # text
 p.bg + zoom(1/2500)
 ```
-
----
-
-
-
----
-class: inverse middle 
-# Your turn
-
-What is plotted at `zoom(1/100)` resolution?
+![](figures/base.png)
 
 ---
 # Base locations
@@ -467,6 +453,8 @@ bg &lt;- BSgenome.Hsapiens.UCSC.hg19
 autoplot(bg, which = resize(wh, width = width(wh)/2000), geom = "segment")
 ```
 
+![](figures/base2.png)
+
 ---
 # Plot coverage
 
@@ -477,6 +465,8 @@ wh &lt;- keepSeqlevels(wh, "chr17")
 autoplot(fl.bam, which = wh)
 ```
 
+![](figures/coverage.png)
+
 ---
 # Plot mismatches
 
@@ -486,6 +476,8 @@ bg &lt;- BSgenome.Hsapiens.UCSC.hg19
 p.mis &lt;- autoplot(fl.bam, bsgenome = bg, which = wh, stat = "mismatch")
 p.mis
 ```
+
+![](figures/mismatch.png)
 
 ---
 # Putting it together with tracks
@@ -502,6 +494,8 @@ tks
 ---
 
 
+
+![](figures/tracks2.png)
 
 ---
 # Circular layout
@@ -527,18 +521,14 @@ p
 
 
 
----
-class: inverse middle 
-# Your turn
-
-Which `circle` line of code plots the circle segments (grey filled) representing the chromosomes?
+![](figures/circular.png)
 
 ---
 # Resources
 
-- [ggenealogy github repo](https://github.com/cran/ggenealogy)
+- ggenealogy [github repo](https://github.com/lrutter/ggenealogy)
 - Yin T, Cook D and Lawrence M (2012). “ggbio: an R package for extending the grammar of graphics for genomic data.” Genome Biology, 13(8), pp. R77.
-- [bioconductor page](https://bioconductor.org/packages/release/bioc/html/ggbio.html)
+- bioconductor page for [ggbio](https://bioconductor.org/packages/release/bioc/html/ggbio.html)
 
 ---
 # Share and share alike

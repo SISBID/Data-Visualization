@@ -61,10 +61,10 @@ data("economics", package = "ggplot2")
 
 ggvis(economics, x=~date, y=~psavert)
 ```
-
+<img src="ggvis-01.png" height = 300>
 
 ---
-#
+# 
 
 ```{r}
 economics %>%
@@ -72,6 +72,8 @@ economics %>%
   layer_points() %>%
   layer_smooths()
 ```
+<img src="ggvis-02.png" height = 300>
+
 
 ---
 # Interactivity
@@ -86,7 +88,7 @@ can be interactive
 - `input_checkbox()`: checkbox
 
 ---
-#
+# 
 
 ```{r}
 economics %>%
@@ -97,6 +99,8 @@ economics %>%
     stroke := "red"
   )
 ```
+<img src="ggvis-03.png" height = 300>
+
 
 ---
 # Attention grabber
@@ -145,6 +149,7 @@ economics %>%
   layer_points() %>%
   add_tooltip(all_values, "hover") 
 ```
+<img src="ggvis-04.gif" height = 500>
 
 
 ---
@@ -161,7 +166,7 @@ economics %>%
 ```
 
 ---
-#
+# 
 
 ```{r eval=FALSE, echo=FALSE}
 model_type <- input_checkbox(label = "Use loess curve",
@@ -171,6 +176,8 @@ economics %>%
   layer_points() %>%
     layer_model_predictions(model = model_type)
 ```
+
+<img src="ggvis-05.gif" height = 500>
 
 ---
 class: inverse middle 
@@ -203,14 +210,14 @@ The `plotly` package in R builds on the `ggplot2` package, adding interactive el
 
 ```{r eval=FALSE}
 library(plotly)
-#plot_ly(economics, x = date, y = unemploy / pop)
+plot_ly(data = economics, x = ~date, y = ~unemploy / pop)
 ```
 
 ---
 
 ```{r echo=FALSE}
 library(plotly)
-#plot_ly(economics, x = date, y = unemploy / pop)
+plot_ly(data = economics, x = ~date, y = ~unemploy / pop)
 ```
 
 ---
@@ -228,18 +235,16 @@ ggplotly()
 ```
 
 ---
----
-
 # Still a work in progress
 
-```{r}
+```{r fig.width=6, fig.height=6}
 library(GGally)
 p <- ggpairs(economics[,3:6])
 ggplotly(p)
 ```
 
 ---
-#
+# 
 
 ```{r}
 data(canada.cities, package = "maps")
@@ -251,10 +256,9 @@ viz <- ggplot(canada.cities, aes(long, lat)) +
 ```
 
 ---
----
 # Return to the RNA-Seq data
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.width=5, fig.height=5}
 library(GGally)
 library(edgeR)
 coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
@@ -321,8 +325,8 @@ class: inverse middle
 ---
 # Resources
 
-- [ggvis](http://ggvis.rstudio.com)
-- [plotly](https://plot.ly/r/getting-started/)
+- web site for [ggvis](http://ggvis.rstudio.com)
+- web site for [plotly](https://plot.ly/r/getting-started/)
 
 ---
 # Share and share alike

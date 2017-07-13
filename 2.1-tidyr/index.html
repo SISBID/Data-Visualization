@@ -61,6 +61,13 @@ student2012.sub %&gt;% group_by(CNT) %&gt;% tally()
 ```
 
 ---
+# What is **tidy data**? 
+
+- Why do we want tidy data? 
+- Couple of exercises to look closer at what we find in practice 
+
+
+---
 class: inverse middle 
 # Your turn 1
 
@@ -212,10 +219,10 @@ There are various features of messy data that one can observe in practice. Here 
 ---
 # Tidy Verbs
 
-- **gather**: specify the **keys** (identifiers) and the **values** (measures) to make long form (used to be called melting)
-- **spread**: variables in columns (used to be called casting)
-- nest/unnest: working with lists
-- separate/unite: split and combine columns
+- `gather`: specify the **keys** (identifiers) and the **values** (measures) to make long form (used to be called melting)
+- `spread`: variables in columns (used to be called casting)
+- `nest`/`unnest`: working with list variables
+- `separate`/`unite`: split and combine columns
 
 ---
 # French Fries 
@@ -327,6 +334,7 @@ head(ff.m)
 6    1         1      15   2 potato    8.8
 ```
 
+--
 
 
 ```r
@@ -368,6 +376,11 @@ head(ff.m)
 4    1         1      10   2 potato    9.9
 5    1         1      15   1 potato    1.2
 6    1         1      15   2 potato    8.8
+```
+
+
+
+```r
 ff.s &lt;- ff.m %&gt;% spread(rep, rating)
 head(ff.s)
   time treatment subject    type   1    2
@@ -391,7 +404,7 @@ ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
   scale_x_sqrt() + scale_y_sqrt()
 ```
 
-![](index_files/figure-html/unnamed-chunk-20-1.png)![](index_files/figure-html/unnamed-chunk-20-2.png)
+![](index_files/figure-html/unnamed-chunk-21-1.png)![](index_files/figure-html/unnamed-chunk-21-2.png)
 
 ---
 class: inverse middle 
@@ -427,7 +440,7 @@ class: inverse middle
 1. Use `tidyr` to convert this data into a long format appropriate for plotting a time series (date on the x axis, chart position on the y axis)
 2. Use `ggplot2` to create this time series plot:
 
-&lt;img src="index_files/figure-html/unnamed-chunk-23-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -550,7 +563,7 @@ class: inverse middle
 (1) Using the tidied dataset (`gtidy`), find the mean expression for each combination of id, trt, and time.
 (2) Use this tidied data to make this plot.
 
-&lt;img src="index_files/figure-html/unnamed-chunk-29-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Tidying model output
@@ -629,7 +642,7 @@ $ .std.resid &lt;dbl&gt; -1.1882021, 2.6550643, 1.0225395, 0.6417396, -1.652...
 ggplot(ff_lm_all, aes(x=.fitted, y=.resid)) + geom_point()
 ```
 
-&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Back to autism
@@ -681,7 +694,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "highlightLines": true,
 "countIncrementalSlides": false
 });
-if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -695,7 +708,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);

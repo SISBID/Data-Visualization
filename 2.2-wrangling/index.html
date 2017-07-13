@@ -26,26 +26,26 @@ class: center, middle, inverse, title-slide
 
 # Outline
 
-- dplyr package: motivation, functions, chaining
-- purrr: working with lists, vectors of data frames
+- `dplyr` package: motivation, functions, chaining
+- `purrr`: working with list variables, vectors of data frames
 
 ---
 # dplyr verbs
 
 There are five primary dplyr **verbs**, representing distinct data analysis tasks:
 
-- Filter: Remove the rows of a data frame, producing subsets
-- Arrange: Reorder the rows of a data frame
-- Select: Select particular columns of a data frame
-- Mutate: Add new columns that are functions of existing columns
-- Summarise: Create collapsed summaries of a data frame
-- (Group By: Introduce structure to a data frame)
+- `filter`: Remove the rows of a data frame, producing subsets
+- `arrange`: Reorder the rows of a data frame
+- `select`: Select particular columns of a data frame
+- `mutate`: Add new columns that are functions of existing columns
+- `summarise`: Create collapsed summaries of a data frame
+- (`group_by`: Introduce structure to a data frame)
  
  
 ---
 # Filter
 
-
+select a subset of the observations (horizontal selection)
 
 ```r
 data(french_fries, package = "reshape2")
@@ -63,6 +63,7 @@ french_fries %&gt;%
 ---
 # Arrange
 
+order the observations (hierarchically)
 
 ```r
 french_fries %&gt;%
@@ -80,6 +81,7 @@ french_fries %&gt;%
 ---
 # Select
 
+select a subset of the variables (vertical selection)
 
 ```r
 french_fries %&gt;%
@@ -97,6 +99,7 @@ french_fries %&gt;%
 ---
 # Summarise
 
+summarize observations into a (set of) one-number statistic(s):
 
 ```r
 french_fries %&gt;%
@@ -266,7 +269,8 @@ Why would we even do that?
 
 ```r
 library(gapminder)
-ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country)) + 
+ggplot(data=gapminder, 
+       aes(x=year, y=lifeExp, group=country)) + 
   geom_line()
 ```
 
@@ -280,7 +284,8 @@ How would you describe this plot?
 
 ```r
 library(gapminder)
-ggplot(data=gapminder, aes(x=year, y=lifeExp, group=country, colour=continent)) + 
+ggplot(data=gapminder, 
+       aes(x=year, y=lifeExp, group=country, colour=continent)) + 
   geom_line()
 ```
 
@@ -378,9 +383,8 @@ Each element of the `data` variable in `by_country` is a dataset.
 
 We will fit a linear model to each one of the elements of the `by_country` data.
 
----
 
---- 
+---
 # Fitting multiple models
 
 Now we are using the `map` function in the package `purrr`.
@@ -416,8 +420,6 @@ broom::tidy(by_country$model[[1]])
 ```
 
 ---
-
---- 
 # Extract values for each coefficient
 
 Extract all countries automatically (hello `map` again!)
@@ -443,8 +445,6 @@ by_country
 ```
 
 ---
-
---- 
 # Get the coefficients into one data set
 
 `unnest` pulls little data frames back into the whole frame
@@ -470,8 +470,6 @@ by_country_coefs
 ```
 
 ---
-
---- 
 # ... and finally, a visualization:
 
 
@@ -582,7 +580,7 @@ glance(et, alpha = 0.05) # glance on DGEExact
 
 
 ```r
-tet &lt;- tidy(et)
+tet &lt;- broom::tidy(et)
 tet$significant &lt;- tet$p.value &lt; 0.05
 ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
   geom_point(alpha=.1) + facet_wrap(~significant, labeller="label_both")
@@ -596,139 +594,8 @@ ggplot(data=tet, aes(x=logCPM, y=estimate, colour=significant)) +
 ---
 # biobroom and limma
 
-
-```r
-bb &lt;- data.frame(read_tsv("../data/biotin-rma2.txt"))
-head(data.frame(bb[,-2]))
-        Gene biotin.WT.01.1 biotin.bio101.4 biotin.WT.B1.2 biotin.bio1B1.3
-1   11986_at       6.359180        6.004075       6.325338        6.255888
-2   11987_at       7.833549        6.666034       7.738628        7.691321
-3   11988_at       6.145599        6.128749       6.258157        6.353912
-4   11989_at       5.675039        5.078695       5.444967        5.380756
-5   11990_at       5.382078        5.241411       5.209638        5.357740
-6 11991_g_at       5.389809        5.087797       5.403933        5.592901
-  biotin.WT.02.1 biotin.bio102.4 biotin.WT.B2.2 biotin.bio1B2.3
-1       6.554727        6.144557       6.098169        6.201624
-2       7.461711        7.300383       7.353033        7.298990
-3       6.097703        6.183593       6.184723        6.276867
-4       5.258524        5.328962       5.460898        5.203674
-5       5.337013        5.276889       5.434531        5.362002
-6       5.571362        5.249382       5.596683        5.140585
-row.names(bb) &lt;- bb$Gene
-```
-
----
-# Looking at the gene expression data
-
-
-```r
-ggpairs(bb, columns=c(3,7,4,8))
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-34-1.png" style="display: block; margin: auto;" /&gt;
-
----
-# A porcupine plot again
-
-
-```r
-sub &lt;- bb %&gt;% select(Gene, biotin.WT.01.1, biotin.WT.02.1, biotin.bio101.4, biotin.bio102.4)
-ggplot(sub, aes(x=biotin.WT.01.1, xend=biotin.WT.02.1, y=biotin.bio101.4, yend=biotin.bio102.4)) +
-  geom_segment() +
-  theme(aspect.ratio = 1) +
-  xlab("wildtype, control treatment") +
-  ylab("mutant, treated")
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" style="display: block; margin: auto;" /&gt;
-
----
-# Fit a limma model
-
-
-```r
-design &lt;- expand.grid(type=c("wild", "mutant"), trt=c("control", "treatment"), rep=1:2)
-
-fit &lt;- lmFit(bb[,-(1:2)], model.matrix(~ type*trt, design))
-fit &lt;- eBayes(fit)
-
-head(topTable(fit))
-           typemutant trttreatment typemutant.trttreatment  AveExpr
-13212_s_at   3.436575    0.1501056               -3.282545 6.383540
-13449_at     2.498316    0.1163889               -2.488131 5.287509
-14609_at     2.301786   -0.2724221               -1.962619 5.406537
-16016_at    -3.749019    1.2864088                3.338380 7.858121
-18255_at     1.696560   -0.3977035               -1.326075 6.844090
-15162_at     2.699042    0.1022273               -2.354713 8.408859
-                   F      P.Value    adj.P.Val
-13212_s_at 297.14511 8.048043e-08 0.0006677461
-13449_at   154.05666 8.051126e-07 0.0033400095
-14609_at   129.24605 1.484583e-06 0.0041058604
-16016_at   108.19217 2.752579e-06 0.0048917219
-18255_at   106.07250 2.947886e-06 0.0048917219
-15162_at    91.58383 4.898100e-06 0.0067732558
-```
-
----
-class: inverse middle 
-# Your Turn
-
-![](lorikeets.png)
-
-- For the previous example, try out what output the different broom functions (`glance`, `tidy`, `augment`)  produce.
-- Create a Volcano plot for each of the model terms, i.e. plot estimates on x by log(p.values) on y. 
-- Are there differences visible between the terms?
-
-
-
----
-
-
-```r
-bbfit &lt;- tidy(fit)
-ggplot(data=bbfit, aes(x=term, y=estimate, group=gene)) +
-  geom_line(alpha=0.1) +
-  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-38-1.png" style="display: block; margin: auto;" /&gt;
-
----
-
-Is type*treatment interaction necessary? Very strong negative correlation is suspicious.
-
-
-
-```r
-bbfit_m &lt;- bbfit %&gt;% select(gene, term, estimate, p.value) %&gt;% 
-  gather(fit.stat, value, -gene, -term) %&gt;%
-  unite(term_stat, term, fit.stat) %&gt;%
-  spread(term_stat, value) %&gt;% 
-  rename(trt=trttreatment_estimate, mut=typemutant_estimate,
-         int=`typemutant:trttreatment_estimate`, 
-         trtp=trttreatment_p.value, mutp=typemutant_p.value, 
-         intp=`typemutant:trttreatment_p.value`) 
-ggpairs(bbfit_m, columns=c(2,4,6), upper=list(continuous="points"),
-          ggplot2::aes(colour=intp)) + theme(aspect.ratio=1)
-```
-
----
-
-&lt;img src="index_files/figure-html/unnamed-chunk-40-1.png" style="display: block; margin: auto;" /&gt;
-
----
-
-
-```r
-fit2 &lt;- lmFit(bb[,-(1:2)], model.matrix(~ type+trt, design))
-fit2 &lt;- eBayes(fit2)
-bbfit2 &lt;- tidy(fit2)
-ggplot(data=bbfit2, aes(x=term, y=estimate, group=gene)) +
-  geom_line(alpha=0.1) +
-  geom_point(aes(color=log(p.value)), size=2, alpha=0.6)
-```
-
-&lt;img src="index_files/figure-html/unnamed-chunk-41-1.png" style="display: block; margin: auto;" /&gt;
+- ... works similarly to biobroom and edgeR ...
+- we will pick up on this in the multivariate session after lunch
 
 ---
 # References
@@ -752,7 +619,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "highlightLines": true,
 "countIncrementalSlides": false
 });
-if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -766,7 +633,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);

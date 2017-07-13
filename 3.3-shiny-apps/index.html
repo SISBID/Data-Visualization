@@ -96,10 +96,6 @@ class: inverse middle
 
 Open up the copy number variation (CNV) app on your computer [http://shiny.soybase.org/CNV/](http://shiny.soybase.org/CNV/)
 
-or 
-
-[http://srvanderplas.com/Shiny/SoybeanApp/CNV/](http://srvanderplas.com/Shiny/SoybeanApp/CNV/)
-
 (It might be best to share one computer between three or four people, so that the servers don't get overloaded.)
 
 ---
@@ -221,13 +217,10 @@ Pick one of the three shiny apps and explore it for yourself:
 ---
 # Resources
 
-- [Cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/08/ggplot2-cheatsheet.pdf)
-- [ggplot2: Elegant Graphics for Data Analysis, Hadley Wickham](http://ggplot2.org/book/), [web site](http://ggplot2.org)
-- [R Graphics Cookbook, Winston Chang](http://www.cookbook-r.com/Graphs/)
-- [Q/A site: http://stackoverflow.com](http://stackoverflow.com)
-- [Dynamic Documents with R and knitr, Yihui Xie, ](http://yihui.name/knitr/)
-- [Naomi Robbins, Creating More Effective Graphs](http://www.nbr-graphs.com)
-- [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
+- RStudio's shiny [tutorial](https://shiny.rstudio.com/tutorial/)
+- plotly's shiny [tutorial](https://plot.ly/r/shiny-tutorial/)
+- Zev Ross's [blog](http://zevross.com/blog/2016/04/19/r-powered-web-applications-with-shiny-a-tutorial-and-cheat-sheet-with-40-example-apps/)
+- Joe Chang's useR! 2016 [tutorial](http://user2016.org/tutorials/02.html)
 
 ---
 # Share and share alike
@@ -240,7 +233,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "highlightLines": true,
 "countIncrementalSlides": false
 });
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -254,7 +247,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);

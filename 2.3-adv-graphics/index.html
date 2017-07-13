@@ -240,7 +240,46 @@ What do you learn about tb incidence in the USA by gender and age and year from 
 
 Make a world map, by merging iso2 with country codes to make a chloropleth
 
-&lt;img src="index_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
+
+```r
+data("ISO_3166_1")
+world_map &lt;- map_data("world")
+tb_names &lt;- tidy_data %&gt;% 
+  left_join(ISO_3166_1, by=c("iso2"="Alpha_2")) %&gt;% 
+  select(-Alpha_3, -Numeric, -Official_name, -Common_name) %&gt;%
+  rename(region=Name) %&gt;%
+  mutate(region=recode(region, 
+                       "United States"="USA", 
+                       "United Kingdom"="UK",
+                       "Russian Federation"="Russia"))
+tb_names_inc &lt;- tb_names %&gt;% 
+  group_by(region) %&gt;%
+  nest() %&gt;%
+  mutate(
+    model = purrr::map(data, ~ lm(count ~ year, data = .))
+) %&gt;%
+  unnest(model %&gt;% purrr::map(broom::tidy)) %&gt;%
+  select(region, term, estimate) %&gt;% 
+  spread(term, estimate)
+```
+
+---
+
+
+```r
+ggplot(tb_names_inc, aes(map_id = region)) + 
+    geom_map(aes(fill=year), map = world_map, color="grey70", size=0.3) + 
+    expand_limits(x = world_map$long, y = world_map$lat) +
+    theme_few() +
+    scale_fill_viridis("trend") + 
+    theme(legend.position = "bottom",
+         axis.ticks = element_blank(), 
+         axis.title = element_blank(), 
+         axis.text =  element_blank()) +
+    guides(fill = guide_colorbar(barwidth = 15, barheight = .5))
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Inference
@@ -251,21 +290,37 @@ Make a world map, by merging iso2 with country codes to make a chloropleth
 ---
 # Putting the pieces together
 
-&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+```r
+df &lt;- data.frame(v1=c(rexp(20), rexp(15, 2)), 
+                 v2=c(rep("A", 20), rep("B", 15)))
+ggplot(df, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() + coord_flip()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
+class: inverse middle 
+# Your turn
 
 - Question?
 - Data, variables
 - Mapping
 - Null generating mechanism
 
----
+--
+- Question? Is there a difference between the two groups? `\(H_0\)`: no difference, `\(H_1\)`: difference
 
-&gt; - Question? Is there a difference between the two groups? `\(H_0\)`: no difference, `\(H_1\)`: difference
-&gt; - Data, variables: Two variables: v1, v2; v2 is categorical
-&gt; - Mapping: x=V2, y=V1, colour=V1, geom=boxplot
-&gt; - Null generating mechanism: permute the values of V1, relative to V2
+--
+- Data, variables: Two variables: v1, v2; v2 is categorical
+
+--
+- Mapping: x=V2, y=V1, colour=V1, geom=boxplot
+
+--
+- Null generating mechanism: permute the values of V1, relative to V2
+
 
 ---
 # Clarity
@@ -276,9 +331,23 @@ Make a world map, by merging iso2 with country codes to make a chloropleth
 ---
 # Lineup
 
-&lt;img src="index_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+Embed the data plot in a field of null plots
+
+
+```r
+library(nullabor)
+pos &lt;- sample(1:20, 1)
+df_null &lt;- lineup(null_permute('v1'), df, pos=pos)
+ggplot(df_null, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() +
+  facet_wrap(~.sample, ncol=5) + coord_flip()
+```
+
+---
 
 Which plot shows the most difference between the groups?
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 # Evaluation
@@ -296,9 +365,10 @@ Suppose `\(x\)` individuals selected the data plot from a lineup of `\(m\)` plot
 For `\(x=4, K=17, m=20\)`
 
 
-```
+```r
+pvisual(4, 17, m=20)
      x simulated       binom
-[1,] 4    0.0209 0.008800605
+[1,] 4    0.0197 0.008800605
 ```
 
 ---
@@ -309,8 +379,17 @@ For `\(x=4, K=17, m=20\)`
 - Scenario III: the same lineup, i.e. same data and same set of null plots, is shown to K different observers.
 
 ---
+# Simulation
 
-Explain the simulation??
+Crucial idea: assign a p-value to each plot (data and null); under null hypothesis, this p-value is from U[0,1] 
+
+Scenario I:
+- for the `\(k\)`th lineup evaluation do:
+ - pick 20 `\(p\)`-values from `\(U[0,1]\)`
+ - for data plot compute 'strength' of other plots: `\(q = (1-p_\text{data})/\sum_j(1-p_j)\)`
+ - Use `\(q\)` to determine whether data was picked in simulation: `\(x_k \tilde B_{1,q}\)`
+ - repeat above three steps `\(K\)` times, and find the number of data picks `\(X = \sum_k x_k\)`
+- Repeat N times to get distribution of `\(X\)`
 
 ---
 # Null-generating mechanisms
@@ -331,13 +410,13 @@ For these plot descriptions, decide on:
 class: inverse middle 
 # Your turn
 
-&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-19-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: inverse middle 
 # Your turn
 
-&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 class: inverse middle 
@@ -372,7 +451,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "countIncrementalSlides": false,
 "incremental": true
 });
-if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -386,7 +465,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);
