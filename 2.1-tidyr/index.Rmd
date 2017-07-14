@@ -519,7 +519,7 @@ glimpse(autism_lmer_all)
 ggplot(autism_lmer_all, aes(x=.fitted, y=.fixed)) + geom_point()
 ggplot(autism_lmer_all, aes(x=.fitted, y=.resid)) + geom_point()
 ggplot(autism_lmer_all, aes(x=.fitted, y=.resid, colour=gender)) +
-  geom_point()
+  geom_point() + facet_wrap(~gender)
 ggplot(autism_lmer_all, aes(x=.fitted, y=.resid, colour=bestest2)) +
   geom_point()
 ggplot(autism_lmer_all, aes(x=.fitted, y=vsae, label=childid)) +

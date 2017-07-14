@@ -46,6 +46,7 @@ head(blood$edges, 3)
 1  AB- AB+     same
 2  AB- AB-     same
 3  AB+ AB+     same
+
 head(blood$vertices, 3)
   label type rho        Ethnicity Predominance
 1    A-    A neg            Asian          0.5
@@ -61,7 +62,9 @@ bloodnet &lt;- left_join(blood$edges, blood$vertices, by=c("from" = "label"))
 
 ```r
 p &lt;- ggplot(data = bloodnet, aes(from_id = from, to_id = to))
-p + geom_net(labelon = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075) + theme_net()
+p + geom_net(labelon = TRUE, size = 15, labelcolour="white", 
+             vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075) + 
+  theme_net()
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
@@ -73,7 +76,9 @@ p + geom_net(labelon = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.
 
 
 ```r
-p + geom_net(labelon = TRUE, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075, aes(size = Predominance)) + theme_net() +
+p + geom_net(labelon = TRUE, labelcolour="white", 
+             vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075,
+             aes(size = Predominance)) + theme_net() +
   facet_wrap(~Ethnicity) + scale_size(range=c(5,15)) + 
   expand_limits(x = c(-.1,1.1), y = c(-.1,1.1))
 ```
@@ -170,13 +175,12 @@ In a traditional logo sequence plot:
 - y-axis: amount of preserved information (usually Shannon information, in bits)
 
 Shannon information  is an entropy measure.
-Formally, information `\(I\)`  in position `\(p\)` is defined as
-\[
-I(p) = \log_2(k) + \sum_{aa} f_{aa} \log_2(f_{aa}),
-\]
-where `\(f_{aa}\)` is the relative frequency of amino acid `\(aa\)` in  position `\(p\)` and `\(k\)` is the number of different elements in the sequence ($k = 4$ for RNA/DNA, and `\(k =21\)` for peptide sequences).
+Formally, information `\(I\)`  in position `\(p\)` is defined as &lt;br&gt;
+`\(I(p) = \log_2(k) + \sum_{aa} f_{aa} \log_2(f_{aa}),\)` &lt;br&gt;
+where `\(f_{aa}\)` is the relative frequency of amino acid `\(aa\)` in  position `\(p\)` and `\(k\)` is the number of different elements in the sequence ( `\(k = 4\)` for RNA/DNA, and `\(k =21\)` for peptide sequences).
 
-For `\(k = 21\)`: `\(I(p)\)` is between 0 and `\(-\log_2 (1/21) = 4.39\)` bits, for perfect diversity (0 bits) and single element only (4.39 bits)
+For `\(k = 21\)` (amino-acids): 
+`\(I(p)\)` is between 0 and `\(-\log_2 (1/21) = 4.39\)` bits, for perfect diversity (0 bits) and single element only (4.39 bits)
 
 ---
 # Converting sequences to ggplot2 format
@@ -187,8 +191,10 @@ For `\(k = 21\)`: `\(I(p)\)` is between 0 and `\(-\log_2 (1/21) = 4.39\)` bits, 
 
 ```r
 library(gglogo)
-ggpfam &lt;- ggfortify(data=data.frame(sequences = unlist(pfam))
-, seq="sequences") %&gt;% filter(between(position, 7, 26))
+ggpfam &lt;- ggfortify(
+  data=data.frame(sequences = unlist(pfam)),
+  seq="sequences") %&gt;% filter(between(position, 7, 26))
+
 head(ggpfam[order(ggpfam$position),], 3)
    element position freq total       info       bits  Polarity       Water
 15       A        7    1   101 0.02469362 0.02469362 non-polar hydrophobic
@@ -196,7 +202,6 @@ head(ggpfam[order(ggpfam$position),], 3)
 50       I        7    1   101 0.02469362 0.02469362 non-polar hydrophobic
 ```
 
---- 
 ---
 
 

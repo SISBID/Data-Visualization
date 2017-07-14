@@ -99,12 +99,7 @@ tidy_data %&gt;%
   filter(iso2 == "US") %&gt;% 
   ggplot(aes(x = year, y = count, fill = gender)) +
   geom_bar(stat = "identity", position = "fill") +
-  facet_grid(~ age) +
-  theme(
-    axis.text = element_text(size = 14), 
-    strip.text = element_text(size = 16), 
-    axis.title = element_text(size = 16)
-  )
+  facet_grid(~ age) 
 ```
 
 &lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
@@ -368,7 +363,7 @@ For `\(x=4, K=17, m=20\)`
 ```r
 pvisual(4, 17, m=20)
      x simulated       binom
-[1,] 4    0.0197 0.008800605
+[1,] 4    0.0186 0.008800605
 ```
 
 ---
@@ -390,6 +385,29 @@ Scenario I:
  - Use `\(q\)` to determine whether data was picked in simulation: `\(x_k \tilde B_{1,q}\)`
  - repeat above three steps `\(K\)` times, and find the number of data picks `\(X = \sum_k x_k\)`
 - Repeat N times to get distribution of `\(X\)`
+
+---
+# Simulation
+
+
+Scenario II (same data, different nulls):
+- for the `\(k\)`th lineup evaluation pick 20 `\(p\)`-values from `\(U[0,1]\)`:
+- for data plot compute 'strength' of other plots: `\(q = (1-p_\text{data})/\sum_j(1-p_j)\)`
+- Use `\(q\)` to determine whether data was picked in simulation: `\(x_k \tilde B_{1,q}\)`
+- find the number of data picks `\(X = \sum_k x_k\)`
+- Repeat N times to get distribution of `\(X\)`
+
+---
+# Simulation
+
+
+Scenario III (same data, same nulls):
+- for the `\(k\)`th lineup evaluation pick `\(p_\text{data} \sim U[0,1]\)`:
+ - pick 19 `\(p\)`-values from `\(U[0,1]\)`
+ - for data plot compute 'strength' of other plots: `\(q = (1-p_\text{data})/\sum_j(1-p_j)\)`
+ - simulate number of data picks `\(X ~ B_{K, q}\)`
+- Repeat N times to get distribution of `\(X\)`
+
 
 ---
 # Null-generating mechanisms
@@ -433,6 +451,7 @@ class: inverse middle
 
 
 
+
 ---
 # Resources
 
@@ -451,7 +470,7 @@ This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 U
 "countIncrementalSlides": false,
 "incremental": true
 });
-if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
 
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
@@ -465,7 +484,7 @@ MathJax.Hub.Config({
 (function () {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
   if (location.protocol !== 'file:' && /^https?:/.test(script.src))
     script.src  = script.src.replace(/^https?:/, '');
   document.getElementsByTagName('head')[0].appendChild(script);

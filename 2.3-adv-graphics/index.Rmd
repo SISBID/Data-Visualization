@@ -87,17 +87,12 @@ head(tidy_data)
 ---
 # 100% charts
 
-```{r fig.width=10, fig.height=3, echo=TRUE}
+```{r fig.width=12, fig.height=3, echo=TRUE}
 tidy_data %>% 
   filter(iso2 == "US") %>% 
   ggplot(aes(x = year, y = count, fill = gender)) +
   geom_bar(stat = "identity", position = "fill") +
-  facet_grid(~ age) +
-  theme(
-    axis.text = element_text(size = 14), 
-    strip.text = element_text(size = 16), 
-    axis.title = element_text(size = 16)
-  )
+  facet_grid(~ age) 
 ```
 
 ---
@@ -451,6 +446,46 @@ class: inverse middle
 - Compute the power for each test, the signal strength of the design
 
 
+```{r echo=FALSE, eval=FALSE}
+tb_2008 <- tidy_data %>% filter(year == 2008, iso2 == "US")
+#ggplot(tb_2008, aes(x=age, y=count, fill=gender)) + 
+#  geom_bar(stat = "identity")
+#ggplot(tb_2008, aes(x=age, y=count, fill=gender)) + 
+#  geom_bar(stat = "identity", position="fill")
+age_p <- tb_2008 %>% group_by(age) %>%
+  summarise(p=count[gender=="f"]/sum(count)) 
+p <- mean(age_p$p)
+null_f <- function(n, p) {
+  f_n <- NULL
+  for (i in 1:length(n)) {
+    f_n <- c(f_n, sum(rbinom(n[i], 1, p)))
+  }
+  return(f_n)
+}
+pos <- sample(1:20, 1)
+age_counts <- tb_2008 %>% group_by(age) %>%
+  summarise(n=sum(count), f=count[gender=="f"])
+for (i in 1:20) {
+  if (i == pos) {
+    age_counts <- cbind(age_counts, age_counts$f)
+    age_counts <- age_counts[,-3]
+  }
+  else {
+    age_counts <- cbind(age_counts, null_f(age_counts$n, p))
+  }
+}
+colnames(age_counts)[3:22] <- 1:20
+age_counts <- age_counts %>% gather(.sample, f, -age, -n)
+age_counts <- age_counts %>% mutate(m = n-f) %>% 
+  gather(gender, count, f, m) %>% 
+  mutate(.sample = as.numeric(.sample))
+ggplot(age_counts, aes(x=age, y=count, fill=gender)) + 
+  geom_bar(stat = "identity") + 
+  facet_wrap(~.sample, ncol=5)
+ggplot(age_counts, aes(x=age, y=count, fill=gender)) + 
+  geom_bar(stat = "identity", position="fill") + 
+  facet_wrap(~.sample, ncol=5)
+```
 
 ---
 # Resources

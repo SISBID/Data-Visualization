@@ -57,7 +57,10 @@ library(gglogo)
 library(geomnet)
 data(blood)
 
+#edges data:
 head(blood$edges, 3)
+
+# vertices:
 head(blood$vertices, 3)
 
 bloodnet <- left_join(blood$edges, blood$vertices, by=c("from" = "label"))
@@ -68,7 +71,9 @@ bloodnet <- left_join(blood$edges, blood$vertices, by=c("from" = "label"))
 
 ```{r}
 p <- ggplot(data = bloodnet, aes(from_id = from, to_id = to))
-p + geom_net(labelon = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075) + theme_net()
+p + geom_net(labelon = TRUE, size = 15, labelcolour="white", 
+             vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075) + 
+  theme_net()
 ```
 
 ---
@@ -77,7 +82,9 @@ p + geom_net(labelon = TRUE, size = 15, labelcolour="white", vjust=0.5, hjust=0.
 - It is possible to adjust node size for another variable, but we are really bad at these kind of comparisons!
 
 ```{r}
-p + geom_net(labelon = TRUE, labelcolour="white", vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075, aes(size = Predominance)) + theme_net() +
+p + geom_net(labelon = TRUE, labelcolour="white", 
+             vjust=0.5, hjust=0.5, directed=TRUE, arrowgap=0.075,
+             aes(size = Predominance)) + theme_net() +
   facet_wrap(~Ethnicity) + scale_size(range=c(5,15)) + 
   expand_limits(x = c(-.1,1.1), y = c(-.1,1.1))
 ```
@@ -179,13 +186,12 @@ In a traditional logo sequence plot:
 - y-axis: amount of preserved information (usually Shannon information, in bits)
 
 Shannon information  is an entropy measure.
-Formally, information $I$  in position $p$ is defined as
-\[
-I(p) = \log_2(k) + \sum_{aa} f_{aa} \log_2(f_{aa}),
-\]
-where $f_{aa}$ is the relative frequency of amino acid $aa$ in  position $p$ and $k$ is the number of different elements in the sequence ($k = 4$ for RNA/DNA, and $k =21$ for peptide sequences).
+Formally, information $I$  in position $p$ is defined as <br>
+$I(p) = \log_2(k) + \sum_{aa} f_{aa} \log_2(f_{aa}),$ <br>
+where $f_{aa}$ is the relative frequency of amino acid $aa$ in  position $p$ and $k$ is the number of different elements in the sequence ( $k = 4$ for RNA/DNA, and $k =21$ for peptide sequences).
 
-For $k = 21$: $I(p)$ is between 0 and $-\log_2 (1/21) = 4.39$ bits, for perfect diversity (0 bits) and single element only (4.39 bits)
+For $k = 21$ (amino-acids): 
+$I(p)$ is between 0 and $-\log_2 (1/21) = 4.39$ bits, for perfect diversity (0 bits) and single element only (4.39 bits)
 
 ---
 # Converting sequences to ggplot2 format
@@ -195,12 +201,13 @@ For $k = 21$: $I(p)$ is between 0 and $-\log_2 (1/21) = 4.39$ bits, for perfect 
 
 ```{r}
 library(gglogo)
-ggpfam <- ggfortify(data=data.frame(sequences = unlist(pfam))
-, seq="sequences") %>% filter(between(position, 7, 26))
+ggpfam <- ggfortify(
+  data=data.frame(sequences = unlist(pfam)),
+  seq="sequences") %>% filter(between(position, 7, 26))
+
 head(ggpfam[order(ggpfam$position),], 3)
 ```
 
---- 
 ---
 
 ```{r}

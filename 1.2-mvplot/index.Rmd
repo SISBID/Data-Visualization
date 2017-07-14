@@ -28,12 +28,11 @@ knitr::opts_chunk$set(
 ```
 
 ```{r echo=FALSE}
-library(readr)
-library(ggplot2)
-library(tidyr)
-library(dplyr)
+library(tidyverse)
 library(GGally)
 library(edgeR)
+library(broom)
+library(biobroom)
 ```
 
 class: inverse middle 
@@ -126,13 +125,13 @@ class: inverse middle
 ![](lorikeets.png)
 
 ```{r eval=FALSE, echo =FALSE}
-coty <- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
+leaf <- read_delim("../data/GSE61857_Leaf_normalized.txt.gz",
   delim="\t", col_types="cddddddddd", 
-  col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
-  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R2"),
+  col_names=c("ID", "L_S1_R1", "L_S1_R2", "L_S1_R3", 
+  "L_S2_R1", "L_S2_R2", "L_S2_R3", "L_S3_R1", "L_S3_R2", "L_S3_R2"),
   skip=1)
-coty <- as.data.frame(coty)
-GGally::ggscatmat(head(coty,1000), columns=2:7, alpha=0.1) # use just the first 1000 observations
+leaf <- as.data.frame(leaf)
+GGally::ggscatmat(head(leaf,1000), columns=2:7, alpha=0.1) # use just the first 1000 observations
 # what do we learn? 
 # - there is quite a lot of variability between pairs of samples
 # - from the densities we see that lots of values are small (skew marginal distributions)
@@ -171,9 +170,9 @@ Make a porcupine plot for the first two reps of the first two developmental stag
 ![](lorikeets.png)
 
 ```{r echo=FALSE, eval = FALSE}
-sub <- coty %>% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
-ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
-  geom_segment() + xlim(c(0, 17.5)) + ylim(c(0, 17.5)) +
+sub <- leaf %>% select(ID, L_S1_R1, L_S1_R2, L_S2_R1, L_S2_R2)
+ggplot(sub, aes(x=L_S1_R1, xend=L_S1_R2, y=L_S2_R1, yend=L_S2_R2)) +
+  geom_segment(arrow = arrow(length = unit(0.1,"cm"))) + xlim(c(0, 17.5)) + ylim(c(0, 17.5)) +
   theme(aspect.ratio = 1)
 ```
 
@@ -230,15 +229,15 @@ class: inverse middle
 ```{r echo=FALSE, eval=FALSE}
 require(GGally)
 # boxplots only - lines are blended out because alpha = 0
-ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=TRUE, alphaLines=0)
+ggparcoord(data=leaf[1:1000,], columns=2:10, boxplot=TRUE, alphaLines=0)
 #lines only, default scale (std)
-ggparcoord(data= coty[1:1000,], columns=2:10, boxplot=FALSE, alphaLines=0.5)
+ggparcoord(data=leaf[1:1000,], columns=2:10, boxplot=FALSE, alphaLines=0.5)
 
 #lines only, scale is globalminmax
-ggparcoord(data= coty[1:1000,], scale="globalminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
+ggparcoord(data=leaf[1:1000,], scale="globalminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
 
 #lines only, scale is uniminmax
-ggparcoord(data= coty[1:1000,], scale="uniminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
+ggparcoord(data=leaf[1:1000,], scale="uniminmax", columns=2:10, boxplot=FALSE, alphaLines=0.5)
 
 ```
 
@@ -307,12 +306,12 @@ sub <- coty %>%
   gather(sample, expr, -ID) %>%
   separate(sample, c("tissue", "stage", "rep")) %>%
   mutate(stage = as.numeric(substr(stage, 2, 2)))
-top10 <- merge(top10, sub, by.x = "genes", by.y = "ID")
-top10.m <- top10 %>% group_by(genes, stage) %>% 
+top10 <- merge(top10, sub, by.x = "ID", by.y = "ID")
+top10.m <- top10 %>% group_by(ID, stage) %>% 
   summarise(expr = mean(expr))
-ggplot(top10, aes(x=stage, y=expr, colour=genes)) + 
+ggplot(top10, aes(x=stage, y=expr, colour=ID)) + 
   geom_point(alpha=0.4) + ylim(c(0,17.5)) +
-  geom_line(data=top10.m, aes(x=stage, y=expr, colour=genes))
+  geom_line(data=top10.m, aes(x=stage, y=expr, colour=ID))
 ```
 
 ---
@@ -339,12 +338,12 @@ Plot the next 12 most significant genes.
 
 ```{r eval=FALSE, echo=FALSE}
 top10 <- as.data.frame(topTags(results, n=24))[13:24,]
-top10 <- merge(top10, sub, by.x = "genes", by.y = "ID")
-top10.m <- top10 %>% group_by(genes, stage) %>% 
+top10 <- merge(top10, sub, by.x = "ID", by.y = "ID")
+top10.m <- top10 %>% group_by(ID, stage) %>% 
   summarise(expr = mean(expr))
-ggplot(top10, aes(x=stage, y=expr, colour=genes)) + 
+ggplot(top10, aes(x=stage, y=expr, colour=ID)) + 
   geom_point(alpha=0.4) + ylim(c(0,17.5)) +
-  geom_line(data=top10.m, aes(x=stage, y=expr, colour=genes))
+  geom_line(data=top10.m, aes(x=stage, y=expr, colour=ID))
 ```
 
 ![](lorikeets.png)
